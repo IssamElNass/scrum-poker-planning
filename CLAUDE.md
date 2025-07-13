@@ -6,6 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 PokerPlanning.org is an open-source online planning poker tool for Scrum teams. It features real-time collaboration with a Rust/GraphQL backend and React/TypeScript frontend.
 
+The application offers two room types:
+
+- **Classic Room**: Traditional planning poker interface with a focused, distraction-free environment
+- **Canvas Room** (Beta): Modern whiteboard-style interface with endless canvas, floating navigation, and advanced collaboration features
+
 ## Development Commands
 
 ### Frontend (Client)
@@ -19,7 +24,6 @@ npm run lint               # Check for linting errors
 npm run lint:fix           # Fix linting errors
 npm run checkTs            # TypeScript type checking
 npm test                   # Run unit tests with Vitest
-npm run coverage           # Run tests with coverage report
 npm run codegen            # Generate GraphQL types from schema
 npm run test:e2e           # Run Playwright end-to-end tests
 npm run test:e2e:ui        # Run Playwright tests with UI
@@ -45,7 +49,7 @@ cargo test                 # Run tests
 - **Routing**: TanStack Router with file-based routing in `/routes`
 - **State Management**: Apollo Client for GraphQL state, React Context for auth
 - **UI Components**: Custom components using shadcn/ui and Radix UI primitives
-- **Styling**: Tailwind CSS with custom theme configuration
+- **Styling**: Tailwind CSS 4 with custom theme configuration
 - **Real-time**: GraphQL subscriptions via WebSocket
 
 ### Backend Architecture
@@ -77,6 +81,8 @@ cargo test                 # Run tests
 - Test real user flows: creating rooms, joining, voting
 - Must have both frontend and backend running
 - **IMPORTANT**: Always run e2e tests in headless mode: `npm run test:e2e:headless`
+- Tests handle room type selection dialog when creating rooms
+- Both Classic and Canvas room flows are tested
 
 ## Common Development Tasks
 
@@ -88,15 +94,48 @@ cargo test                 # Run tests
 
 ### Creating a New Component
 
-1. Create directory under `src/components/`
-2. Follow existing patterns (see Card, Player, Room components)
+1. Create directory under `client/src/components/`
+2. Follow existing patterns (see card, player, room, mode-toggle, etc. components)
 3. Export from `index.tsx` and re-export from `src/components/index.ts`
+
+### Key Components for Room Types
+
+- `RoomTypeSelector`: Modal dialog for choosing between Classic and Canvas rooms
+- `Room`: Classic room component with table-centric layout
+- `RoomCanvas`: Canvas room component using React Flow for endless canvas
+- `CanvasNavigation`: Floating toolbar for canvas room controls
+- `BetaAnnouncement`: Banner announcing new Canvas room feature
 
 ### Adding a New Route
 
 1. Create file in `src/routes/` following naming convention
 2. Use `.lazy.tsx` suffix for code splitting
 3. Route params available via `useParams()` hook
+
+### Working with Room Types
+
+The application supports two room types with different interfaces:
+
+1. **Classic Room** (`/classic-room/:roomId`)
+
+   - Uses traditional `Room` component with circular table layout
+   - Voting cards displayed at bottom of screen
+   - Players arranged around a central table
+   - Ideal for mobile devices and quick sessions
+
+2. **Canvas Room** (`/room/:roomId`)
+   - Uses `RoomCanvas` component with React Flow
+   - Endless canvas with pan and zoom capabilities
+   - Floating navigation bar with game controls
+   - Full-screen mode support
+   - Players can be repositioned on the canvas
+
+Room creation flow:
+
+1. User clicks "Start New Game"
+2. `RoomTypeSelector` modal appears
+3. User selects room type (Classic or Canvas)
+4. Room is created and user is redirected to appropriate route
 
 ## Deployment
 
@@ -108,7 +147,7 @@ The app deploys to DigitalOcean App Platform:
 
 ## Important Notes
 
-- Node.js version must be >=20 (check `.nvmrc`)
+- Node.js version must be >=20 (check `client/.nvmrc`)
 - Frontend proxies `/graphql` requests to backend in development
 - WebSocket endpoint for subscriptions: `ws://localhost:8000/graphql`
 - All environment variables in frontend must be prefixed with `VITE_`

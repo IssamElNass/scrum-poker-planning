@@ -4,7 +4,7 @@ import { usePickCardMutation } from "@/api";
 import { Card } from "@/components/Card";
 import { useAuth } from "@/contexts";
 import { useKeyboardControls } from "@/hooks";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { UserCard } from "@/types";
 import { getPickedUserCard } from "@/utils";
@@ -24,17 +24,12 @@ export function Deck({
 }: DeckProps): ReactElement {
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const { user } = useAuth();
-  const { toast } = useToast();
   const { cardsContainerRef } = useKeyboardControls();
 
   const [pickCardMutation] = usePickCardMutation({
     onError(error) {
       setSelectedCard(null);
-      toast({
-        title: "Error",
-        description: `Pick card: ${error.message}`,
-        variant: "destructive",
-      });
+      toast.error(`Pick card: ${error.message}`);
     },
   });
 
@@ -60,15 +55,18 @@ export function Deck({
   };
 
   return (
-    <div className="flex justify-between items-end" ref={cardsContainerRef}>
+    <div
+      className="flex flex-wrap sm:flex-nowrap justify-center sm:justify-between items-end gap-1 sm:gap-2"
+      ref={cardsContainerRef}
+    >
       {cards.map((card) => {
         const isCardPicked = selectedCard === card;
         return (
           <div
             key={card}
             className={cn(
-              "transition-margin-bottom duration-100",
-              isCardPicked ? "mb-8" : "mb-0",
+              "transition-all duration-100 flex-shrink-0",
+              isCardPicked ? "mb-4 sm:mb-8" : "mb-0",
             )}
           >
             <Card

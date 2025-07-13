@@ -15,22 +15,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/lib/toast";
 
 export function AccountMenu(): ReactElement {
   const { user, logout } = useAuth();
-  const { toast } = useToast();
   const [openEditUserDialog, setOpenEditUserDialog] = useState(false);
   const [logoutMutation] = useLogoutMutation({
     onCompleted() {
       logout?.();
     },
     onError: (error) => {
-      toast({
-        title: "Error",
-        description: `Logout: ${error.message}`,
-        variant: "destructive",
-      });
+      toast.error(`Logout: ${error.message}`);
     },
   });
 
@@ -55,7 +50,7 @@ export function AccountMenu(): ReactElement {
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="relative h-10 w-10 rounded-full hover:bg-transparent"
+              className="relative h-10 w-10 rounded-full"
               aria-label="Account menu"
             >
               <Avatar className="h-10 w-10">
