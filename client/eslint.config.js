@@ -19,6 +19,11 @@ export default [
       "coverage/**",
       "storybook-static/**",
       "**/*.generated.ts",
+      "playwright-report/**",
+      "test-results/**",
+      "dist/**",
+      ".next/**",
+      "out/**",
     ],
   },
 
