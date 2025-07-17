@@ -6,10 +6,12 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Edge } from "@xyflow/react";
 import { useMemo } from "react";
 import type { CustomNodeType } from "../types";
+import type { RoomWithRelatedData, SanitizedVote } from "@/convex/model/rooms";
+import type { Doc } from "@/convex/_generated/dataModel";
 
 interface UseCanvasNodesProps {
   roomId: Id<"rooms">;
-  roomData: any;
+  roomData: RoomWithRelatedData;
   currentUserId?: string;
   selectedCardValue: string | null;
   onRevealCards?: () => void;
@@ -44,10 +46,10 @@ export function useCanvasNodes({
     canvasNodes.forEach((node) => {
       if (node.type === "player") {
         const userId = node.data.userId;
-        const user = users.find((u: any) => u._id === userId);
+        const user = users.find((u: Doc<"users">) => u._id === userId);
         if (!user) return;
 
-        const userVote = votes.find((v: any) => v.userId === userId);
+        const userVote = votes.find((v: SanitizedVote) => v.userId === userId);
 
         const playerNode: CustomNodeType = {
           id: node.nodeId,
@@ -79,9 +81,9 @@ export function useCanvasNodes({
           data: {
             sessionName: room.name || "Planning Session",
             participantCount: users.length,
-            voteCount: votes.filter((v: any) => v.hasVoted).length,
+            voteCount: votes.filter((v: SanitizedVote) => v.hasVoted).length,
             isVotingComplete: room.isGameOver,
-            hasVotes: votes.some((v: any) => v.hasVoted),
+            hasVotes: votes.some((v: SanitizedVote) => v.hasVoted),
             onRevealCards,
             onResetGame,
           },
@@ -113,7 +115,7 @@ export function useCanvasNodes({
           type: "results",
           position: node.position,
           data: {
-            votes: votes.filter((v: any) => v.hasVoted),
+            votes: votes.filter((v: SanitizedVote) => v.hasVoted),
             users: users,
           },
           draggable: !node.isLocked,
@@ -123,7 +125,7 @@ export function useCanvasNodes({
     });
 
     return allNodes;
-  }, [canvasNodes, roomData, currentUserId, selectedCardValue, onRevealCards, onResetGame, onCardSelect]);
+  }, [canvasNodes, roomData, currentUserId, selectedCardValue, onRevealCards, onResetGame, onCardSelect, roomId]);
 
   const edges = useMemo(() => {
     if (!canvasNodes || !roomData) return [];
@@ -132,7 +134,7 @@ export function useCanvasNodes({
     const allEdges: Edge[] = [];
 
     // Session to Players edges
-    users.forEach((user: any) => {
+    users.forEach((user: Doc<"users">) => {
       allEdges.push({
         id: `session-to-player-${user._id}`,
         source: "session-current",

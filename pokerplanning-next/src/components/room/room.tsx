@@ -5,9 +5,11 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useRouter } from "next/navigation";
+import type { RoomWithRelatedData, SanitizedVote } from "@/convex/model/rooms";
+import type { Doc } from "@/convex/_generated/dataModel";
 
 interface RoomProps {
-  roomData: any; // We'll type this properly when Convex types are generated
+  roomData: RoomWithRelatedData;
 }
 
 export function Room({ roomData }: RoomProps) {
@@ -88,8 +90,8 @@ export function Room({ roomData }: RoomProps) {
           <div>
             <h2 className="text-xl font-semibold mb-4">Players</h2>
             <div className="space-y-2">
-              {users.map((player: any) => {
-                const vote = votes.find((v: any) => v.userId === player._id);
+              {users.map((player: Doc<"users">) => {
+                const vote = votes.find((v: SanitizedVote) => v.userId === player._id);
                 return (
                   <div key={player._id} className="flex justify-between items-center p-3 border rounded">
                     <span>{player.name} {player.isSpectator && "(Spectator)"}</span>

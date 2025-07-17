@@ -1,8 +1,10 @@
 import { Node } from "@xyflow/react";
+import type { Doc } from "@/convex/_generated/dataModel";
+import type { SanitizedVote } from "@/convex/model/rooms";
 
 // Node data types
 export type PlayerNodeData = {
-  user: any; // Will be typed properly when Convex types are generated
+  user: Doc<"users">;
   isCurrentUser: boolean;
   isCardPicked: boolean;
   card: string | null;
@@ -43,8 +45,8 @@ export type VotingCardNodeData = {
 };
 
 export type ResultsNodeData = {
-  votes: any[]; // Will be typed properly when Convex types are generated
-  users: any[]; // Will be typed properly when Convex types are generated
+  votes: SanitizedVote[];
+  users: Doc<"users">[];
 };
 
 // Node types

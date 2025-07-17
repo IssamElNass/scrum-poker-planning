@@ -2,10 +2,12 @@
 
 import { FC } from "react";
 import { cn } from "@/lib/utils";
+import type { Doc } from "@/convex/_generated/dataModel";
+import type { SanitizedVote } from "@/convex/model/rooms";
 
 interface VoteDistributionProps {
-  votes: any[];
-  users: any[];
+  votes: SanitizedVote[];
+  users: Doc<"users">[];
   median: number;
 }
 
@@ -15,7 +17,7 @@ export const VoteDistribution: FC<VoteDistributionProps> = ({
   median,
 }) => {
   // Group votes by value
-  const voteGroups = votes.reduce((acc: Record<string, any[]>, vote) => {
+  const voteGroups = votes.reduce((acc: Record<string, Doc<"users">[]>, vote) => {
     if (vote.hasVoted && vote.cardLabel) {
       if (!acc[vote.cardLabel]) {
         acc[vote.cardLabel] = [];
@@ -42,7 +44,7 @@ export const VoteDistribution: FC<VoteDistributionProps> = ({
         Vote Distribution
       </h4>
       <div className="space-y-1">
-        {sortedGroups.map(([value, voters]: [string, any]) => {
+        {sortedGroups.map(([value, voters]) => {
           const percentage = (voters.length / votes.filter(v => v.hasVoted).length) * 100;
           const isMedian = parseInt(value) === Math.floor(median);
           
@@ -75,7 +77,7 @@ export const VoteDistribution: FC<VoteDistributionProps> = ({
                 </div>
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400 max-w-[100px] truncate">
-                {voters.map((v: any) => v.name).join(", ")}
+                {voters.map((v) => v.name).join(", ")}
               </div>
             </div>
           );

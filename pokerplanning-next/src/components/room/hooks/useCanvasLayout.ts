@@ -9,6 +9,8 @@ import type {
   ResultsNodeType,
   CustomNodeType,
 } from "../types";
+import type { RoomWithRelatedData, SanitizedVote } from "@/convex/model/rooms";
+import type { Doc } from "@/convex/_generated/dataModel";
 
 // Layout constants for endless canvas
 const CANVAS_CENTER = { x: 0, y: 0 };
@@ -24,7 +26,7 @@ const VOTING_CARD_SPACING = 70; // Space between cards
 const DEFAULT_CARDS = ["0", "1", "2", "3", "5", "8", "13", "21", "?"];
 
 interface UseCanvasLayoutProps {
-  roomData: any; // We'll type this properly when Convex types are generated
+  roomData: RoomWithRelatedData;
   currentUserId?: string;
   selectedCardValue: string | null;
   onRevealCards?: () => void;
@@ -57,11 +59,11 @@ export function useCanvasLayout({
       const totalWidth = (users.length - 1) * PLAYER_SPACING;
       const startX = CANVAS_CENTER.x - totalWidth / 2;
 
-      users.forEach((user: any, index: number) => {
+      users.forEach((user: Doc<"users">, index: number) => {
         const x = startX + index * PLAYER_SPACING;
         const y = PLAYERS_Y;
 
-        const userVote = votes.find((v: any) => v.userId === user._id);
+        const userVote = votes.find((v: SanitizedVote) => v.userId === user._id);
 
         const playerNode: PlayerNodeType = {
           id: `player-${user._id}`,
@@ -100,9 +102,9 @@ export function useCanvasLayout({
       data: {
         sessionName: room.name || "Planning Session",
         participantCount: users.length,
-        voteCount: votes.filter((v: any) => v.hasVoted).length,
+        voteCount: votes.filter((v: SanitizedVote) => v.hasVoted).length,
         isVotingComplete: room.isGameOver,
-        hasVotes: votes.some((v: any) => v.hasVoted),
+        hasVotes: votes.some((v: SanitizedVote) => v.hasVoted),
         onRevealCards,
         onResetGame,
       },
@@ -113,7 +115,7 @@ export function useCanvasLayout({
     // Voting cards for current user - always visible
     if (currentUserId) {
       const currentUserIndex = users.findIndex(
-        (u: any) => u._id === currentUserId,
+        (u: Doc<"users">) => u._id === currentUserId,
       );
       if (currentUserIndex !== -1) {
         // Position cards in a horizontal row at the bottom
@@ -153,7 +155,7 @@ export function useCanvasLayout({
         type: "results",
         position: { x: CANVAS_CENTER.x + 400, y: SESSION_Y + 100 },
         data: {
-          votes: votes.filter((v: any) => v.hasVoted),
+          votes: votes.filter((v: SanitizedVote) => v.hasVoted),
           users: users,
         },
       };
@@ -177,7 +179,7 @@ export function useCanvasLayout({
     const allEdges: Edge[] = [];
 
     // Session to Players edges
-    users.forEach((user: any) => {
+    users.forEach((user: Doc<"users">) => {
       allEdges.push({
         id: `session-to-player-${user._id}`,
         source: "session-current",

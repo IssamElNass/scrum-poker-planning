@@ -1,5 +1,5 @@
 import { QueryCtx, MutationCtx } from "../_generated/server";
-import { Id } from "../_generated/dataModel";
+import { Id, Doc } from "../_generated/dataModel";
 import * as Canvas from "./canvas";
 
 export interface CreateRoomArgs {
@@ -9,10 +9,14 @@ export interface CreateRoomArgs {
   autoCompleteVoting?: boolean;
 }
 
+export interface SanitizedVote extends Doc<"votes"> {
+  hasVoted: boolean;
+}
+
 export interface RoomWithRelatedData {
-  room: any; // TODO: Add proper Room type when generated
-  users: any[]; // TODO: Add proper User type when generated
-  votes: any[]; // TODO: Add proper Vote type when generated
+  room: Doc<"rooms">;
+  users: Doc<"users">[];
+  votes: SanitizedVote[];
 }
 
 /**
@@ -76,7 +80,7 @@ export async function getRoomWithRelatedData(
  * Sanitizes vote data based on game state
  * Hides card values when the game is not over
  */
-export function sanitizeVotes(votes: any[], isGameOver: boolean): any[] {
+export function sanitizeVotes(votes: Doc<"votes">[], isGameOver: boolean): SanitizedVote[] {
   return votes.map((vote) => ({
     ...vote,
     cardLabel: isGameOver ? vote.cardLabel : undefined,

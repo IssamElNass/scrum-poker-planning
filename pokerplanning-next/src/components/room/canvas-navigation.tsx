@@ -30,9 +30,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
+import type { RoomWithRelatedData } from "@/convex/model/rooms";
 
 interface CanvasNavigationProps {
-  roomData: any; // We'll type this properly when Convex types are generated
+  roomData: RoomWithRelatedData;
   onToggleFullscreen?: () => void;
   isFullscreen?: boolean;
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { SVGProps } from "react";
 
 const navigation = {
@@ -64,10 +65,12 @@ export const Footer = () => {
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           <div className="space-y-8">
             <Link href="/" className="flex items-center">
-              <img
+              <Image
                 src="/logo.svg"
                 alt=""
-                className="h-8 w-8 mr-2"
+                width={32}
+                height={32}
+                className="mr-2"
                 aria-hidden="true"
               />
               <span className="text-xl font-bold text-gray-900 dark:text-white">

@@ -32,9 +32,10 @@ import {
   VotingCardNode,
 } from "./nodes";
 import type { CustomNodeType } from "./types";
+import type { RoomWithRelatedData, SanitizedVote } from "@/convex/model/rooms";
 
 interface RoomCanvasProps {
-  roomData: any; // We'll type this properly when Convex types are generated
+  roomData: RoomWithRelatedData;
 }
 
 // Define node types outside component to prevent re-renders
@@ -88,7 +89,7 @@ function RoomCanvasInner({
   useEffect(() => {
     if (!roomData || !user) return;
     
-    const userVote = roomData.votes.find((v: any) => v.userId === user.id);
+    const userVote = roomData.votes.find((v: SanitizedVote) => v.userId === user.id);
     
     // If no card is picked on server (game was reset), clear local selection
     if (!userVote || !userVote.hasVoted) {
@@ -199,7 +200,7 @@ function RoomCanvasInner({
     }, 100);
 
     return () => clearTimeout(timeoutId);
-  }, [roomData?.users.length, fitView]);
+  }, [roomData?.users, fitView]);
 
   if (!roomData || !user) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;

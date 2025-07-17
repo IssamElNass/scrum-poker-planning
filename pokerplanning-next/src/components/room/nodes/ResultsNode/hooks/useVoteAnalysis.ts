@@ -1,4 +1,6 @@
 import { useMemo } from "react";
+import type { Doc } from "@/convex/_generated/dataModel";
+import type { SanitizedVote } from "@/convex/model/rooms";
 
 interface VoteStats {
   average: number;
@@ -26,11 +28,11 @@ interface VoteCluster {
   users: string[];
 }
 
-export function useVoteAnalysis(votes: any[], users: any[]) {
+export function useVoteAnalysis(votes: SanitizedVote[], users: Doc<"users">[]) {
   const stats = useMemo<VoteStats>(() => {
     const numericVotes = votes
       .filter((v) => v.hasVoted && v.cardLabel !== "?")
-      .map((v) => parseInt(v.cardLabel) || 0)
+      .map((v) => parseInt(v.cardLabel || '') || 0)
       .filter((v) => !isNaN(v));
 
     if (numericVotes.length === 0) {
@@ -100,7 +102,7 @@ export function useVoteAnalysis(votes: any[], users: any[]) {
       .filter((v) => v.hasVoted)
       .forEach((vote) => {
         const value = vote.cardLabel;
-        if (!clusters[value]) {
+        if (value && !clusters[value]) {
           clusters[value] = {
             value: parseInt(value) || 0,
             count: 0,
@@ -108,10 +110,12 @@ export function useVoteAnalysis(votes: any[], users: any[]) {
             users: [],
           };
         }
-        clusters[value].count++;
-        const user = users.find((u) => u._id === vote.userId);
-        if (user) {
-          clusters[value].users.push(user.name);
+        if (value) {
+          clusters[value].count++;
+          const user = users.find((u) => u._id === vote.userId);
+          if (user) {
+            clusters[value].users.push(user.name);
+          }
         }
       });
 

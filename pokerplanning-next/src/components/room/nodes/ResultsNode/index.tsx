@@ -49,7 +49,7 @@ export const ResultsNode = memo(
               </h3>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {votes.filter((v: any) => v.cardLabel).length}/{votes.length} voted
+                  {votes.filter((v) => v.cardLabel).length}/{votes.length} voted
                 </span>
                 <button
                   onClick={() => setIsExpanded(!isExpanded)}
