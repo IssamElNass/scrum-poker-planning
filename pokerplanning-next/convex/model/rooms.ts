@@ -80,7 +80,10 @@ export async function getRoomWithRelatedData(
  * Sanitizes vote data based on game state
  * Hides card values when the game is not over
  */
-export function sanitizeVotes(votes: Doc<"votes">[], isGameOver: boolean): SanitizedVote[] {
+export function sanitizeVotes(
+  votes: Doc<"votes">[],
+  isGameOver: boolean
+): SanitizedVote[] {
   return votes.map((vote) => ({
     ...vote,
     cardLabel: isGameOver ? vote.cardLabel : undefined,
@@ -149,9 +152,9 @@ export async function resetRoomGame(
  * TODO: Implement proper user session tracking
  */
 export async function getUserRooms(
-  ctx: QueryCtx,
-  userId: string
-): Promise<any[]> {
+  _ctx: QueryCtx,
+  _userId: string
+): Promise<Doc<"rooms">[]> {
   // This would need to track user sessions differently
   // For now, return empty array
   return [];

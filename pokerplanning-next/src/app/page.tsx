@@ -37,10 +37,9 @@ export default function HomePage() {
         roomType,
       });
 
-      const route = roomType === "classic" 
-        ? `/classic-room/${roomId}`
-        : `/room/${roomId}`;
-      
+      const route =
+        roomType === "classic" ? `/classic-room/${roomId}` : `/room/${roomId}`;
+
       await copyRoomUrlToClipboard(roomId);
       router.push(route);
     } catch (error) {
@@ -66,7 +65,7 @@ export default function HomePage() {
       </a>
       <Banner />
       <BetaAnnouncement />
-      
+
       <header className="relative z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-800/50">
         <nav
           aria-label="Global"
@@ -201,7 +200,7 @@ export default function HomePage() {
               <button
                 onClick={onCreateRoom}
                 disabled={isCreating}
-                className="group relative inline-flex items-center justify-center rounded-full bg-primary px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-primary/90 hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group relative inline-flex items-center justify-center rounded-full bg-primary px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-primary/90 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="relative z-10 flex items-center gap-2">
                   Start New Game
@@ -215,7 +214,7 @@ export default function HomePage() {
                 href="https://github.com/INQTR/poker-planning"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-gray-100 dark:bg-gray-800 px-8 py-4 text-base font-semibold text-gray-900 dark:text-white backdrop-blur-sm transition-all duration-200 hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-gray-100 dark:bg-gray-800 px-8 py-4 text-base font-semibold text-gray-900 dark:text-white backdrop-blur-sm transition-all duration-200 hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500"
               >
                 <Github className="h-5 w-5" />
                 View on GitHub
@@ -242,7 +241,7 @@ export default function HomePage() {
 
         {/* Bottom gradient fade */}
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white dark:from-gray-900 to-transparent" />
-        
+
         <ElevateSection />
         <HowItWorks />
         <WhyChooseUs />
