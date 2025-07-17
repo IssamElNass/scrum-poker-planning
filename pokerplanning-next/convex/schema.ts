@@ -11,7 +11,7 @@ export default defineSchema({
     createdAt: v.number(),
     lastActivityAt: v.number(),
   }).index("by_activity", ["lastActivityAt"]),
-  
+
   users: defineTable({
     roomId: v.id("rooms"),
     name: v.string(),
@@ -20,7 +20,7 @@ export default defineSchema({
   })
     .index("by_room", ["roomId"])
     .index("by_room_join", ["roomId", "joinedAt"]),
-  
+
   votes: defineTable({
     roomId: v.id("rooms"),
     userId: v.id("users"),
@@ -30,4 +30,49 @@ export default defineSchema({
   })
     .index("by_room", ["roomId"])
     .index("by_room_user", ["roomId", "userId"]),
+
+  // Canvas persistence tables
+  canvasNodes: defineTable({
+    roomId: v.id("rooms"),
+    nodeId: v.string(), // e.g., "player-userId", "session-current"
+    type: v.union(
+      v.literal("player"),
+      v.literal("session"),
+      v.literal("timer"),
+      v.literal("votingCard"),
+      v.literal("results"),
+      v.literal("story")
+    ),
+    position: v.object({ x: v.number(), y: v.number() }),
+    data: v.any(), // Node-specific data
+    isLocked: v.optional(v.boolean()), // Prevent accidental moves
+    lastUpdatedBy: v.optional(v.id("users")),
+    lastUpdatedAt: v.number(),
+  })
+    .index("by_room", ["roomId"])
+    .index("by_room_node", ["roomId", "nodeId"]),
+
+  canvasState: defineTable({
+    roomId: v.id("rooms"),
+    userId: v.id("users"),
+    viewport: v.object({
+      x: v.number(),
+      y: v.number(),
+      zoom: v.number(),
+    }),
+    lastUpdatedAt: v.number(),
+  })
+    .index("by_room", ["roomId"])
+    .index("by_room_user", ["roomId", "userId"]),
+
+  presence: defineTable({
+    roomId: v.id("rooms"),
+    userId: v.id("users"),
+    cursor: v.optional(v.object({ x: v.number(), y: v.number() })),
+    isActive: v.boolean(),
+    lastPing: v.number(),
+  })
+    .index("by_room", ["roomId"])
+    .index("by_room_user", ["roomId", "userId"])
+    .index("by_last_ping", ["lastPing"]), // For cleanup
 });

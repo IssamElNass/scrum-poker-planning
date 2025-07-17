@@ -1,143 +1,256 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import {
+  ReactFlow,
+  Edge,
+  Background,
+  BackgroundVariant,
+  useNodesState,
+  useEdgesState,
+  NodeTypes,
+  ReactFlowProvider,
+  useReactFlow,
+  ConnectionMode,
+} from "@xyflow/react";
+import { ReactElement, useCallback, useEffect, useState, useMemo } from "react";
+import "@xyflow/react/dist/style.css";
+import { debounce } from "lodash";
+import type { NodeChange } from "@xyflow/react";
+
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/components/auth/auth-provider";
-import { useRouter } from "next/navigation";
+import { CanvasNavigation } from "./canvas-navigation";
+import { useCanvasNodes } from "./hooks/useCanvasNodes";
+import { Id } from "@/convex/_generated/dataModel";
+import {
+  PlayerNode,
+  ResultsNode,
+  StoryNode,
+  SessionNode,
+  TimerNode,
+  VotingCardNode,
+} from "./nodes";
+import type { CustomNodeType } from "./types";
 
 interface RoomCanvasProps {
   roomData: any; // We'll type this properly when Convex types are generated
 }
 
-export function RoomCanvas({ roomData }: RoomCanvasProps) {
-  const { user, setUser } = useAuth();
-  const router = useRouter();
+// Define node types outside component to prevent re-renders
+const nodeTypes: NodeTypes = {
+  player: PlayerNode,
+  story: StoryNode,
+  session: SessionNode,
+  votingCard: VotingCardNode,
+  results: ResultsNode,
+  timer: TimerNode,
+} as const;
+
+function RoomCanvasInner({
+  roomData,
+}: RoomCanvasProps): ReactElement {
+  const { user } = useAuth();
+  const [nodes, setNodes, onNodesChange] = useNodesState<CustomNodeType>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+  const { fitView } = useReactFlow();
+
+  // Convex mutations
   const showCards = useMutation(api.rooms.showCards);
   const resetGame = useMutation(api.rooms.resetGame);
-  const leaveRoom = useMutation(api.users.leave);
   const pickCard = useMutation(api.votes.pickCard);
+  const updateNodePosition = useMutation(api.canvas.updateNodePosition);
 
-  const handleLeaveRoom = async () => {
-    if (!user) return;
-    
-    try {
-      await leaveRoom({ userId: user.id });
-      setUser(null);
-      router.push("/");
-    } catch (error) {
-      console.error("Failed to leave room:", error);
-    }
-  };
-
-  const handlePickCard = async (cardLabel: string, cardValue: number) => {
-    if (!user || !roomData) return;
-    
-    try {
-      await pickCard({
-        roomId: roomData.room._id,
-        userId: user.id,
-        cardLabel,
-        cardValue,
-      });
-    } catch (error) {
-      console.error("Failed to pick card:", error);
-    }
-  };
-
-  const handleShowCards = async () => {
+  const handleRevealCards = useCallback(async () => {
     if (!roomData) return;
-    
     try {
       await showCards({ roomId: roomData.room._id });
     } catch (error) {
       console.error("Failed to show cards:", error);
     }
-  };
+  }, [showCards, roomData]);
 
-  const handleResetGame = async () => {
+  const handleResetGame = useCallback(async () => {
     if (!roomData) return;
-    
     try {
       await resetGame({ roomId: roomData.room._id });
     } catch (error) {
       console.error("Failed to reset game:", error);
     }
-  };
+  }, [resetGame, roomData]);
+
+  // Track selected cards locally (server doesn't send card value until reveal)
+  const [selectedCardValue, setSelectedCardValue] = useState<string | null>(
+    null,
+  );
+
+  // Reset selected card when game is reset
+  useEffect(() => {
+    if (!roomData || !user) return;
+    
+    const userVote = roomData.votes.find((v: any) => v.userId === user.id);
+    
+    // If no card is picked on server (game was reset), clear local selection
+    if (!userVote || !userVote.hasVoted) {
+      setSelectedCardValue(null);
+    }
+    // If game is revealed and we have a card value from server, sync it
+    else if (roomData.room.isGameOver && userVote.cardLabel) {
+      setSelectedCardValue(userVote.cardLabel);
+    }
+  }, [user, roomData]);
+
+  // Handle card selection
+  const handleCardSelect = useCallback(async (cardValue: string) => {
+    if (!user || !roomData) return;
+    
+    setSelectedCardValue(cardValue);
+    
+    try {
+      await pickCard({
+        roomId: roomData.room._id,
+        userId: user.id,
+        cardLabel: cardValue,
+        cardValue: parseInt(cardValue) || 0,
+      });
+    } catch (error) {
+      console.error("Failed to pick card:", error);
+      setSelectedCardValue(null);
+    }
+  }, [pickCard, user, roomData]);
+
+  // Get room ID
+  const roomId = roomData?.room._id as Id<"rooms">;
+
+  // Use the canvas nodes hook to get persisted nodes
+  const { nodes: layoutNodes, edges: layoutEdges } = useCanvasNodes({
+    roomId,
+    roomData,
+    currentUserId: user?.id,
+    selectedCardValue,
+    onRevealCards: handleRevealCards,
+    onResetGame: handleResetGame,
+    onCardSelect: handleCardSelect,
+  });
+
+  // Update nodes and edges when layout changes
+  useEffect(() => {
+    setNodes(layoutNodes);
+  }, [layoutNodes, setNodes]);
+
+  useEffect(() => {
+    setEdges(layoutEdges);
+  }, [layoutEdges, setEdges]);
+
+  // Debounced position update to prevent database overload
+  const debouncedPositionUpdate = useMemo(
+    () => debounce((nodeId: string, position: { x: number; y: number }) => {
+      if (!user || !roomId) return;
+      
+      updateNodePosition({
+        roomId,
+        nodeId,
+        position,
+        userId: user.id,
+      }).catch((error) => {
+        console.error("Failed to update node position:", error);
+      });
+    }, 100),
+    [roomId, user, updateNodePosition]
+  );
+
+  // Cleanup debounced function on unmount
+  useEffect(() => {
+    return () => {
+      debouncedPositionUpdate.cancel();
+    };
+  }, [debouncedPositionUpdate]);
+
+  // Handle node position changes
+  const handleNodesChange = useCallback((changes: NodeChange<CustomNodeType>[]) => {
+    // Call the original handler to update local state
+    onNodesChange(changes);
+    
+    // Send position updates to database
+    changes.forEach((change) => {
+      if (change.type === 'position' && change.position && !change.dragging) {
+        debouncedPositionUpdate(change.id, change.position);
+      }
+    });
+  }, [onNodesChange, debouncedPositionUpdate]);
+
+  // Handle connection between nodes - prevent manual connections
+  const onConnect = useCallback(() => {
+    // Manual connections are not allowed in this application
+    return;
+  }, []);
+
+  // Fit view when users change with debounce
+  useEffect(() => {
+    if (!roomData?.users) return;
+    
+    const timeoutId = setTimeout(() => {
+      fitView({
+        padding: 0.1,
+        duration: 800,
+        maxZoom: 1.2,
+        minZoom: 0.6,
+      });
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [roomData?.users.length, fitView]);
 
   if (!roomData || !user) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
-  const { room, users, votes } = roomData;
-
   return (
-    <div className="min-h-screen p-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-2xl font-bold">{room.name}</h1>
-            <p className="text-muted-foreground">Canvas Room (Beta)</p>
-          </div>
-          <Button variant="outline" onClick={handleLeaveRoom}>
-            Leave Room
-          </Button>
-        </div>
-
-        <div className="border rounded-lg p-8 bg-muted/20 min-h-[500px]">
-          <p className="text-center text-muted-foreground mb-8">
-            Canvas view with React Flow will be implemented here
-          </p>
-
-          <div className="max-w-2xl mx-auto space-y-8">
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Players</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {users.map((player: any) => {
-                  const vote = votes.find((v: any) => v.userId === player._id);
-                  return (
-                    <div key={player._id} className="p-4 border rounded-lg bg-background">
-                      <div className="font-medium">{player.name}</div>
-                      {player.isSpectator && <div className="text-sm text-muted-foreground">Spectator</div>}
-                      {vote?.hasVoted && !room.isGameOver && <div className="text-sm text-green-600">Voted</div>}
-                      {room.isGameOver && vote?.cardLabel && (
-                        <div className="text-2xl font-bold mt-2">{vote.cardLabel}</div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Voting Cards</h2>
-              {!room.isGameOver ? (
-                <>
-                  <div className="grid grid-cols-5 gap-2 mb-4">
-                    {["0", "1", "2", "3", "5", "8", "13", "21", "?"].map((card) => (
-                      <Button
-                        key={card}
-                        variant="outline"
-                        onClick={() => handlePickCard(card, parseInt(card) || 0)}
-                        className="h-20 text-xl"
-                      >
-                        {card}
-                      </Button>
-                    ))}
-                  </div>
-                  <Button onClick={handleShowCards} className="w-full">
-                    Show Cards
-                  </Button>
-                </>
-              ) : (
-                <Button onClick={handleResetGame} className="w-full">
-                  Start New Game
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="w-full h-screen relative">
+      <CanvasNavigation roomData={roomData} />
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={handleNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        nodeTypes={nodeTypes}
+        connectionMode={ConnectionMode.Loose}
+        fitView={false}
+        proOptions={{ hideAttribution: true }}
+        minZoom={0.1}
+        maxZoom={4}
+        defaultViewport={{ x: 0, y: 50, zoom: 0.75 }}
+        nodesDraggable
+        nodesConnectable={false}
+        elementsSelectable
+        snapToGrid
+        snapGrid={[25, 25]}
+        preventScrolling={false}
+        attributionPosition="bottom-right"
+        panOnScroll
+        selectionOnDrag
+        panOnDrag={[1, 2]}
+        translateExtent={[
+          [-2000, -2000],
+          [2000, 2000],
+        ]}
+      >
+        <Background
+          variant={BackgroundVariant.Dots}
+          gap={20}
+          size={1}
+          className="[&>*]:stroke-gray-300 dark:[&>*]:stroke-gray-700"
+        />
+      </ReactFlow>
     </div>
+  );
+}
+
+export function RoomCanvas(props: RoomCanvasProps): ReactElement {
+  return (
+    <ReactFlowProvider>
+      <RoomCanvasInner {...props} />
+    </ReactFlowProvider>
   );
 }

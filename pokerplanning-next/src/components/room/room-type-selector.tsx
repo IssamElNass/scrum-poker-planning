@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +21,7 @@ export function RoomTypeSelector({ open, onClose, onSelect }: RoomTypeSelectorPr
         <DialogHeader>
           <DialogTitle>Choose Room Type</DialogTitle>
           <DialogDescription>
-            Select the type of planning poker room you'd like to create.
+            Select the type of planning poker room you&apos;d like to create.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">

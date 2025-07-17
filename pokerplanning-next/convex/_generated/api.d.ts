@@ -13,8 +13,14 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as canvas from "../canvas.js";
 import type * as cleanup from "../cleanup.js";
 import type * as crons from "../crons.js";
+import type * as model_canvas from "../model/canvas.js";
+import type * as model_cleanup from "../model/cleanup.js";
+import type * as model_rooms from "../model/rooms.js";
+import type * as model_users from "../model/users.js";
+import type * as model_votes from "../model/votes.js";
 import type * as rooms from "../rooms.js";
 import type * as users from "../users.js";
 import type * as votes from "../votes.js";
@@ -28,8 +34,14 @@ import type * as votes from "../votes.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  canvas: typeof canvas;
   cleanup: typeof cleanup;
   crons: typeof crons;
+  "model/canvas": typeof model_canvas;
+  "model/cleanup": typeof model_cleanup;
+  "model/rooms": typeof model_rooms;
+  "model/users": typeof model_users;
+  "model/votes": typeof model_votes;
   rooms: typeof rooms;
   users: typeof users;
   votes: typeof votes;

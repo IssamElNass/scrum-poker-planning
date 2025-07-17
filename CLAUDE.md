@@ -151,3 +151,25 @@ The app deploys to DigitalOcean App Platform:
 - Frontend proxies `/graphql` requests to backend in development
 - WebSocket endpoint for subscriptions: `ws://localhost:8000/graphql`
 - All environment variables in frontend must be prefixed with `VITE_`
+
+## UI Component Management
+
+### Installing shadcn/ui Components
+
+When you encounter missing shadcn/ui components (e.g., `Module not found: Can't resolve '@/components/ui/[component]'`), always use the shadcn CLI to install them:
+
+```bash
+npx shadcn@latest add [component-name]
+```
+
+Examples:
+- `npx shadcn@latest add button`
+- `npx shadcn@latest add dialog`
+- `npx shadcn@latest add separator`
+- `npx shadcn@latest add tooltip`
+
+**IMPORTANT**: Never manually create shadcn/ui components. Always use the CLI to ensure:
+- Proper styling and theme integration
+- Correct TypeScript types
+- Consistency with the project's design system
+- All required dependencies are installed

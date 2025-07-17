@@ -4,6 +4,7 @@ import { ConvexProvider, ConvexReactClient } from "convex/react";
 import { AuthProvider } from "./auth/auth-provider";
 import { ThemeProvider } from "next-themes";
 import { ReactNode } from "react";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 // This will be undefined until you run `npx convex dev` and set up your project
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
@@ -34,7 +35,9 @@ export function Providers({ children }: { children: ReactNode }) {
         disableTransitionOnChange
       >
         <AuthProvider>
-          {children}
+          <TooltipProvider>
+            {children}
+          </TooltipProvider>
         </AuthProvider>
       </ThemeProvider>
     </ConvexProvider>
