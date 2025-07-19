@@ -1,14 +1,11 @@
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 interface CallToActionProps {
   onStartGame: () => void;
   loading?: boolean;
 }
 
-export const CallToAction = ({
-  onStartGame,
-  loading,
-}: CallToActionProps) => {
+export const CallToAction = ({ onStartGame, loading }: CallToActionProps) => {
   return (
     <div className="relative isolate overflow-hidden bg-gray-900 dark:bg-black">
       {/* Background gradient effects */}
@@ -58,14 +55,6 @@ export const CallToAction = ({
 
       <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          {/* Animated badge */}
-          <div className="mb-8 flex justify-center">
-            <div className="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-300 ring-1 ring-white/10 hover:ring-white/20">
-              <Sparkles className="inline h-4 w-4 mr-1 text-primary" />
-              Join thousands of teams already using PokerPlanning.org
-            </div>
-          </div>
-
           <h2 className="text-4xl font-bold tracking-tight text-white sm:text-6xl">
             Ready to improve your
             <span className="relative">
@@ -129,22 +118,6 @@ export const CallToAction = ({
             >
               View on GitHub
             </a>
-          </div>
-
-          {/* Trust indicators with animation */}
-          <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-8 text-sm text-gray-400">
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-              <span>Always free</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-              <span>No account needed</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-              <span>Open source</span>
-            </div>
           </div>
         </div>
       </div>

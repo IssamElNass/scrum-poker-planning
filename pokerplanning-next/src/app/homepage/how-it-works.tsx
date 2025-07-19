@@ -1,4 +1,4 @@
-import { ArrowRight, Users, Vote, ChartBar, Zap, Sparkles } from "lucide-react";
+import { ArrowRight, Users, Vote, ChartBar, Zap } from "lucide-react";
 
 const steps = [
   {
@@ -81,14 +81,6 @@ export function HowItWorks() {
 
       <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8 lg:py-40">
         <div className="mx-auto max-w-2xl text-center">
-          {/* Animated badge */}
-          <div className="mb-8 flex justify-center">
-            <div className="relative rounded-full px-4 py-2 text-sm leading-6 text-gray-600 dark:text-gray-300 ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-gray-300 dark:hover:ring-gray-600 transition-all duration-200">
-              <Sparkles className="inline h-4 w-4 mr-1 text-primary animate-pulse" />
-              Get started in under 30 seconds
-            </div>
-          </div>
-
           <h2 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-6xl">
             How
             <span className="relative">

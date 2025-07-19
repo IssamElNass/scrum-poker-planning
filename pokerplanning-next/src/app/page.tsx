@@ -13,12 +13,11 @@ import { RoomTypeSelector } from "@/components/room/room-type-selector";
 import { Banner } from "./homepage/banner";
 import { HowItWorks } from "./homepage/how-it-works";
 import { FAQ } from "./homepage/faq";
-import { WhyChooseUs } from "./homepage/why-choose-us";
 import { UseCases } from "./homepage/use-cases";
 import { CallToAction } from "./homepage/call-to-action";
 import { BetaAnnouncement } from "@/components/beta-announcement";
 import { ModeToggle } from "@/components/mode-toggle";
-import { ElevateSection } from "@/components/elevate-section";
+import { AppPreview } from "@/app/homepage/app-preview";
 import { FeaturesSection } from "@/components/features-section";
 import { Footer } from "@/components/footer";
 
@@ -242,11 +241,12 @@ export default function HomePage() {
         {/* Bottom gradient fade */}
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white dark:from-gray-900 to-transparent" />
 
-        <ElevateSection />
+        <AppPreview />
         <HowItWorks />
-        <WhyChooseUs />
         <FeaturesSection />
         <UseCases />
+        {/* TODO: we need to get real testimonials from real users */}
+        {/* <Testimonials /> */}
         <FAQ />
         <CallToAction onStartGame={onCreateRoom} loading={isCreating} />
       </main>
