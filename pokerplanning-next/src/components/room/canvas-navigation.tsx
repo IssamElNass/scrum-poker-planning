@@ -102,13 +102,23 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
   return (
     <>
       {/* Left Navigation Bar */}
-      <div className="absolute top-4 left-4 z-50">
+      <div 
+        className="absolute top-4 left-4 z-50"
+        role="navigation"
+        aria-label="Canvas Room Controls"
+        data-testid="canvas-navigation"
+      >
         <div className="flex items-center gap-2 px-3 py-2 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
           {/* Logo/Home */}
           <Link href="/" className="flex items-center">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="sm" className={buttonClass}>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={buttonClass}
+                  aria-label="Back to home"
+                >
                   <Home className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -132,6 +142,7 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
                   size="sm"
                   onClick={handleCopyRoomUrl}
                   className={buttonClass}
+                  aria-label="Copy room URL"
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
@@ -155,7 +166,10 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
       </div>
 
       {/* Right Navigation Bar */}
-      <div className="absolute top-4 right-4 z-50">
+      <div 
+        className="absolute top-4 right-4 z-50"
+        data-testid="canvas-zoom-controls"
+      >
         <div className="flex items-center gap-2 px-3 py-2 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
           {/* Zoom Controls */}
           <div className="flex items-center gap-1 px-2">
@@ -166,6 +180,7 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
                   size="sm"
                   onClick={handleZoomOut}
                   className={buttonClass}
+                  aria-label="Zoom out"
                 >
                   <ZoomOut className="h-4 w-4" />
                 </Button>
@@ -182,6 +197,7 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
                   size="sm"
                   onClick={handleZoomIn}
                   className={buttonClass}
+                  aria-label="Zoom in"
                 >
                   <ZoomIn className="h-4 w-4" />
                 </Button>
@@ -198,6 +214,7 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
                   size="sm"
                   onClick={handleFitView}
                   className={buttonClass}
+                  aria-label="Fit view"
                 >
                   <Grid3X3 className="h-4 w-4" />
                 </Button>
@@ -220,6 +237,7 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
                     size="sm"
                     onClick={handleFullscreen}
                     className={buttonClass}
+                    aria-label="Toggle fullscreen"
                   >
                     <Maximize2 className="h-4 w-4" />
                   </Button>
@@ -232,7 +250,12 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className={buttonClass}>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={buttonClass}
+                  aria-label="Share and export options"
+                >
                   <Share2 className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -250,7 +273,12 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className={buttonClass}>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={buttonClass}
+                  aria-label="Room settings"
+                >
                   <Settings className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>

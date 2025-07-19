@@ -26,7 +26,10 @@ export function RoomTypeSelector({ open, onClose, onSelect }: RoomTypeSelectorPr
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <button
-            onClick={() => onSelect("classic")}
+            onClick={() => {
+              onClose();
+              onSelect("classic");
+            }}
             className="text-left space-y-2 p-4 border rounded-lg hover:bg-accent transition-colors"
           >
             <h3 className="font-semibold">Classic Room</h3>
@@ -35,7 +38,10 @@ export function RoomTypeSelector({ open, onClose, onSelect }: RoomTypeSelectorPr
             </p>
           </button>
           <button
-            onClick={() => onSelect("canvas")}
+            onClick={() => {
+              onClose();
+              onSelect("canvas");
+            }}
             className="text-left space-y-2 p-4 border rounded-lg hover:bg-accent transition-colors"
           >
             <div className="flex items-center gap-2">
