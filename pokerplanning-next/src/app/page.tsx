@@ -5,20 +5,22 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import { ArrowRight, Github, Sparkles } from "lucide-react";
+import { api } from "@/convex/_generated/api";
+import { ArrowRight, Github } from "lucide-react";
 import { toast } from "@/lib/toast";
 import { useCopyRoomUrlToClipboard } from "@/hooks/use-copy-room-url-to-clipboard";
 import { RoomTypeSelector } from "@/components/room/room-type-selector";
-import { Banner } from "./homepage/banner";
-import { HowItWorks } from "./homepage/how-it-works";
-import { FAQ } from "./homepage/faq";
-import { UseCases } from "./homepage/use-cases";
-import { CallToAction } from "./homepage/call-to-action";
-import { BetaAnnouncement } from "@/components/beta-announcement";
+import {
+  Banner,
+  HowItWorks,
+  FAQ,
+  UseCases,
+  CallToAction,
+  BetaAnnouncement,
+  AppPreview,
+  FeaturesSection,
+} from "@/components/homepage";
 import { ModeToggle } from "@/components/mode-toggle";
-import { AppPreview } from "@/app/homepage/app-preview";
-import { FeaturesSection } from "@/components/features-section";
 import { Footer } from "@/components/footer";
 
 export default function HomePage() {
@@ -146,14 +148,6 @@ export default function HomePage() {
 
         <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8 lg:py-40">
           <div className="mx-auto max-w-4xl text-center">
-            {/* Animated badge */}
-            <div className="mb-8 flex justify-center">
-              <div className="relative rounded-full px-4 py-2 text-sm leading-6 text-gray-600 dark:text-gray-300 ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-gray-300 dark:hover:ring-gray-600 transition-all duration-200">
-                <Sparkles className="inline h-4 w-4 mr-1 text-primary animate-pulse" />
-                Free & Open Source Sprint Planning Tool
-              </div>
-            </div>
-
             <h1 className="text-5xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-7xl">
               Estimate stories with
               <span className="relative">
