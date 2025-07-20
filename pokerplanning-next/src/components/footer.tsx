@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { SVGProps } from "react";
@@ -117,7 +119,7 @@ export const Footer = () => {
                       ) : item.href.startsWith("/#") ? (
                         <a
                           href={item.href}
-                          className="text-sm leading-6 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                          className="text-sm leading-6 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white cursor-pointer"
                         >
                           {item.name}
                         </a>

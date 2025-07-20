@@ -2,7 +2,7 @@ import { Users, Globe, BarChart3, Zap } from "lucide-react";
 
 export function UseCases() {
   return (
-    <div className="bg-gray-50 py-24 sm:py-32 dark:bg-gray-900">
+    <div id="use-cases" className="bg-gray-50 py-24 sm:py-32 dark:bg-gray-900">
       <div className="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
         <h2 className="mx-auto mt-2 max-w-lg text-center text-pretty text-4xl font-semibold tracking-tight text-gray-950 sm:text-5xl dark:text-white">
           Everything you need for sprint planning

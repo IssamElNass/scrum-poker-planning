@@ -41,7 +41,7 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <div className="relative isolate overflow-hidden bg-gray-50 dark:bg-gray-900">
+    <div id="how-it-works" className="relative isolate overflow-hidden bg-gray-50 dark:bg-gray-900">
       {/* Background pattern */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <svg
