@@ -2,11 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ArrowRight, Github } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { toast } from "@/lib/toast";
 import { useCopyRoomUrlToClipboard } from "@/hooks/use-copy-room-url-to-clipboard";
 import {
@@ -18,8 +16,9 @@ import {
   AppPreview,
   FeaturesSection,
 } from "@/components/homepage";
-import { ModeToggle } from "@/components/mode-toggle";
+import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { GithubIcon } from "@/components/icons";
 
 export default function HomePage() {
   const router = useRouter();
@@ -56,31 +55,7 @@ export default function HomePage() {
       </a>
       <Banner />
 
-      <header className="relative z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-800/50">
-        <nav
-          aria-label="Global"
-          className="flex items-center justify-between p-6 lg:px-8"
-        >
-          <div className="flex lg:flex-1">
-            <Link href="/" className="-m-1.5 p-1.5 flex items-center">
-              <Image
-                src="/logo.svg"
-                alt="PokerPlanning.org Logo"
-                width={32}
-                height={32}
-                className="h-8 w-8 mr-2"
-              />
-              <span className="sr-only">Planning poker / Scrum Poker</span>
-              <span className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-                Planning poker
-              </span>
-            </Link>
-          </div>
-          <div className="flex lg:flex-1 justify-end">
-            <ModeToggle />
-          </div>
-        </nav>
-      </header>
+      <Header />
 
       <main
         id="main-content"
@@ -198,7 +173,7 @@ export default function HomePage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-gray-100 dark:bg-gray-800 px-8 py-4 text-base font-semibold text-gray-900 dark:text-white backdrop-blur-sm transition-all duration-200 hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500"
               >
-                <Github className="h-5 w-5" />
+                <GithubIcon className="h-5 w-5" />
                 View on GitHub
               </a>
             </div>
