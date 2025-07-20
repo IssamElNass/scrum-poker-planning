@@ -1,7 +1,0 @@
-# https://www.robotstxt.org/robotstxt.html
-User-agent: *
-Disallow: /room/
-Allow: /
-
-# Sitemap location
-Sitemap: https://pokerplanning.org/sitemap.xml
