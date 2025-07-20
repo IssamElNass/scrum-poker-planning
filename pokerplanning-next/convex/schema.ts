@@ -6,7 +6,7 @@ export default defineSchema({
     name: v.string(),
     votingCategorized: v.boolean(),
     autoCompleteVoting: v.boolean(),
-    roomType: v.union(v.literal("classic"), v.literal("canvas")),
+    roomType: v.optional(v.literal("canvas")), // Optional for backward compatibility
     isGameOver: v.boolean(),
     createdAt: v.number(),
     lastActivityAt: v.number(),

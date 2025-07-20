@@ -4,6 +4,5 @@ export * from "./faq";
 export * from "./use-cases";
 export * from "./call-to-action";
 export * from "./app-preview";
-export * from "./beta-announcement";
 export * from "./features-section";
 export * from "./testimonials";

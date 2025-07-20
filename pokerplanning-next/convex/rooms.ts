@@ -6,7 +6,7 @@ import * as Rooms from "./model/rooms";
 export const create = mutation({
   args: {
     name: v.string(),
-    roomType: v.union(v.literal("classic"), v.literal("canvas")),
+    roomType: v.optional(v.literal("canvas")), // Optional, defaults to canvas
     votingCategorized: v.optional(v.boolean()),
     autoCompleteVoting: v.optional(v.boolean()),
   },

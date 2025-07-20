@@ -9,14 +9,12 @@ import { api } from "@/convex/_generated/api";
 import { ArrowRight, Github } from "lucide-react";
 import { toast } from "@/lib/toast";
 import { useCopyRoomUrlToClipboard } from "@/hooks/use-copy-room-url-to-clipboard";
-import { RoomTypeSelector } from "@/components/room/room-type-selector";
 import {
   Banner,
   HowItWorks,
   FAQ,
   UseCases,
   CallToAction,
-  BetaAnnouncement,
   AppPreview,
   FeaturesSection,
 } from "@/components/homepage";
@@ -28,33 +26,25 @@ export default function HomePage() {
   const createRoom = useMutation(api.rooms.create);
   const { copyRoomUrlToClipboard } = useCopyRoomUrlToClipboard();
   const [isCreating, setIsCreating] = useState(false);
-  const [showRoomTypeSelector, setShowRoomTypeSelector] = useState(false);
 
-  const handleCreateRoom = async (roomType: "classic" | "canvas") => {
+  const handleCreateRoom = async () => {
     setIsCreating(true);
     try {
       const roomId = await createRoom({
         name: `Game ${new Date().toLocaleTimeString()}`,
-        roomType,
+        roomType: "canvas",
       });
 
-      const route =
-        roomType === "classic" ? `/classic-room/${roomId}` : `/room/${roomId}`;
-
       await copyRoomUrlToClipboard(roomId);
-      router.push(route);
+      router.push(`/room/${roomId}`);
     } catch (error) {
       console.error("Failed to create room:", error);
       toast.error("Failed to create room. Please try again.");
     } finally {
       setIsCreating(false);
-      setShowRoomTypeSelector(false);
     }
   };
 
-  function onCreateRoom() {
-    setShowRoomTypeSelector(true);
-  }
 
   return (
     <div className="bg-white dark:bg-gray-900">
@@ -65,7 +55,6 @@ export default function HomePage() {
         Skip to main content
       </a>
       <Banner />
-      <BetaAnnouncement />
 
       <header className="relative z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-800/50">
         <nav
@@ -191,7 +180,7 @@ export default function HomePage() {
 
             <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
               <button
-                onClick={onCreateRoom}
+                onClick={handleCreateRoom}
                 disabled={isCreating}
                 className="group relative inline-flex items-center justify-center rounded-full bg-primary px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-primary/90 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -242,16 +231,11 @@ export default function HomePage() {
         {/* TODO: we need to get real testimonials from real users */}
         {/* <Testimonials /> */}
         <FAQ />
-        <CallToAction onStartGame={onCreateRoom} loading={isCreating} />
+        <CallToAction onStartGame={handleCreateRoom} loading={isCreating} />
       </main>
 
       <Footer />
 
-      <RoomTypeSelector
-        open={showRoomTypeSelector}
-        onClose={() => setShowRoomTypeSelector(false)}
-        onSelect={handleCreateRoom}
-      />
     </div>
   );
 }

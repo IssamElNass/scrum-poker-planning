@@ -4,7 +4,7 @@ import * as Canvas from "./canvas";
 
 export interface CreateRoomArgs {
   name: string;
-  roomType: "classic" | "canvas";
+  roomType?: "canvas"; // Optional, defaults to canvas
   votingCategorized?: boolean;
   autoCompleteVoting?: boolean;
 }
@@ -28,7 +28,7 @@ export async function createRoom(
 ): Promise<Id<"rooms">> {
   const roomId = await ctx.db.insert("rooms", {
     name: args.name,
-    roomType: args.roomType,
+    roomType: "canvas", // Always canvas now
     votingCategorized: args.votingCategorized ?? true,
     autoCompleteVoting: args.autoCompleteVoting ?? false,
     isGameOver: false,
@@ -36,10 +36,8 @@ export async function createRoom(
     lastActivityAt: Date.now(),
   });
 
-  // Initialize canvas nodes for canvas rooms
-  if (args.roomType === "canvas") {
-    await Canvas.initializeCanvasNodes(ctx, { roomId });
-  }
+  // Always initialize canvas nodes
+  await Canvas.initializeCanvasNodes(ctx, { roomId });
 
   return roomId;
 }
