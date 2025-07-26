@@ -10,7 +10,9 @@ export default defineSchema({
     isGameOver: v.boolean(),
     createdAt: v.number(),
     lastActivityAt: v.number(),
-  }).index("by_activity", ["lastActivityAt"]),
+  })
+    .index("by_activity", ["lastActivityAt"])
+    .index("by_created", ["createdAt"]), // For querying recent rooms
 
   users: defineTable({
     roomId: v.id("rooms"),
@@ -29,7 +31,8 @@ export default defineSchema({
     cardIcon: v.optional(v.string()),
   })
     .index("by_room", ["roomId"])
-    .index("by_room_user", ["roomId", "userId"]),
+    .index("by_room_user", ["roomId", "userId"])
+    .index("by_user", ["userId"]), // For user-specific queries
 
   // Canvas persistence tables
   canvasNodes: defineTable({
@@ -50,7 +53,9 @@ export default defineSchema({
     lastUpdatedAt: v.number(),
   })
     .index("by_room", ["roomId"])
-    .index("by_room_node", ["roomId", "nodeId"]),
+    .index("by_room_node", ["roomId", "nodeId"])
+    .index("by_room_type", ["roomId", "type"]) // For type-specific queries
+    .index("by_last_updated", ["lastUpdatedAt"]), // For activity tracking
 
   canvasState: defineTable({
     roomId: v.id("rooms"),

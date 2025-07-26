@@ -121,49 +121,120 @@ export async function cleanupRoom(
 
 /**
  * Removes orphaned data (data without associated rooms)
+ * Optimized to avoid N+1 queries by batching room existence checks
  */
 export async function cleanupOrphanedData(ctx: MutationCtx): Promise<{
   orphanedVotes: number;
   orphanedUsers: number;
   orphanedCanvasNodes: number;
+  orphanedCanvasStates: number;
+  orphanedPresence: number;
 }> {
-  let orphanedVotes = 0;
-  let orphanedUsers = 0;
-  let orphanedCanvasNodes = 0;
+  // Get all existing room IDs once
+  const allRooms = await ctx.db.query("rooms").collect();
+  const existingRoomIds = new Set(allRooms.map(room => room._id));
 
-  // Check votes
-  const votes = await ctx.db.query("votes").collect();
-  for (const vote of votes) {
-    const room = await ctx.db.get(vote.roomId);
-    if (!room) {
-      await ctx.db.delete(vote._id);
-      orphanedVotes++;
-    }
-  }
-
-  // Check users
-  const users = await ctx.db.query("users").collect();
-  for (const user of users) {
-    const room = await ctx.db.get(user.roomId);
-    if (!room) {
-      await ctx.db.delete(user._id);
-      orphanedUsers++;
-    }
-  }
-
-  // Check canvas nodes
-  const canvasNodes = await ctx.db.query("canvasNodes").collect();
-  for (const node of canvasNodes) {
-    const room = await ctx.db.get(node.roomId);
-    if (!room) {
-      await ctx.db.delete(node._id);
-      orphanedCanvasNodes++;
-    }
-  }
+  // Process each table in parallel
+  const [
+    orphanedVotes,
+    orphanedUsers,
+    orphanedCanvasNodes,
+    orphanedCanvasStates,
+    orphanedPresence
+  ] = await Promise.all([
+    // Clean orphaned votes
+    cleanupOrphanedRecords(ctx, "votes", existingRoomIds),
+    // Clean orphaned users
+    cleanupOrphanedRecords(ctx, "users", existingRoomIds),
+    // Clean orphaned canvas nodes
+    cleanupOrphanedRecords(ctx, "canvasNodes", existingRoomIds),
+    // Clean orphaned canvas states
+    cleanupOrphanedRecords(ctx, "canvasState", existingRoomIds),
+    // Clean orphaned presence
+    cleanupOrphanedRecords(ctx, "presence", existingRoomIds),
+  ]);
 
   return {
     orphanedVotes,
     orphanedUsers,
     orphanedCanvasNodes,
+    orphanedCanvasStates,
+    orphanedPresence,
   };
+}
+
+/**
+ * Helper function to clean orphaned records from a specific table
+ * Processes records in batches to avoid overwhelming the system
+ */
+async function cleanupOrphanedRecords(
+  ctx: MutationCtx,
+  tableName: "votes" | "users" | "canvasNodes" | "canvasState" | "presence",
+  existingRoomIds: Set<Id<"rooms">>
+): Promise<number> {
+  const BATCH_SIZE = 100;
+  let orphanedCount = 0;
+  let hasMore = true;
+  let lastId: string | undefined;
+
+  while (hasMore) {
+    // Query a batch of records
+    const query = ctx.db.query(tableName);
+    
+    // For pagination, we'll use the ID as a cursor
+    // This is more efficient than using skip/take
+    if (lastId) {
+      // Get records after the last processed ID
+      const records = await query.collect();
+      const startIndex = records.findIndex(r => r._id > lastId!) + 1;
+      const batch = records.slice(startIndex, startIndex + BATCH_SIZE);
+      
+      if (batch.length === 0) {
+        hasMore = false;
+        break;
+      }
+
+      // Process the batch
+      const deletePromises: Promise<void>[] = [];
+      for (const record of batch) {
+        if (!existingRoomIds.has(record.roomId)) {
+          deletePromises.push(ctx.db.delete(record._id));
+          orphanedCount++;
+        }
+      }
+      
+      // Execute deletions in parallel
+      await Promise.all(deletePromises);
+      
+      // Update cursor
+      lastId = batch[batch.length - 1]._id;
+      hasMore = batch.length === BATCH_SIZE;
+    } else {
+      // First batch
+      const batch = await query.take(BATCH_SIZE);
+      
+      if (batch.length === 0) {
+        hasMore = false;
+        break;
+      }
+
+      // Process the batch
+      const deletePromises: Promise<void>[] = [];
+      for (const record of batch) {
+        if (!existingRoomIds.has(record.roomId)) {
+          deletePromises.push(ctx.db.delete(record._id));
+          orphanedCount++;
+        }
+      }
+      
+      // Execute deletions in parallel
+      await Promise.all(deletePromises);
+      
+      // Update cursor
+      lastId = batch[batch.length - 1]._id;
+      hasMore = batch.length === BATCH_SIZE;
+    }
+  }
+
+  return orphanedCount;
 }
