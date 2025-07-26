@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { toast } from "@/lib/toast";
 
 interface JoinRoomDialogProps {
   roomId: Id<"rooms">;
@@ -18,7 +19,7 @@ interface JoinRoomDialogProps {
 export function JoinRoomDialog({ roomId, roomName }: JoinRoomDialogProps) {
   const { setUser } = useAuth();
   const joinRoom = useMutation(api.users.join);
-  
+
   const [userName, setUserName] = useState("");
   const [isSpectator, setIsSpectator] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
@@ -46,7 +47,7 @@ export function JoinRoomDialog({ roomId, roomName }: JoinRoomDialogProps) {
       // Page will automatically re-render and show the room
     } catch (error) {
       console.error("Failed to join room:", error);
-      alert("Failed to join room");
+      toast.error("Failed to join room");
     } finally {
       setIsJoining(false);
     }
@@ -61,7 +62,7 @@ export function JoinRoomDialog({ roomId, roomName }: JoinRoomDialogProps) {
         </div>
 
         <div className="space-y-4">
-          <div>
+          <div className="grid w-full max-w-sm items-center gap-3">
             <Label htmlFor="name">Your Name</Label>
             <Input
               id="name"

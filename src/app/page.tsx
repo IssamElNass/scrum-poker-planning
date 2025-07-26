@@ -44,7 +44,6 @@ export default function HomePage() {
     }
   };
 
-
   return (
     <div className="bg-white dark:bg-gray-900">
       <a
@@ -210,7 +209,6 @@ export default function HomePage() {
       </main>
 
       <Footer />
-
     </div>
   );
 }
