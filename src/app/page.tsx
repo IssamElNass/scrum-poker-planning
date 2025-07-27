@@ -156,6 +156,7 @@ export default function HomePage() {
               <button
                 onClick={handleCreateRoom}
                 disabled={isCreating}
+                data-testid="hero-start-button"
                 className="group relative inline-flex items-center justify-center rounded-full bg-primary px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-primary/90 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="relative z-10 flex items-center gap-2">
@@ -170,6 +171,7 @@ export default function HomePage() {
                 href="https://github.com/INQTR/poker-planning"
                 target="_blank"
                 rel="noopener noreferrer"
+                data-testid="hero-github-link"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-gray-100 dark:bg-gray-800 px-8 py-4 text-base font-semibold text-gray-900 dark:text-white backdrop-blur-sm transition-all duration-200 hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500"
               >
                 <GithubIcon className="h-5 w-5" />
@@ -179,15 +181,15 @@ export default function HomePage() {
 
             {/* Trust indicators with animation */}
             <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-8 text-sm text-gray-500 dark:text-gray-400">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2" data-testid="trust-free">
                 <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
                 <span>100% Free Forever</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2" data-testid="trust-no-account">
                 <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
                 <span>No Account Required</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2" data-testid="trust-realtime">
                 <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
                 <span>Real-time Collaboration</span>
               </div>
