@@ -10,7 +10,7 @@ import type {
   CustomNodeType,
 } from "../types";
 import type { RoomWithRelatedData, SanitizedVote } from "@/convex/model/rooms";
-import type { Doc } from "@/convex/_generated/dataModel";
+import type { Doc, Id } from "@/convex/_generated/dataModel";
 
 // Layout constants for endless canvas
 const CANVAS_CENTER = { x: 0, y: 0 };
@@ -87,8 +87,15 @@ export function useCanvasLayout({
       type: "timer",
       position: { x: TIMER_X, y: TIMER_Y },
       data: {
-        duration: 0,
+        startedAt: null,
+        pausedAt: null,
+        elapsedSeconds: 0,
         isRunning: false,
+        lastUpdatedBy: null,
+        lastAction: null,
+        roomId: room._id as Id<"rooms">,
+        userId: currentUserId as Id<"users"> | undefined,
+        nodeId: "timer",
       },
     };
     allNodes.push(timerNode);

@@ -1,9 +1,11 @@
 # Implementation Plan
 
 ## Task Overview
+
 The voting timer implementation will be executed in atomic tasks that progressively transform the existing local-only TimerNode into a real-time synchronized component. Each task focuses on a specific file or small set of related files, ensuring clear boundaries and testable outcomes.
 
 ## Steering Document Compliance
+
 - **File Naming**: All new files follow kebab-case convention (e.g., `use-timer-sync.ts`)
 - **Component Location**: Timer components remain in `src/components/room/nodes/`
 - **Convex Organization**: Timer functions in `convex/timer.ts` with model logic in `convex/model/timer.ts`
@@ -11,7 +13,9 @@ The voting timer implementation will be executed in atomic tasks that progressiv
 - **Testing**: E2E tests created for all user journeys per testing requirements
 
 ## Atomic Task Requirements
+
 **Each task must meet these criteria for optimal agent execution:**
+
 - **File Scope**: Touches 1-3 related files maximum
 - **Time Boxing**: Completable in 15-30 minutes
 - **Single Purpose**: One testable outcome per task
@@ -19,6 +23,7 @@ The voting timer implementation will be executed in atomic tasks that progressiv
 - **Agent-Friendly**: Clear input/output with minimal context switching
 
 ## Task Format Guidelines
+
 - Use checkbox format: `- [ ] Task number. Task description`
 - **Specify files**: Always include exact file paths to create/modify
 - **Include implementation details** as bullet points
@@ -30,6 +35,7 @@ The voting timer implementation will be executed in atomic tasks that progressiv
 ## Tasks
 
 - [x] 1. Create timer types in src/components/room/types.ts
+
   - File: src/components/room/types.ts (modify existing)
   - Update TimerNodeData interface with server timestamp fields
   - Add `startedAt`, `pausedAt`, `elapsedSeconds`, `lastUpdatedBy`, `lastAction`
@@ -38,7 +44,8 @@ The voting timer implementation will be executed in atomic tasks that progressiv
   - _Leverage: existing types in src/components/room/types.ts_
   - _Requirements: 1.1, 2.1_
 
-- [ ] 2. Create timer model functions in convex/model/timer.ts
+- [x] 2. Create timer model functions in convex/model/timer.ts
+
   - File: convex/model/timer.ts (create new)
   - Implement `updateTimerState` function for start/pause/reset actions
   - Add `calculateCurrentTime` helper using server timestamps
@@ -47,7 +54,8 @@ The voting timer implementation will be executed in atomic tasks that progressiv
   - _Leverage: convex/model/canvas.ts patterns_
   - _Requirements: 2.1, 2.2_
 
-- [ ] 3. Create timer Convex mutations in convex/timer.ts
+- [x] 3. Create timer Convex mutations in convex/timer.ts
+
   - File: convex/timer.ts (create new)
   - Create `startTimer`, `pauseTimer`, `resetTimer` mutations
   - Each mutation calls corresponding model function
@@ -56,7 +64,8 @@ The voting timer implementation will be executed in atomic tasks that progressiv
   - _Leverage: convex/canvas.ts mutation patterns_
   - _Requirements: 2.1, 2.2, 3.1_
 
-- [ ] 4. Add timer query function in convex/timer.ts
+- [x] 4. Add timer query function in convex/timer.ts
+
   - File: convex/timer.ts (modify existing from task 3)
   - Create `getTimerState` query function
   - Calculate current seconds based on server time
@@ -65,7 +74,8 @@ The voting timer implementation will be executed in atomic tasks that progressiv
   - _Leverage: convex/canvas.ts query patterns_
   - _Requirements: 2.1, 2.5_
 
-- [ ] 5. Create useTimerSync hook in src/components/room/hooks/use-timer-sync.ts
+- [x] 5. Create useTimerSync hook in src/components/room/hooks/use-timer-sync.ts
+
   - File: src/components/room/hooks/use-timer-sync.ts (create new)
   - Implement hook using Convex useQuery and useMutation
   - Handle local timer display with server sync
@@ -74,7 +84,8 @@ The voting timer implementation will be executed in atomic tasks that progressiv
   - _Leverage: src/components/room/hooks/useCanvasNodes.ts patterns_
   - _Requirements: 2.1, 2.2_
 
-- [ ] 6. Update TimerNode component to use synchronized state
+- [x] 6. Update TimerNode component to use synchronized state
+
   - File: src/components/room/nodes/TimerNode.tsx (modify existing)
   - Replace local state with useTimerSync hook
   - Update click handlers to use Convex mutations
@@ -83,16 +94,16 @@ The voting timer implementation will be executed in atomic tasks that progressiv
   - _Leverage: existing TimerNode.tsx UI code_
   - _Requirements: 1.1, 1.3, 5.1_
 
-- [ ] 7. Add timer node data migration in convex/model/canvas.ts
+- [x] 7. Remove timer node old data in convex/model/canvas.ts
+
   - File: convex/model/canvas.ts (modify existing)
-  - Update `initializeCanvasNodes` to create timer with new data structure
-  - Add migration logic for existing timer nodes
-  - Ensure backward compatibility
-  - Purpose: Initialize timer nodes with proper data structure
-  - _Leverage: existing initializeCanvasNodes function_
+  - Purpose: Remove old timer data from canvas nodes
+  - Remove old timer data from `src/components/room/types.ts`
+  - _Leverage: existing canvas.ts functions_
   - _Requirements: 2.4, 2.5_
 
 - [ ] 8. Integrate timer reset with game reset in convex/model/rooms.ts
+
   - File: convex/model/rooms.ts (modify existing)
   - Modify `resetRoomGame` to reset timer state
   - Query and update timer node data to initial state
@@ -102,6 +113,7 @@ The voting timer implementation will be executed in atomic tasks that progressiv
   - _Requirements: 4.2_
 
 - [ ] 9. Add timer permission tracking in convex/model/timer.ts
+
   - File: convex/model/timer.ts (modify existing from task 2)
   - Add `lastUpdatedBy` tracking to all timer mutations
   - Store user action history for future features
@@ -110,7 +122,8 @@ The voting timer implementation will be executed in atomic tasks that progressiv
   - _Leverage: existing user tracking patterns_
   - _Requirements: 3.4_
 
-- [ ] 10. Implement timer visual feedback in TimerNode.tsx
+- [x] 10. Implement timer visual feedback in TimerNode.tsx
+
   - File: src/components/room/nodes/TimerNode.tsx (modify existing from task 6)
   - Ensure pulsing indicator shows when timer is running
   - Verify hover states on all controls
@@ -120,6 +133,7 @@ The voting timer implementation will be executed in atomic tasks that progressiv
   - _Requirements: 5.1, 5.2, 5.3_
 
 - [ ] 11. Add debounced timer updates in use-timer-sync.ts
+
   - File: src/components/room/hooks/use-timer-sync.ts (modify existing from task 5)
   - Implement client-side timer ticking with requestAnimationFrame
   - Sync with server state periodically
@@ -128,17 +142,19 @@ The voting timer implementation will be executed in atomic tasks that progressiv
   - _Leverage: debounce patterns from useCanvasLayout.ts_
   - _Requirements: 2.1, NFR-Performance_
 
-- [ ] 12. Create timer E2E test in tests/e2e/timer.spec.ts
-  - File: tests/e2e/timer.spec.ts (create new)
+- [x] 12. Create timer E2E test in tests/timer.spec.ts
+
+  - File: tests/timer.spec.ts (create new)
   - Test timer controls (play/pause/reset) work correctly
   - Verify synchronization between multiple browser instances
   - Test timer persistence on page refresh
   - Purpose: Ensure timer functionality works end-to-end
-  - _Leverage: tests/e2e/room.spec.ts patterns_
+  - _Leverage: tests/room.spec.ts patterns_
   - _Requirements: All functional requirements_
 
-- [ ] 13. Add timer reset E2E test in tests/e2e/timer.spec.ts
-  - File: tests/e2e/timer.spec.ts (modify existing from task 12)
+- [ ] 13. Add timer reset E2E test in tests/timer.spec.ts
+
+  - File: tests/timer.spec.ts (modify existing from task 12)
   - Test timer resets when game resets
   - Verify timer continues running during card reveal
   - Test simultaneous control actions from different users
@@ -147,6 +163,7 @@ The voting timer implementation will be executed in atomic tasks that progressiv
   - _Requirements: 4.1, 4.2, 4.3_
 
 - [ ] 14. Handle timer node errors in convex/model/timer.ts
+
   - File: convex/model/timer.ts (modify existing)
   - Add validation for timer data structure
   - Implement safe fallback for corrupted timer state

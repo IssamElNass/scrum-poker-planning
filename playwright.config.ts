@@ -46,7 +46,7 @@ export default defineConfig({
     navigationTimeout: 15 * 1000,
     
     /* Viewport size */
-    viewport: { width: 1280, height: 720 },
+    viewport: { width: 1920, height: 1080 },
     
     /* Accept downloads */
     acceptDownloads: true,

@@ -69,7 +69,12 @@ export function useCanvasNodes({
           id: node.nodeId,
           type: "timer",
           position: node.position,
-          data: node.data,
+          data: {
+            ...node.data,
+            roomId,
+            userId: currentUserId,
+            nodeId: node.nodeId,
+          },
           draggable: !node.isLocked,
         };
         allNodes.push(timerNode);

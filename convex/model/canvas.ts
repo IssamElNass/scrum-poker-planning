@@ -60,7 +60,13 @@ export async function initializeCanvasNodes(
       nodeId: "timer",
       type: "timer",
       position: { x: TIMER_X, y: TIMER_Y },
-      data: { duration: 0, isRunning: false },
+      data: {
+        startedAt: null,
+        pausedAt: null,
+        elapsedSeconds: 0,
+        lastUpdatedBy: null,
+        lastAction: null,
+      },
       lastUpdatedAt: now,
     }),
     // Create session node
