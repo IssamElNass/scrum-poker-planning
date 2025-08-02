@@ -52,15 +52,15 @@ export const StoryNode = memo(
           "p-4 rounded-lg shadow-lg border-2 transition-all min-w-[200px] max-w-[300px]",
           isActive
             ? "bg-amber-50 dark:bg-amber-900/20 border-amber-400 dark:border-amber-600"
-            : "bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600",
+            : "bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600"
         ),
-      [isActive],
+      [isActive]
     );
 
     const dotClasses = useMemo(
       () =>
         cn("w-2 h-2 rounded-full", isActive ? "bg-amber-500" : "bg-gray-400"),
-      [isActive],
+      [isActive]
     );
 
     return (
@@ -167,7 +167,7 @@ export const StoryNode = memo(
                     "flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
                     resetCooldown > 0
                       ? "bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
-                      : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600",
+                      : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
                   )}
                   aria-label={
                     resetCooldown > 0
@@ -178,7 +178,7 @@ export const StoryNode = memo(
                   <RotateCcw
                     className={cn(
                       "h-3 w-3",
-                      resetCooldown > 0 && "animate-spin",
+                      resetCooldown > 0 && "animate-spin"
                     )}
                   />
                   {resetCooldown > 0 ? `Wait ${resetCooldown}s` : "New Round"}
@@ -189,7 +189,7 @@ export const StoryNode = memo(
         </div>
       </div>
     );
-  },
+  }
 );
 
 StoryNode.displayName = "StoryNode";
