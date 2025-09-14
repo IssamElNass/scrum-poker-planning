@@ -22,6 +22,7 @@ import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/components/auth/auth-provider";
 import { CanvasNavigation } from "./canvas-navigation";
 import { useCanvasNodes } from "./hooks/useCanvasNodes";
+import { useOwnershipNotification } from "./hooks/useOwnershipNotification";
 import { Id } from "@/convex/_generated/dataModel";
 import {
   PlayerNode,
@@ -48,10 +49,15 @@ const nodeTypes: NodeTypes = {
   timer: TimerNode,
 } as const;
 
-function RoomCanvasInner({
-  roomData,
-}: RoomCanvasProps): ReactElement {
+function RoomCanvasInner({ roomData }: RoomCanvasProps): ReactElement {
   const { user } = useAuth();
+
+  // Monitor ownership changes and show notifications
+  useOwnershipNotification({
+    roomData,
+    currentUserId: user?.id as Id<"users"> | undefined,
+  });
+
   const [nodes, setNodes, onNodesChange] = useNodesState<CustomNodeType>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const { fitView } = useReactFlow();
@@ -61,6 +67,7 @@ function RoomCanvasInner({
   const resetGame = useMutation(api.rooms.resetGame);
   const pickCard = useMutation(api.votes.pickCard);
   const updateNodePosition = useMutation(api.canvas.updateNodePosition);
+  const updatePresence = useMutation(api.canvas.updatePresence);
 
   const handleRevealCards = useCallback(async () => {
     if (!roomData) return;
@@ -82,15 +89,17 @@ function RoomCanvasInner({
 
   // Track selected cards locally (server doesn't send card value until reveal)
   const [selectedCardValue, setSelectedCardValue] = useState<string | null>(
-    null,
+    null
   );
 
   // Reset selected card when game is reset
   useEffect(() => {
     if (!roomData || !user) return;
-    
-    const userVote = roomData.votes.find((v: SanitizedVote) => v.userId === user.id);
-    
+
+    const userVote = roomData.votes.find(
+      (v: SanitizedVote) => v.userId === user.id
+    );
+
     // If no card is picked on server (game was reset), clear local selection
     if (!userVote || !userVote.hasVoted) {
       setSelectedCardValue(null);
@@ -102,23 +111,26 @@ function RoomCanvasInner({
   }, [user, roomData]);
 
   // Handle card selection
-  const handleCardSelect = useCallback(async (cardValue: string) => {
-    if (!user || !roomData) return;
-    
-    setSelectedCardValue(cardValue);
-    
-    try {
-      await pickCard({
-        roomId: roomData.room._id,
-        userId: user.id,
-        cardLabel: cardValue,
-        cardValue: parseInt(cardValue) || 0,
-      });
-    } catch (error) {
-      console.error("Failed to pick card:", error);
-      setSelectedCardValue(null);
-    }
-  }, [pickCard, user, roomData]);
+  const handleCardSelect = useCallback(
+    async (cardValue: string) => {
+      if (!user || !roomData) return;
+
+      setSelectedCardValue(cardValue);
+
+      try {
+        await pickCard({
+          roomId: roomData.room._id,
+          userId: user.id,
+          cardLabel: cardValue,
+          cardValue: parseInt(cardValue) || 0,
+        });
+      } catch (error) {
+        console.error("Failed to pick card:", error);
+        setSelectedCardValue(null);
+      }
+    },
+    [pickCard, user, roomData]
+  );
 
   // Get room ID
   const roomId = roomData?.room._id as Id<"rooms">;
@@ -145,18 +157,19 @@ function RoomCanvasInner({
 
   // Debounced position update to prevent database overload
   const debouncedPositionUpdate = useMemo(
-    () => debounce((nodeId: string, position: { x: number; y: number }) => {
-      if (!user || !roomId) return;
-      
-      updateNodePosition({
-        roomId,
-        nodeId,
-        position,
-        userId: user.id,
-      }).catch((error) => {
-        console.error("Failed to update node position:", error);
-      });
-    }, 100),
+    () =>
+      debounce((nodeId: string, position: { x: number; y: number }) => {
+        if (!user || !roomId) return;
+
+        updateNodePosition({
+          roomId,
+          nodeId,
+          position,
+          userId: user.id,
+        }).catch((error) => {
+          console.error("Failed to update node position:", error);
+        });
+      }, 100),
     [roomId, user, updateNodePosition]
   );
 
@@ -168,17 +181,20 @@ function RoomCanvasInner({
   }, [debouncedPositionUpdate]);
 
   // Handle node position changes
-  const handleNodesChange = useCallback((changes: NodeChange<CustomNodeType>[]) => {
-    // Call the original handler to update local state
-    onNodesChange(changes);
-    
-    // Send position updates to database
-    changes.forEach((change) => {
-      if (change.type === 'position' && change.position && !change.dragging) {
-        debouncedPositionUpdate(change.id, change.position);
-      }
-    });
-  }, [onNodesChange, debouncedPositionUpdate]);
+  const handleNodesChange = useCallback(
+    (changes: NodeChange<CustomNodeType>[]) => {
+      // Call the original handler to update local state
+      onNodesChange(changes);
+
+      // Send position updates to database
+      changes.forEach((change) => {
+        if (change.type === "position" && change.position && !change.dragging) {
+          debouncedPositionUpdate(change.id, change.position);
+        }
+      });
+    },
+    [onNodesChange, debouncedPositionUpdate]
+  );
 
   // Handle connection between nodes - prevent manual connections
   const onConnect = useCallback(() => {
@@ -189,7 +205,7 @@ function RoomCanvasInner({
   // Fit view when users change with debounce
   useEffect(() => {
     if (!roomData?.users) return;
-    
+
     const timeoutId = setTimeout(() => {
       fitView({
         padding: 0.1,
@@ -202,8 +218,63 @@ function RoomCanvasInner({
     return () => clearTimeout(timeoutId);
   }, [roomData?.users, fitView]);
 
+  // Presence heartbeat to keep user marked as active while in room
+  useEffect(() => {
+    if (!user?.id || !roomData?.room._id) return;
+
+    // Initial presence update
+    updatePresence({
+      roomId: roomData.room._id,
+      userId: user.id,
+      isActive: true,
+    }).catch((error) => {
+      console.error("Failed to update presence:", error);
+    });
+
+    // Set up heartbeat to maintain active status
+    const heartbeatInterval = setInterval(() => {
+      updatePresence({
+        roomId: roomData.room._id,
+        userId: user.id,
+        isActive: true,
+      }).catch((error) => {
+        console.error("Failed to update presence:", error);
+      });
+    }, 30000); // Update every 30 seconds
+
+    // Handle page visibility changes
+    const handleVisibilityChange = () => {
+      updatePresence({
+        roomId: roomData.room._id,
+        userId: user.id,
+        isActive: !document.hidden,
+      }).catch((error) => {
+        console.error("Failed to update presence:", error);
+      });
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      clearInterval(heartbeatInterval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      // Mark as inactive when leaving
+      updatePresence({
+        roomId: roomData.room._id,
+        userId: user.id,
+        isActive: false,
+      }).catch((error) => {
+        console.error("Failed to update presence:", error);
+      });
+    };
+  }, [user?.id, roomData?.room._id, updatePresence]);
+
   if (!roomData || !user) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        Loading...
+      </div>
+    );
   }
 
   return (
