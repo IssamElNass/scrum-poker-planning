@@ -1,5 +1,5 @@
-import { QueryCtx, MutationCtx } from "../_generated/server";
-import { Id, Doc } from "../_generated/dataModel";
+import { Doc, Id } from "../_generated/dataModel";
+import { MutationCtx, QueryCtx } from "../_generated/server";
 import * as Canvas from "./canvas";
 
 export interface CreateRoomArgs {
@@ -156,4 +156,72 @@ export async function getUserRooms(
   // This would need to track user sessions differently
   // For now, return empty array
   return [];
+}
+
+/**
+ * Updates room name (only by room owner)
+ */
+export async function updateRoomName(
+  ctx: MutationCtx,
+  args: {
+    roomId: Id<"rooms">;
+    userId: Id<"users">;
+    name: string;
+  }
+): Promise<void> {
+  const room = await ctx.db.get(args.roomId);
+  if (!room) {
+    throw new Error("Room not found");
+  }
+
+  const user = await ctx.db.get(args.userId);
+  if (!user || user.roomId !== args.roomId) {
+    throw new Error("User not found in room");
+  }
+
+  // Check if user is room owner
+  const isOwner = await isRoomOwner(ctx, args.roomId, args.userId);
+  if (!isOwner) {
+    throw new Error("Only room owner can change room name");
+  }
+
+  // Validate room name
+  if (!args.name.trim()) {
+    throw new Error("Room name cannot be empty");
+  }
+
+  // Update room name
+  await ctx.db.patch(args.roomId, {
+    name: args.name.trim(),
+    lastActivityAt: Date.now(),
+  });
+}
+
+/**
+ * Checks if a user is the room owner
+ */
+export async function isRoomOwner(
+  ctx: QueryCtx,
+  roomId: Id<"rooms">,
+  userId: Id<"users">
+): Promise<boolean> {
+  const room = await ctx.db.get(roomId);
+  if (!room) return false;
+
+  // If room has explicit owner, check that
+  if (room.ownerId) {
+    return room.ownerId === userId;
+  }
+
+  // Otherwise, check if this is the first user who joined
+  const allUsers = await ctx.db
+    .query("users")
+    .withIndex("by_room", (q) => q.eq("roomId", roomId))
+    .collect();
+
+  if (allUsers.length === 0) return false;
+
+  // Sort by join time and check if this user is first
+  const sortedUsers = allUsers.sort((a, b) => a.joinedAt - b.joinedAt);
+  return sortedUsers[0]._id === userId;
 }
