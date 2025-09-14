@@ -10,9 +10,11 @@ export default defineSchema({
     isGameOver: v.boolean(),
     createdAt: v.number(),
     lastActivityAt: v.number(),
+    ownerId: v.optional(v.id("users")),
   })
     .index("by_activity", ["lastActivityAt"])
-    .index("by_created", ["createdAt"]), // For querying recent rooms
+    .index("by_created", ["createdAt"]) // For querying recent rooms
+    .index("by_owner", ["ownerId"]), // For querying rooms by owner
 
   users: defineTable({
     roomId: v.id("rooms"),

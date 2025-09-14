@@ -1,5 +1,5 @@
-import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { mutation, query } from "./_generated/server";
 import * as Rooms from "./model/rooms";
 
 // Create a new room
@@ -52,5 +52,28 @@ export const resetGame = mutation({
   args: { roomId: v.id("rooms") },
   handler: async (ctx, args) => {
     await Rooms.resetRoomGame(ctx, args.roomId);
+  },
+});
+
+// Update room name
+export const updateName = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    userId: v.id("users"),
+    name: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await Rooms.updateRoomName(ctx, args);
+  },
+});
+
+// Check if user is room owner
+export const isOwner = query({
+  args: {
+    roomId: v.id("rooms"),
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    return await Rooms.isRoomOwner(ctx, args.roomId, args.userId);
   },
 });

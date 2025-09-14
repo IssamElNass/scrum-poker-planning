@@ -1,21 +1,22 @@
 "use client";
 
-import Link from "next/link";
 import { useReactFlow } from "@xyflow/react";
 import {
   Copy,
+  Download,
+  Grid3X3,
+  Home,
+  Maximize2,
+  Settings,
+  Share2,
   Users,
   ZoomIn,
   ZoomOut,
-  Maximize2,
-  Grid3X3,
-  Download,
-  Share2,
-  Settings,
-  Home,
 } from "lucide-react";
+import Link from "next/link";
 import { FC, useState } from "react";
 
+import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -29,8 +30,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useToast } from "@/hooks/use-toast";
+import { api } from "@/convex/_generated/api";
 import type { RoomWithRelatedData } from "@/convex/model/rooms";
+import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "convex/react";
+import { RoomSettingsDialog } from "./room-settings-dialog";
+import { ModeToggle } from "../mode-toggle";
 
 interface CanvasNavigationProps {
   roomData: RoomWithRelatedData;
@@ -45,8 +50,19 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
 }) => {
   const { zoomIn, zoomOut, fitView } = useReactFlow();
   const { toast } = useToast();
-  const [isFullscreenSupported] = useState(() => 
-    typeof document !== 'undefined' && document.fullscreenEnabled
+  const { user } = useAuth();
+  const [isFullscreenSupported] = useState(
+    () => typeof document !== "undefined" && document.fullscreenEnabled
+  );
+
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Check if current user is room owner
+  const isOwner = useQuery(
+    api.rooms.isOwner,
+    user && roomData?.room
+      ? { roomId: roomData.room._id, userId: user.id }
+      : "skip"
   );
 
   const handleCopyRoomUrl = async () => {
@@ -82,13 +98,13 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
 
   const handleFullscreen = () => {
     if (!isFullscreenSupported) return;
-    
+
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen();
     } else {
       document.exitFullscreen();
     }
-    
+
     onToggleFullscreen?.();
   };
 
@@ -102,7 +118,7 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
   return (
     <>
       {/* Left Navigation Bar */}
-      <div 
+      <div
         className="absolute top-4 left-4 z-50"
         role="navigation"
         aria-label="Canvas Room Controls"
@@ -113,9 +129,9 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
           <Link href="/" className="flex items-center">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className={buttonClass}
                   aria-label="Back to home"
                 >
@@ -166,7 +182,7 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
       </div>
 
       {/* Right Navigation Bar */}
-      <div 
+      <div
         className="absolute top-4 right-4 z-50"
         data-testid="canvas-zoom-controls"
       >
@@ -250,9 +266,9 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className={buttonClass}
                   aria-label="Share and export options"
                 >
@@ -273,9 +289,9 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className={buttonClass}
                   aria-label="Room settings"
                 >
@@ -283,15 +299,28 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem disabled>
+                <DropdownMenuItem
+                  onClick={() => setIsSettingsOpen(true)}
+                  disabled={!isOwner}
+                >
                   <Settings className="h-4 w-4 mr-2" />
                   Room settings
                 </DropdownMenuItem>
               </DropdownMenuContent>
+              <ModeToggle variant="ghost" />
             </DropdownMenu>
           </div>
         </div>
       </div>
+      {/* Room Settings Dialog */}
+      {user && (
+        <RoomSettingsDialog
+          isOpen={isSettingsOpen}
+          onOpenChange={setIsSettingsOpen}
+          roomData={roomData}
+          currentUserId={user.id}
+        />
+      )}
     </>
   );
 };

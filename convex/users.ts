@@ -1,5 +1,5 @@
-import { mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { mutation } from "./_generated/server";
 import * as Users from "./model/users";
 
 export const join = mutation({
@@ -28,5 +28,29 @@ export const leave = mutation({
   args: { userId: v.id("users") },
   handler: async (ctx, args) => {
     await Users.leaveRoom(ctx, args.userId);
+  },
+});
+
+// Kick user from room
+export const kick = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    userToKickId: v.id("users"),
+    kickedById: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    await Users.kickUser(ctx, args);
+  },
+});
+
+// Transfer room ownership
+export const transferOwnership = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    newOwnerId: v.id("users"),
+    currentOwnerId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    await Users.transferOwnership(ctx, args);
   },
 });

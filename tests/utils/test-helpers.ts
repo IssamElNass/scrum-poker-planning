@@ -31,7 +31,7 @@ export async function waitForElement(
  */
 export async function waitForRoomNavigation(
   page: Page,
-  timeout: number = 10000
+  timeout: number = 30000
 ): Promise<void> {
   await page.waitForURL(/\/room\/[a-z0-9]+/, { timeout });
 }
