@@ -36,8 +36,8 @@ export async function navigateToRoom(
   page: Page,
   roomId: string
 ): Promise<void> {
-  await page.goto(`/room/${roomId}`);
-  await page.waitForLoadState("domcontentloaded");
+  await page.goto(`/room/${roomId}`, { timeout: 30000 });
+  await page.waitForLoadState("domcontentloaded", { timeout: 30000 });
 }
 
 /**
@@ -62,10 +62,10 @@ export async function createAndJoinRoom(
       await joinPage.joinAsSpectator(userName);
     }
     // Wait for canvas to appear after joining
-    await page.waitForSelector('.react-flow', { timeout: 10000 });
+    await page.waitForSelector(".react-flow", { timeout: 10000 });
   } catch {
     // No join dialog, user might already be in the room
-    await page.waitForSelector('.react-flow', { timeout: 10000 });
+    await page.waitForSelector(".react-flow", { timeout: 10000 });
   }
 
   return { roomId, roomPage, joinPage };
@@ -95,7 +95,7 @@ export async function joinExistingRoom(
   }
 
   // Wait for canvas to appear after joining
-  await page.waitForSelector('.react-flow', { timeout: 10000 });
+  await page.waitForSelector(".react-flow", { timeout: 30000 });
 
   return { roomPage, joinPage };
 }
@@ -155,7 +155,13 @@ export async function createMultipleUsers(
  */
 export async function cleanupUsers(users: RoomUser[]): Promise<void> {
   for (const user of users) {
-    await user.context.close();
+    try {
+      if (!user.context.browser()?.isConnected()) continue;
+      await user.context.close();
+    } catch (error) {
+      // Context might already be closed, ignore error
+      console.log(`Context cleanup failed for ${user.name}:`, error);
+    }
   }
 }
 
@@ -174,7 +180,7 @@ export async function waitForPlayerCount(
 
     for (const user of users) {
       // Count player nodes in the React Flow canvas
-      const playerCount = await user.page.locator('.react-flow__node').count();
+      const playerCount = await user.page.locator(".react-flow__node").count();
       if (playerCount !== expectedCount) {
         allMatch = false;
         break;

@@ -35,6 +35,7 @@ import type { RoomWithRelatedData } from "@/convex/model/rooms";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "convex/react";
 import { RoomSettingsDialog } from "./room-settings-dialog";
+import { ModeToggle } from "../mode-toggle";
 
 interface CanvasNavigationProps {
   roomData: RoomWithRelatedData;
@@ -306,6 +307,7 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
                   Room settings
                 </DropdownMenuItem>
               </DropdownMenuContent>
+              <ModeToggle variant="ghost" />
             </DropdownMenu>
           </div>
         </div>

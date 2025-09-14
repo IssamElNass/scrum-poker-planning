@@ -35,7 +35,7 @@ import {
   UserMinus,
   Users,
 } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 interface RoomSettingsDialogProps {
   isOpen: boolean;
@@ -68,7 +68,7 @@ export function RoomSettingsDialog({
   const updateRoomName = useMutation(api.rooms.updateName);
   const kickUser = useMutation(api.users.kick);
   const transferOwnership = useMutation(api.users.transferOwnership);
-  const updatePresence = useMutation(api.canvas.updatePresence);
+  // const updatePresence = useMutation(api.canvas.updatePresence);
 
   const isOwner = useQuery(api.rooms.isOwner, {
     roomId: roomData.room._id,
@@ -76,18 +76,18 @@ export function RoomSettingsDialog({
   });
 
   // Get active presence data for all users in the room
-  const activePresence = useQuery(api.canvas.getPresence, {
-    roomId: roomData.room._id,
-  });
+  // const activePresence = useQuery(api.canvas.getPresence, {
+  //   roomId: roomData.room._id,
+  // });
 
   // Helper function to check if a user is currently active
-  const isUserActive = (userId: Id<"users">) => {
-    return (
-      activePresence?.some(
-        (presence) => presence.userId === userId && presence.isActive
-      ) ?? false
-    );
-  };
+  // const isUserActive = (userId: Id<"users">) => {
+  //   return (
+  //     activePresence?.some(
+  //       (presence) => presence.userId === userId && presence.isActive
+  //     ) ?? false
+  //   );
+  // };
 
   const handleSaveRoomName = async () => {
     if (!roomName.trim()) {
@@ -201,41 +201,41 @@ export function RoomSettingsDialog({
   }, [isOpen, isOwner, onOpenChange]);
 
   // Update presence when dialog is open to keep user marked as active
-  useEffect(() => {
-    if (!isOpen || !currentUserId) return;
+  // useEffect(() => {
+  //   if (!isOpen || !currentUserId) return;
 
-    // Initial presence update when dialog opens
-    updatePresence({
-      roomId: roomData.room._id,
-      userId: currentUserId,
-      isActive: true,
-    }).catch((error) => {
-      console.error("Failed to update presence:", error);
-    });
+  //   // Initial presence update when dialog opens
+  //   updatePresence({
+  //     roomId: roomData.room._id,
+  //     userId: currentUserId,
+  //     isActive: true,
+  //   }).catch((error) => {
+  //     console.error("Failed to update presence:", error);
+  //   });
 
-    // Set up heartbeat to maintain active status
-    const heartbeatInterval = setInterval(() => {
-      updatePresence({
-        roomId: roomData.room._id,
-        userId: currentUserId,
-        isActive: true,
-      }).catch((error) => {
-        console.error("Failed to update presence:", error);
-      });
-    }, 30000); // Update every 30 seconds
+  //   // Set up heartbeat to maintain active status
+  //   const heartbeatInterval = setInterval(() => {
+  //     updatePresence({
+  //       roomId: roomData.room._id,
+  //       userId: currentUserId,
+  //       isActive: true,
+  //     }).catch((error) => {
+  //       console.error("Failed to update presence:", error);
+  //     });
+  //   }, 30000); // Update every 30 seconds
 
-    return () => {
-      clearInterval(heartbeatInterval);
-      // Mark as inactive when dialog closes
-      updatePresence({
-        roomId: roomData.room._id,
-        userId: currentUserId,
-        isActive: false,
-      }).catch((error) => {
-        console.error("Failed to update presence:", error);
-      });
-    };
-  }, [isOpen, currentUserId, roomData.room._id, updatePresence]);
+  //   return () => {
+  //     clearInterval(heartbeatInterval);
+  //     // Mark as inactive when dialog closes
+  //     updatePresence({
+  //       roomId: roomData.room._id,
+  //       userId: currentUserId,
+  //       isActive: false,
+  //     }).catch((error) => {
+  //       console.error("Failed to update presence:", error);
+  //     });
+  //   };
+  // }, [isOpen, currentUserId, roomData.room._id, updatePresence]);
 
   const sidebarItems = [
     {
@@ -434,11 +434,12 @@ export function RoomSettingsDialog({
                                   </div>
                                   <div>
                                     <div className="text-xl font-bold text-emerald-700 dark:text-emerald-300">
-                                      {activePresence?.length || 0} /{" "}
+                                      {/* {activePresence?.length || 0} /{" "} */}
                                       {roomData.users.length}
                                     </div>
                                     <div className="text-xs text-emerald-600 dark:text-emerald-400">
-                                      Active / Total Members
+                                      {/* Active / Total Members */}
+                                      Total Members
                                     </div>
                                   </div>
                                 </div>
@@ -451,14 +452,14 @@ export function RoomSettingsDialog({
                                   </div>
                                   <div>
                                     <div className="text-xl font-bold text-blue-700 dark:text-blue-300">
-                                      {
+                                      {/* {
                                         roomData.users.filter(
                                           (u) =>
                                             !u.isSpectator &&
                                             isUserActive(u._id)
                                         ).length
                                       }{" "}
-                                      /{" "}
+                                      /{" "} */}
                                       {
                                         roomData.users.filter(
                                           (u) => !u.isSpectator
@@ -466,7 +467,8 @@ export function RoomSettingsDialog({
                                       }
                                     </div>
                                     <div className="text-xs text-blue-600 dark:text-blue-400">
-                                      Active / Total Participants
+                                      {/* Active / Total Participants */}
+                                      Total Participants
                                     </div>
                                   </div>
                                 </div>
@@ -479,13 +481,13 @@ export function RoomSettingsDialog({
                                   </div>
                                   <div>
                                     <div className="text-xl font-bold text-purple-700 dark:text-purple-300">
-                                      {
+                                      {/* {
                                         roomData.users.filter(
                                           (u) =>
                                             u.isSpectator && isUserActive(u._id)
                                         ).length
                                       }{" "}
-                                      /{" "}
+                                      /{" "} */}
                                       {
                                         roomData.users.filter(
                                           (u) => u.isSpectator
@@ -493,7 +495,8 @@ export function RoomSettingsDialog({
                                       }
                                     </div>
                                     <div className="text-xs text-purple-600 dark:text-purple-400">
-                                      Active / Total Spectators
+                                      {/* Active / Total Spectators */}
+                                      Total Spectators
                                     </div>
                                   </div>
                                 </div>
@@ -532,13 +535,13 @@ export function RoomSettingsDialog({
                                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-lg font-semibold shadow-lg">
                                   {currentUser?.name.charAt(0).toUpperCase()}
                                 </div>
-                                <div
+                                {/* <div
                                   className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-gray-800 ${
                                     isUserActive(currentUserId)
                                       ? "bg-green-500"
                                       : "bg-orange-500"
                                   }`}
-                                ></div>
+                                ></div> */}
                               </div>
                               <div>
                                 <div className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-3">
@@ -560,7 +563,7 @@ export function RoomSettingsDialog({
                                   {currentUser?.isSpectator && (
                                     <Eye className="h-3 w-3" />
                                   )}
-                                  <span
+                                  {/* <span
                                     className={`text-xs px-1.5 py-0.5 rounded-full text-white ${
                                       isUserActive(currentUserId)
                                         ? "bg-green-500"
@@ -570,7 +573,7 @@ export function RoomSettingsDialog({
                                     {isUserActive(currentUserId)
                                       ? "Active"
                                       : "Offline"}
-                                  </span>
+                                  </span> */}
                                 </div>
                               </div>
                             </div>
@@ -589,13 +592,13 @@ export function RoomSettingsDialog({
                                   <div className="w-12 h-12 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center text-white text-lg font-semibold">
                                     {user.name.charAt(0).toUpperCase()}
                                   </div>
-                                  <div
+                                  {/* <div
                                     className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-gray-800 ${
                                       isUserActive(user._id)
                                         ? "bg-green-500"
                                         : "bg-orange-500"
                                     }`}
-                                  ></div>
+                                  ></div> */}
                                 </div>
                                 <div>
                                   <div className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-3">
@@ -614,7 +617,7 @@ export function RoomSettingsDialog({
                                     {user.isSpectator && (
                                       <Eye className="h-3 w-3" />
                                     )}
-                                    <span
+                                    {/* <span
                                       className={`text-xs px-1.5 py-0.5 rounded-full text-white ${
                                         isUserActive(user._id)
                                           ? "bg-green-500"
@@ -624,7 +627,7 @@ export function RoomSettingsDialog({
                                       {isUserActive(user._id)
                                         ? "Active"
                                         : "Offline"}
-                                    </span>
+                                    </span> */}
                                   </div>
                                 </div>
                               </div>

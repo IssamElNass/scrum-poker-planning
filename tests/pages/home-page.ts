@@ -39,8 +39,8 @@ export class HomePage {
   }
 
   async goto(): Promise<void> {
-    await this.page.goto("/");
-    await this.page.waitForLoadState("networkidle");
+    await this.page.goto("/", { timeout: 30000 });
+    await this.page.waitForLoadState("domcontentloaded", { timeout: 30000 });
   }
 
   async verifyPageTitle(titlePattern: RegExp): Promise<void> {
