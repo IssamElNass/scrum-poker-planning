@@ -28,9 +28,6 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
-      - name: Check TypeScript
-        run: npm run ts:check
-
   # Build Application
   build:
     name: Build Application

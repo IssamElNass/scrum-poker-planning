@@ -3,7 +3,6 @@
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { CallToAction, FeaturesSection, UseCases } from "@/components/homepage";
-import { FAQSimple } from "@/components/homepage/faq-simple";
 import { GithubIcon } from "@/components/icons";
 import { api } from "@/convex/_generated/api";
 import { useCopyRoomUrlToClipboard } from "@/hooks/use-copy-room-url-to-clipboard";
@@ -208,7 +207,7 @@ export default function HomePage() {
         <HowItWorks />*/}
         <FeaturesSection />
         <UseCases />
-        <FAQSimple />
+        {/* <FAQSimple />*/}
         <CallToAction onStartGame={handleCreateRoom} loading={isCreating} />
       </main>
 

@@ -89,7 +89,7 @@ export const CallToAction = ({ onStartGame, loading }: CallToActionProps) => {
             </button>
 
             <a
-              href="https://github.com/INQTR/poker-planning"
+              href="https://github.com/IssamElNass/scrum-poker-planning"
               target="_blank"
               rel="noopener noreferrer"
               className="group inline-flex items-center gap-3 rounded-2xl bg-white/10 backdrop-blur-sm px-8 py-5 text-lg font-semibold text-white ring-1 ring-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50"
