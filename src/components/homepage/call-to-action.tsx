@@ -14,16 +14,19 @@ export const CallToAction = ({ onStartGame, loading }: CallToActionProps) => {
         <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-br from-blue-400/30 to-purple-400/30 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-br from-purple-400/30 to-pink-400/30 rounded-full blur-3xl animate-pulse [animation-delay:2s]" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-br from-cyan-400/20 to-blue-400/20 rounded-full blur-3xl animate-pulse [animation-delay:4s]" />
-        
+
         {/* Grid pattern overlay */}
         <div className="absolute inset-0 opacity-20">
-          <div className="h-full w-full" style={{
-            backgroundImage: `
+          <div
+            className="h-full w-full"
+            style={{
+              backgroundImage: `
               linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
               linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px)
             `,
-            backgroundSize: '60px 60px'
-          }} />
+              backgroundSize: "60px 60px",
+            }}
+          />
         </div>
 
         {/* Floating particles */}
@@ -38,7 +41,9 @@ export const CallToAction = ({ onStartGame, loading }: CallToActionProps) => {
           {/* Badge */}
           <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-2 ring-1 ring-white/20">
             <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-sm font-medium text-green-300">Ready in 30 seconds</span>
+            <span className="text-sm font-medium text-green-300">
+              Ready in 30 seconds
+            </span>
           </div>
 
           {/* Main heading */}
@@ -58,9 +63,12 @@ export const CallToAction = ({ onStartGame, loading }: CallToActionProps) => {
 
           {/* Subtitle */}
           <p className="text-xl sm:text-2xl leading-relaxed text-gray-300 max-w-3xl mx-auto mb-12">
-            Join thousands of teams who've already discovered the joy of
-            <span className="text-white font-semibold"> effortless estimation</span>.
-            No setup, no limits, just results.
+            Join thousands of teams who&apos;ve already discovered the joy of
+            <span className="text-white font-semibold">
+              {" "}
+              effortless estimation
+            </span>
+            . No setup, no limits, just results.
           </p>
 
           {/* Action buttons */}
@@ -96,19 +104,25 @@ export const CallToAction = ({ onStartGame, loading }: CallToActionProps) => {
             <div className="group">
               <div className="flex items-center justify-center gap-3 p-4 rounded-2xl bg-white/5 backdrop-blur-sm ring-1 ring-white/10 group-hover:bg-white/10 transition-colors">
                 <div className="h-3 w-3 rounded-full bg-green-400 animate-pulse" />
-                <span className="text-sm font-bold text-green-300">Free Forever</span>
+                <span className="text-sm font-bold text-green-300">
+                  Free Forever
+                </span>
               </div>
             </div>
             <div className="group">
               <div className="flex items-center justify-center gap-3 p-4 rounded-2xl bg-white/5 backdrop-blur-sm ring-1 ring-white/10 group-hover:bg-white/10 transition-colors">
                 <div className="h-3 w-3 rounded-full bg-blue-400 animate-pulse" />
-                <span className="text-sm font-bold text-blue-300">No Registration</span>
+                <span className="text-sm font-bold text-blue-300">
+                  No Registration
+                </span>
               </div>
             </div>
             <div className="group">
               <div className="flex items-center justify-center gap-3 p-4 rounded-2xl bg-white/5 backdrop-blur-sm ring-1 ring-white/10 group-hover:bg-white/10 transition-colors">
                 <div className="h-3 w-3 rounded-full bg-purple-400 animate-pulse" />
-                <span className="text-sm font-bold text-purple-300">Instant Setup</span>
+                <span className="text-sm font-bold text-purple-300">
+                  Instant Setup
+                </span>
               </div>
             </div>
           </div>

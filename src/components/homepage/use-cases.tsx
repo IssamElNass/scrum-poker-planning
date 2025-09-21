@@ -79,8 +79,8 @@ export function UseCases() {
           </h2>
 
           <p className="mt-6 text-xl leading-8 text-gray-600 dark:text-gray-300">
-            Whether you're a startup or enterprise, our tool adapts to your
-            team's unique needs.
+            Whether you&apos;re a startup or enterprise, our tool adapts to your
+            team&apos;s unique needs.
           </p>
         </div>
 
