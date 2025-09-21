@@ -1,9 +1,7 @@
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+"use client";
+
+import { ChevronDownIcon } from "lucide-react";
+import { useState } from "react";
 
 const faqs = [
   {
@@ -63,7 +61,13 @@ const faqs = [
   },
 ];
 
-export function FAQ() {
+export function FAQSimple() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const toggleFaq = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
   return (
     <div
       id="faq"
@@ -112,31 +116,40 @@ export function FAQ() {
             </p>
           </div>
 
-          {/* FAQ Accordion */}
+          {/* FAQ Items */}
           <div className="space-y-4">
-            <Accordion type="single" collapsible className="w-full">
-              {faqs.map((faq, index) => (
-                <AccordionItem
-                  key={faq.question}
-                  value={`item-${index}`}
-                  className="rounded-2xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg ring-1 ring-gray-200/50 dark:ring-gray-800/50 border-0 mb-4"
+            {faqs.map((faq, index) => (
+              <div
+                key={index}
+                className="rounded-2xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg ring-1 ring-gray-200/50 dark:ring-gray-800/50 transition-all duration-300 hover:shadow-xl"
+              >
+                <button
+                  onClick={() => toggleFaq(index)}
+                  className="w-full px-6 py-6 text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset rounded-2xl"
                 >
-                  <AccordionTrigger className="px-6 py-6 text-left text-lg font-semibold text-gray-900 dark:text-white hover:no-underline">
-                    <div className="flex items-start gap-4">
-                      <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center mt-1">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                      </span>
-                      <span className="flex-1 text-left">{faq.question}</span>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-6 text-gray-600 dark:text-gray-300">
-                    <div className="ml-12 pb-6 text-base leading-7">
+                  <div className="flex items-start gap-4 flex-1">
+                    <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center mt-1">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                    </span>
+                    <span className="text-lg font-semibold text-gray-900 dark:text-white text-left">
+                      {faq.question}
+                    </span>
+                  </div>
+                  <ChevronDownIcon
+                    className={`w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform duration-200 ${
+                      openIndex === index ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {openIndex === index && (
+                  <div className="px-6 pb-6 text-gray-600 dark:text-gray-300">
+                    <div className="ml-12 text-base leading-7 animate-in slide-in-from-top-2 duration-200">
                       {faq.answer}
                     </div>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
 
           {/* Bottom CTA */}

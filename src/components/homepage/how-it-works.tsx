@@ -1,4 +1,4 @@
-import { ArrowRight, Users, Vote, ChartBar, Zap } from "lucide-react";
+import { ArrowRight, ChartBar, Users, Vote, Zap } from "lucide-react";
 
 const steps = [
   {
@@ -41,128 +41,145 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <div id="how-it-works" className="relative isolate overflow-hidden bg-gray-50 dark:bg-gray-900">
-      {/* Background pattern */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <svg
-          className="absolute left-[max(50%,25rem)] top-0 h-[64rem] w-[128rem] -translate-x-1/2 stroke-gray-200 dark:stroke-gray-800 [mask-image:radial-gradient(64rem_64rem_at_top,white,transparent)]"
-          aria-hidden="true"
-        >
-          <defs>
-            <pattern
-              id="how-it-works-pattern"
-              width={200}
-              height={200}
-              x="50%"
-              y={-1}
-              patternUnits="userSpaceOnUse"
-            >
-              <path d="M100 200V.5M.5 .5H200" fill="none" />
-            </pattern>
-          </defs>
-          <svg
-            x="50%"
-            y={-1}
-            className="overflow-visible fill-gray-100/20 dark:fill-gray-800/20"
-          >
-            <path
-              d="M-100.5 0h201v201h-201Z M699.5 0h201v201h-201Z M499.5 400h201v201h-201Z M-300.5 600h201v201h-201Z"
-              strokeWidth={0}
-            />
-          </svg>
-          <rect
-            width="100%"
-            height="100%"
-            strokeWidth={0}
-            fill="url(#how-it-works-pattern)"
+    <div
+      id="how-it-works"
+      className="relative isolate overflow-hidden bg-white dark:bg-gray-950"
+    >
+      {/* Modern background pattern */}
+      <div className="absolute inset-0 -z-10">
+        {/* Gradient mesh background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20" />
+
+        {/* Animated grid pattern */}
+        <div className="absolute inset-0 opacity-30">
+          <div
+            className="h-full w-full"
+            style={{
+              backgroundImage: `
+              linear-gradient(to right, rgb(99 102 241 / 0.1) 1px, transparent 1px),
+              linear-gradient(to bottom, rgb(99 102 241 / 0.1) 1px, transparent 1px)
+            `,
+              backgroundSize: "60px 60px",
+            }}
           />
-        </svg>
+        </div>
+
+        {/* Floating elements */}
+        <div className="absolute top-20 left-[10%] w-32 h-32 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-2xl animate-pulse" />
+        <div className="absolute bottom-32 right-[15%] w-24 h-24 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-2xl animate-pulse [animation-delay:2s]" />
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8 lg:py-40">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-6xl">
-            How
-            <span className="relative">
-              <span className="relative bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                {" "}
-                Planning Poker{" "}
-              </span>
+      <div className="mx-auto max-w-7xl px-6 py-20 sm:py-32 lg:px-8">
+        {/* Header */}
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 px-4 py-2 ring-1 ring-blue-500/20 mb-8">
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+            <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+              4 Simple Steps
             </span>
-            Works
+          </div>
+
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 dark:text-white">
+            <span className="block mb-2">How</span>
+            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Scrum Planning Poker
+            </span>
+            <span className="block text-3xl sm:text-4xl lg:text-5xl mt-2 text-gray-700 dark:text-gray-300">
+              Works
+            </span>
           </h2>
-          <p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Our streamlined process makes sprint planning efficient and
-            enjoyable. Follow these simple steps to transform your estimation
-            sessions.
+
+          <p className="mt-8 text-xl leading-8 text-gray-600 dark:text-gray-300">
+            From zero to estimation in under 60 seconds. No complexity, just
+            results.
           </p>
         </div>
 
-        <div className="mx-auto mt-16 max-w-7xl">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+        {/* Steps */}
+        <div className="mx-auto mt-20 max-w-7xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6">
             {steps.map((step, index) => (
               <div key={step.id} className="group relative">
-                {/* Connection line for desktop */}
+                {/* Connection arrow for desktop */}
                 {index < steps.length - 1 && (
-                  <div className="hidden lg:block absolute top-20 left-full w-full">
-                    <div className="relative">
+                  <div className="hidden lg:block absolute top-20 left-full w-full z-10 pointer-events-none overflow-visible">
+                    <div className="relative w-6 h-16 flex items-center justify-center">
                       <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t-2 border-dashed border-gray-300 dark:border-gray-700" />
+                        <div className="w-6 border-t-2 border-dashed border-blue-200 dark:border-blue-800" />
                       </div>
-                      <div className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2">
-                        <ArrowRight className="h-5 w-5 text-gray-400 dark:text-gray-600 bg-gray-50 dark:bg-gray-900" />
+                      <div className="bg-white dark:bg-gray-950 px-1">
+                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg">
+                          <ArrowRight className="h-3 w-3 text-white" />
+                        </div>
                       </div>
                     </div>
                   </div>
                 )}
 
-                <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-8 shadow-lg ring-1 ring-gray-200 dark:ring-gray-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                  {/* Gradient overlay */}
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${step.gradient} opacity-5 dark:opacity-10`}
-                  />
-
-                  {/* Step number */}
-                  <div className="absolute top-3 right-3">
-                    <div className="relative">
-                      <div className="text-5xl font-bold bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 bg-clip-text text-transparent select-none">
-                        {step.id}
-                      </div>
-                      <div className="absolute inset-0 text-5xl font-bold text-gray-300/30 dark:text-gray-600/30 blur-sm select-none">
+                {/* Step card */}
+                <div className="relative">
+                  <div className="relative overflow-hidden rounded-3xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-6 shadow-xl ring-1 ring-gray-200/50 dark:ring-gray-800/50 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
+                    {/* Step number badge */}
+                    <div className="absolute -top-4 -left-4">
+                      <div
+                        className={`flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br ${step.gradient} shadow-lg text-white font-bold text-lg`}
+                      >
                         {step.id}
                       </div>
                     </div>
-                  </div>
 
-                  {/* Icon */}
-                  <div className="relative mb-4">
+                    {/* Icon */}
+                    <div className="mb-4 mt-2">
+                      <div
+                        className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br ${step.gradient} shadow-xl transition-transform duration-300 group-hover:scale-110`}
+                      >
+                        <step.icon
+                          className="h-8 w-8 text-white"
+                          aria-hidden="true"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                      {step.title}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm">
+                      {step.description}
+                    </p>
+
+                    {/* Animated border */}
                     <div
-                      className={`inline-flex rounded-2xl bg-gradient-to-br ${step.gradient} p-3 shadow-lg ${step.shadowColor}`}
-                    >
-                      <step.icon
-                        className="h-8 w-8 text-white"
-                        aria-hidden="true"
+                      className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${step.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
+                    />
+
+                    {/* Progress indicator */}
+                    <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                      <div
+                        className={`w-3 h-3 rounded-full bg-gradient-to-r ${step.gradient} shadow-lg animate-pulse`}
                       />
                     </div>
-                  </div>
-
-                  {/* Content */}
-                  <h3 className="relative text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                    {step.title}
-                  </h3>
-                  <p className="relative text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                    {step.description}
-                  </p>
-
-                  {/* Hover effect indicator */}
-                  <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div
-                      className={`h-2 w-2 rounded-full bg-gradient-to-r ${step.gradient} animate-pulse`}
-                    />
                   </div>
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="text-center mt-20">
+          <div className="inline-flex items-center gap-4 rounded-2xl bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 p-6 ring-1 ring-blue-200/50 dark:ring-blue-800/50">
+            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 shadow-lg">
+              <Zap className="h-6 w-6 text-white" />
+            </div>
+            <div className="text-left">
+              <p className="text-lg font-bold text-gray-900 dark:text-white">
+                Ready to get started?
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Create your first room and see the magic happen
+              </p>
+            </div>
           </div>
         </div>
       </div>

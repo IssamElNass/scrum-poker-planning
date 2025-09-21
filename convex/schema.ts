@@ -7,6 +7,14 @@ export default defineSchema({
     votingCategorized: v.boolean(),
     autoCompleteVoting: v.boolean(),
     roomType: v.optional(v.literal("canvas")), // Optional for backward compatibility
+    votingSystem: v.optional(
+      v.union(
+        v.literal("fibonacci"),
+        v.literal("modified-fibonacci"),
+        v.literal("tshirt"),
+        v.literal("powers-of-2")
+      )
+    ), // Optional for backward compatibility, defaults to fibonacci
     isGameOver: v.boolean(),
     createdAt: v.number(),
     lastActivityAt: v.number(),

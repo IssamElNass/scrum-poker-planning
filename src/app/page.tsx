@@ -1,24 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { ArrowRight } from "lucide-react";
-import { toast } from "@/lib/toast";
-import { useCopyRoomUrlToClipboard } from "@/hooks/use-copy-room-url-to-clipboard";
-import {
-  Banner,
-  HowItWorks,
-  FAQ,
-  UseCases,
-  CallToAction,
-  AppPreview,
-  FeaturesSection,
-} from "@/components/homepage";
-import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { Header } from "@/components/header";
+import {
+  AppPreview,
+  CallToAction,
+  FeaturesSection,
+  HowItWorks,
+  UseCases,
+} from "@/components/homepage";
+import { FAQSimple } from "@/components/homepage/faq-simple";
 import { GithubIcon } from "@/components/icons";
+import { api } from "@/convex/_generated/api";
+import { useCopyRoomUrlToClipboard } from "@/hooks/use-copy-room-url-to-clipboard";
+import { toast } from "@/lib/toast";
+import { useMutation } from "convex/react";
+import { ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function HomePage() {
   const router = useRouter();
@@ -52,7 +51,6 @@ export default function HomePage() {
       >
         Skip to main content
       </a>
-      <Banner />
 
       <Header />
 
@@ -109,62 +107,63 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8 lg:py-40">
-          <div className="mx-auto max-w-4xl text-center">
-            <h1 className="text-5xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-7xl">
-              Estimate stories with
-              <span className="relative">
-                <span className="relative bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                  {" "}
+        <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8 lg:py-32">
+          {/* Main Hero Content */}
+          <div className="mx-auto max-w-5xl text-center">
+            {/* Badge */}
+            <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary/10 to-purple-500/10 px-4 py-2 ring-1 ring-primary/20 backdrop-blur-sm">
+              <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+              <span className="text-sm font-medium text-primary">
+                New v1.0.0 Release
+              </span>
+            </div>
+
+            {/* Main Heading */}
+            <h1 className="text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-8xl lg:text-9xl">
+              <span className="block">Scrum</span>
+              <span className="relative block">
+                <span className="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
                   Planning Poker
                 </span>
-                <svg
-                  className="absolute -bottom-2 left-0 w-full"
-                  viewBox="0 0 300 12"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M2 8.5C2 8.5 101 2 149.5 2C198 2 298 8.5 298 8.5"
-                    stroke="url(#hero-gradient)"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                  />
-                  <defs>
-                    <linearGradient
-                      id="hero-gradient"
-                      x1="0%"
-                      y1="0%"
-                      x2="100%"
-                      y2="0%"
-                    >
-                      <stop offset="0%" stopColor="#7c3aed" />
-                      <stop offset="100%" stopColor="#a78bfa" />
-                    </linearGradient>
-                  </defs>
-                </svg>
+                {/* Decorative underline */}
+                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-2/3 h-1 bg-gradient-to-r from-primary/0 via-primary/60 to-primary/0 rounded-full" />
+              </span>
+              <span className="block text-5xl sm:text-6xl lg:text-7xl font-bold mt-2">
+                Made Simple
               </span>
             </h1>
 
-            <p className="mt-8 text-xl leading-8 text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Join thousands of Agile teams using our intuitive platform for
-              collaborative story point estimation. No sign-up, no fees, just
-              pure efficiency.
+            {/* Subtitle */}
+            <p className="mt-8 text-xl sm:text-2xl leading-relaxed text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              The fastest way to estimate user stories with your team.
+              <span className="font-semibold text-gray-900 dark:text-white">
+                {" "}
+                No signup.
+              </span>
+              <span className="font-semibold text-gray-900 dark:text-white">
+                {" "}
+                No limits.
+              </span>
+              <span className="font-semibold text-gray-900 dark:text-white">
+                {" "}
+                Just results.
+              </span>
             </p>
 
-            <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
+            {/* Action Buttons */}
+            <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6">
               <button
                 onClick={handleCreateRoom}
                 disabled={isCreating}
                 data-testid="hero-start-button"
-                className="group relative inline-flex items-center justify-center rounded-full bg-primary px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-primary/90 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group relative overflow-hidden rounded-2xl bg-primary px-10 py-5 text-lg font-bold text-white shadow-2xl shadow-primary/25 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-primary/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span className="relative z-10 flex items-center gap-2">
-                  Start New Game
-                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                <span className="relative z-10 flex items-center gap-3">
+                  Start Planning Now
+                  <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-1" />
                 </span>
-                {/* Animated glow effect */}
-                <div className="absolute inset-0 -z-10 animate-pulse rounded-full bg-primary/50 blur-xl" />
+                {/* Shimmer effect */}
+                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
               </button>
 
               <a
@@ -172,26 +171,38 @@ export default function HomePage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="hero-github-link"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-gray-100 dark:bg-gray-800 px-8 py-4 text-base font-semibold text-gray-900 dark:text-white backdrop-blur-sm transition-all duration-200 hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500"
+                className="group inline-flex items-center gap-3 rounded-2xl bg-gray-100/50 dark:bg-gray-800/50 px-8 py-5 text-lg font-semibold text-gray-900 dark:text-white backdrop-blur-sm ring-1 ring-gray-200 dark:ring-gray-700 transition-all duration-300 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500"
               >
-                <GithubIcon className="h-5 w-5" />
-                View on GitHub
+                <GithubIcon className="h-6 w-6" />
+                View Source
               </a>
             </div>
 
-            {/* Trust indicators with animation */}
-            <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-8 text-sm text-gray-500 dark:text-gray-400">
-              <div className="flex items-center gap-2" data-testid="trust-free">
-                <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-                <span>100% Free Forever</span>
+            {/* Stats Row */}
+            <div className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-8">
+              <div className="group">
+                <div className="flex items-center justify-center gap-3 p-6 rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200/50 dark:border-green-800/50 transition-all duration-300 group-hover:scale-105">
+                  <div className="h-3 w-3 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-lg font-bold text-green-700 dark:text-green-300">
+                    100% Free Forever
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-2" data-testid="trust-no-account">
-                <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-                <span>No Account Required</span>
+              <div className="group">
+                <div className="flex items-center justify-center gap-3 p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border border-blue-200/50 dark:border-blue-800/50 transition-all duration-300 group-hover:scale-105">
+                  <div className="h-3 w-3 rounded-full bg-blue-500 animate-pulse" />
+                  <span className="text-lg font-bold text-blue-700 dark:text-blue-300">
+                    No Account Required
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-2" data-testid="trust-realtime">
-                <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-                <span>Real-time Collaboration</span>
+              <div className="group">
+                <div className="flex items-center justify-center gap-3 p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200/50 dark:border-purple-800/50 transition-all duration-300 group-hover:scale-105">
+                  <div className="h-3 w-3 rounded-full bg-purple-500 animate-pulse" />
+                  <span className="text-lg font-bold text-purple-700 dark:text-purple-300">
+                    Real-time Magic
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -204,9 +215,7 @@ export default function HomePage() {
         <HowItWorks />
         <FeaturesSection />
         <UseCases />
-        {/* TODO: we need to get real testimonials from real users */}
-        {/* <Testimonials /> */}
-        <FAQ />
+        <FAQSimple />
         <CallToAction onStartGame={handleCreateRoom} loading={isCreating} />
       </main>
 

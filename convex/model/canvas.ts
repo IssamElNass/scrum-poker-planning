@@ -1,5 +1,5 @@
-import { QueryCtx, MutationCtx } from "../_generated/server";
 import { Id } from "../_generated/dataModel";
+import { MutationCtx, QueryCtx } from "../_generated/server";
 
 // Layout constants for default positions
 const CANVAS_CENTER = { x: 0, y: 0 };
@@ -11,6 +11,32 @@ const PLAYER_SPACING = 200;
 const VOTING_CARD_Y = 450;
 const VOTING_CARD_SPACING = 70;
 const DEFAULT_CARDS = ["0", "1", "2", "3", "5", "8", "13", "21", "?"];
+
+// Helper function to get voting cards for a room
+export async function getVotingCardsForRoom(
+  ctx: QueryCtx,
+  roomId: Id<"rooms">
+): Promise<string[]> {
+  const room = await ctx.db.get(roomId);
+  if (!room) {
+    return DEFAULT_CARDS;
+  }
+
+  const votingSystem = room.votingSystem || "fibonacci";
+
+  switch (votingSystem) {
+    case "fibonacci":
+      return ["0", "1", "2", "3", "5", "8", "13", "21", "?"];
+    case "modified-fibonacci":
+      return ["0", "½", "1", "2", "3", "5", "8", "13", "20", "40", "100", "?"];
+    case "tshirt":
+      return ["XS", "S", "M", "L", "XL", "XXL", "?"];
+    case "powers-of-2":
+      return ["1", "2", "4", "8", "16", "32", "?"];
+    default:
+      return DEFAULT_CARDS;
+  }
+}
 
 export interface Position {
   x: number;
@@ -185,7 +211,10 @@ export async function createVotingCardNodes(
   args: { roomId: Id<"rooms">; userId: Id<"users"> }
 ): Promise<void> {
   const now = Date.now();
-  const cardCount = DEFAULT_CARDS.length;
+
+  // Get voting cards for this room's voting system
+  const cards = await getVotingCardsForRoom(ctx, args.roomId);
+  const cardCount = cards.length;
   const totalWidth = (cardCount - 1) * VOTING_CARD_SPACING;
   const startX = CANVAS_CENTER.x - totalWidth / 2;
 
@@ -203,7 +232,7 @@ export async function createVotingCardNodes(
 
   // Create voting card nodes in parallel
   await Promise.all(
-    DEFAULT_CARDS.map((card, index) => {
+    cards.map((card, index) => {
       const x = startX + index * VOTING_CARD_SPACING;
       const y = VOTING_CARD_Y;
 
@@ -405,9 +434,7 @@ export async function markUserInactive(
 /**
  * Cleans up inactive presence records
  */
-export async function cleanupInactivePresence(
-  ctx: MutationCtx
-): Promise<void> {
+export async function cleanupInactivePresence(ctx: MutationCtx): Promise<void> {
   const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
 
   const inactivePresence = await ctx.db

@@ -1,13 +1,13 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { RoomCanvas } from "@/components/room/room-canvas";
-import { JoinRoomDialog } from "@/components/room/join-room-dialog";
 import { useAuth } from "@/components/auth/auth-provider";
+import { JoinRoomDialog } from "@/components/room/join-room-dialog";
+import { RoomCanvas } from "@/components/room/room-canvas";
+import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "convex/react";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 export default function CanvasRoomPage() {
@@ -91,7 +91,13 @@ export default function CanvasRoomPage() {
   }
 
   if (!isInRoom) {
-    return <JoinRoomDialog roomId={roomId} roomName={roomData.room.name} />;
+    return (
+      <JoinRoomDialog
+        roomId={roomId}
+        roomName={roomData.room.name}
+        roomData={roomData}
+      />
+    );
   }
 
   return <RoomCanvas roomData={roomData} />;
