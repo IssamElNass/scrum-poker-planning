@@ -1,0 +1,148 @@
+name: Deploy to Cloud Providers
+
+on:
+  push:
+    branches: [main, production]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Deployment target"
+        required: true
+        default: "digitalocean"
+        type: choice
+        options:
+          - digitalocean
+          - hetzner
+          - both
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Build and push Docker image
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Output image
+        id: image
+        run: |
+          echo "image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}" >> $GITHUB_OUTPUT
+
+  # Deploy to DigitalOcean App Platform
+  deploy-digitalocean:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && (github.event.inputs.target == 'digitalocean' || github.event.inputs.target == 'both' || github.event.inputs.target == '')
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Deploy to DigitalOcean App Platform
+        run: |
+          # Update the spec file with the new image
+          sed -i "s|dockerfile_path: Dockerfile|image:\n      registry_type: GHCR\n      repository: ${{ needs.build.outputs.image }}\n      tag: latest|g" spec.yaml
+
+          # Deploy the app
+          if doctl apps list --format Name --no-header | grep -q "^poker-planning$"; then
+            echo "Updating existing app..."
+            APP_ID=$(doctl apps list --format ID,Name --no-header | grep "poker-planning" | awk '{print $1}')
+            doctl apps update $APP_ID --spec spec.yaml --wait
+          else
+            echo "Creating new app..."
+            doctl apps create --spec spec.yaml --wait
+          fi
+
+  # Deploy to Hetzner Cloud
+  deploy-hetzner:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && (github.event.inputs.target == 'hetzner' || github.event.inputs.target == 'both')
+    environment: production
+    steps:
+      - name: Deploy to Hetzner Cloud
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HETZNER_HOST }}
+          username: ${{ secrets.HETZNER_USERNAME }}
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          script: |
+            # Stop existing containers
+            docker compose -f /opt/poker-planning/docker-compose.yml down || true
+
+            # Update the image
+            cd /opt/poker-planning
+            git pull origin main
+
+            # Set environment variables
+            echo "NEXT_PUBLIC_CONVEX_URL=${{ secrets.NEXT_PUBLIC_CONVEX_URL }}" > .env.production
+            echo "NODE_ENV=production" >> .env.production
+
+            # Pull the latest image and restart
+            docker compose pull
+            docker compose up -d
+
+            # Clean up old images
+            docker image prune -f
+
+  # Notify deployment status
+  notify:
+    needs: [build, deploy-digitalocean, deploy-hetzner]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Deployment Summary
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build**: ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **DigitalOcean**: ${{ needs.deploy-digitalocean.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Hetzner**: ${{ needs.deploy-hetzner.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image**: ${{ needs.build.outputs.image }}" >> $GITHUB_STEP_SUMMARY
