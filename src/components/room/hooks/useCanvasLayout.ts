@@ -23,22 +23,6 @@ const PLAYER_SPACING = 200; // Horizontal spacing between players
 const VOTING_CARD_Y = 450; // Voting cards almost at bottom of screen
 const VOTING_CARD_SPACING = 70; // Space between cards
 
-// Default card deck
-const DEFAULT_CARDS = [
-  "0",
-  "1",
-  "2",
-  "3",
-  "5",
-  "8",
-  "13",
-  "21",
-  "34",
-  "55",
-  "89",
-  "?",
-];
-
 interface UseCanvasLayoutProps {
   roomData: RoomWithRelatedData;
   currentUserId?: string;

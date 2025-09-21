@@ -86,7 +86,7 @@ export function UseCases() {
 
         {/* Use Cases Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {useCases.map((useCase, index) => (
+          {useCases.map((useCase) => (
             <div key={useCase.title} className="group relative">
               <div className="relative overflow-hidden rounded-3xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-xl ring-1 ring-gray-200/50 dark:ring-gray-800/50 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
                 {/* Background pattern */}
@@ -117,7 +117,7 @@ export function UseCases() {
 
                   {/* Features list */}
                   <div className="space-y-3">
-                    {useCase.features.map((feature, featureIndex) => (
+                    {useCase.features.map((feature) => (
                       <div
                         key={feature}
                         className="flex items-center gap-3 group/feature"

@@ -83,7 +83,7 @@ export function FeaturesSection() {
 
         {/* Core Features Grid */}
         <div className="mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {coreFeatures.map((feature, index) => (
+          {coreFeatures.map((feature) => (
             <div key={feature.name} className="group relative">
               <div className="relative overflow-hidden rounded-3xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-8 shadow-lg ring-1 ring-gray-200/50 dark:ring-gray-700/50 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
                 {/* Feature icon */}
@@ -159,7 +159,7 @@ export function FeaturesSection() {
                   Plus Everything You Expect
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {additionalFeatures.map((feature, index) => (
+                  {additionalFeatures.map((feature) => (
                     <div
                       key={feature}
                       className="flex items-center gap-3 group"

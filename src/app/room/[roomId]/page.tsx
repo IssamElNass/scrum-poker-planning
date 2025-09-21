@@ -42,7 +42,6 @@ export default function CanvasRoomPage() {
         description:
           "You have been removed from the room by the owner. Redirecting to homepage...",
         variant: "destructive",
-        duration: 4000,
       });
 
       // Redirect to homepage after a short delay

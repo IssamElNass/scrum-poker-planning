@@ -72,7 +72,7 @@ export function AppPreview() {
 
                 {/* Features list */}
                 <div className="mt-10 space-y-6">
-                  {features.map((feature, index) => (
+                  {features.map((feature) => (
                     <div
                       key={feature.name}
                       className="group flex items-start gap-4"
