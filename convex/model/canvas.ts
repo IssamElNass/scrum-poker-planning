@@ -61,7 +61,8 @@ export interface CanvasNode {
   nodeId: string;
   type: "player" | "timer" | "session" | "votingCard" | "results" | "story";
   position: Position;
-  data: any; // TODO: Create proper type union for node data
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: any; // TODO: Create proper type union for node data //
   isLocked?: boolean;
   lastUpdatedBy?: Id<"users">;
   lastUpdatedAt: number;
