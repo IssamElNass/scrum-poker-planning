@@ -29,7 +29,7 @@ export default function HomePage() {
     setIsCreating(true);
     try {
       const roomId = await createRoom({
-        name: `Game ${new Date().toLocaleTimeString()}`,
+        name: `Room ${Math.random().toString(36).substring(2, 8).toUpperCase()}${Math.floor(Math.random() * 1000)}`,
         roomType: "canvas",
       });
 
