@@ -1,54 +1,56 @@
-import { XMarkIcon } from "@heroicons/react/20/solid";
+import { Sparkles } from "lucide-react";
 
 export const Banner = () => {
   return (
     <aside
-      aria-label="Ukraine support banner"
-      className="relative isolate flex items-center gap-x-6 overflow-hidden bg-gray-50 px-6 py-2.5 sm:px-3.5 sm:before:flex-1 z-50"
+      aria-label="Latest features announcement"
+      className="relative isolate flex items-center justify-center gap-x-6 overflow-hidden bg-gradient-to-r from-primary/5 via-purple-500/5 to-pink-500/5 dark:from-primary/10 dark:via-purple-500/10 dark:to-pink-500/10 px-6 py-3 border-b border-primary/10 dark:border-primary/20 z-50"
     >
-      <div
-        aria-hidden="true"
-        className="absolute left-[max(-7rem,calc(50%-52rem))] top-1/2 -z-10 -translate-y-1/2 transform-gpu blur-2xl"
-      >
-        <div
-          style={{
-            clipPath:
-              "polygon(74.8% 41.9%, 97.2% 73.2%, 100% 34.9%, 92.5% 0.4%, 87.5% 0%, 75% 28.6%, 58.5% 54.6%, 50.1% 56.8%, 46.9% 44%, 48.3% 17.4%, 24.7% 53.9%, 0% 27.9%, 11.9% 74.2%, 24.9% 54.1%, 68.6% 100%, 74.8% 41.9%)",
-          }}
-          className="aspect-[577/310] w-[36.0625rem] bg-gradient-to-r from-[#ff80b5] to-[#9089fc] opacity-30"
-        />
+      {/* Animated background decoration */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-4 -left-4 w-8 h-8 bg-primary/20 rounded-full animate-bounce [animation-delay:-0.3s]" />
+        <div className="absolute -top-2 right-8 w-6 h-6 bg-purple-500/20 rounded-full animate-bounce [animation-delay:-0.1s]" />
+        <div className="absolute -bottom-3 left-16 w-7 h-7 bg-pink-500/20 rounded-full animate-bounce [animation-delay:-0.7s]" />
+        <div className="absolute -bottom-4 -right-2 w-5 h-5 bg-primary/20 rounded-full animate-bounce [animation-delay:-0.5s]" />
       </div>
-      <div
-        aria-hidden="true"
-        className="absolute left-[max(45rem,calc(50%+8rem))] top-1/2 -z-10 -translate-y-1/2 transform-gpu blur-2xl"
-      >
-        <div
-          style={{
-            clipPath:
-              "polygon(74.8% 41.9%, 97.2% 73.2%, 100% 34.9%, 92.5% 0.4%, 87.5% 0%, 75% 28.6%, 58.5% 54.6%, 50.1% 56.8%, 46.9% 44%, 48.3% 17.4%, 24.7% 53.9%, 0% 27.9%, 11.9% 74.2%, 24.9% 54.1%, 68.6% 100%, 74.8% 41.9%)",
-          }}
-          className="aspect-[577/310] w-[36.0625rem] bg-gradient-to-r from-[#ff80b5] to-[#9089fc] opacity-30"
-        />
-      </div>
-      <p className="text-sm leading-6 text-gray-900">
-        We stand with Ukraine and its people.{" "}
-        <a
-          href="https://u24.gov.ua/"
-          target="_blank"
-          rel="noreferrer"
-          className="whitespace-nowrap font-semibold"
-        >
-          Support Ukraine &nbsp;<span aria-hidden="true">&rarr;</span>
-        </a>
-      </p>
-      <div className="flex flex-1 justify-end">
-        <button
-          type="button"
-          className="-m-3 p-3 focus-visible:outline-offset-[-4px] hidden"
-        >
-          <span className="sr-only">Dismiss</span>
-          <XMarkIcon aria-hidden="true" className="h-5 w-5 text-gray-900" />
-        </button>
+
+      <div className="flex items-center gap-x-4">
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Sparkles
+              className="h-5 w-5 text-primary animate-pulse"
+              aria-hidden="true"
+            />
+            <div className="absolute inset-0 h-5 w-5 text-primary/50 animate-ping">
+              <Sparkles className="h-5 w-5" />
+            </div>
+          </div>
+          <div className="h-4 w-px bg-primary/30" />
+        </div>
+
+        <p className="text-sm leading-6 text-gray-900 dark:text-gray-100 font-medium">
+          <span className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent font-bold">
+            🚀 v1.0.0 Launch Special
+          </span>
+          <span className="mx-2 text-gray-500 dark:text-gray-400">•</span>
+          <span>
+            Complete redesign with enhanced features.{" "}
+            <a
+              href="https://github.com/INQTR/poker-planning/releases"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 font-semibold text-primary hover:text-primary/80 transition-colors group"
+            >
+              Explore now
+              <span
+                className="transition-transform group-hover:translate-x-0.5"
+                aria-hidden="true"
+              >
+                →
+              </span>
+            </a>
+          </span>
+        </p>
       </div>
     </aside>
   );

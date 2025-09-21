@@ -7,6 +7,7 @@ export interface CreateRoomArgs {
   roomType?: "canvas"; // Optional, defaults to canvas
   votingCategorized?: boolean;
   autoCompleteVoting?: boolean;
+  votingSystem?: "fibonacci" | "modified-fibonacci" | "tshirt" | "powers-of-2";
 }
 
 export interface SanitizedVote extends Doc<"votes"> {
@@ -31,6 +32,7 @@ export async function createRoom(
     roomType: "canvas", // Always canvas now
     votingCategorized: args.votingCategorized ?? true,
     autoCompleteVoting: args.autoCompleteVoting ?? false,
+    votingSystem: args.votingSystem ?? "fibonacci",
     isGameOver: false,
     createdAt: Date.now(),
     lastActivityAt: Date.now(),
@@ -224,4 +226,66 @@ export async function isRoomOwner(
   // Sort by join time and check if this user is first
   const sortedUsers = allUsers.sort((a, b) => a.joinedAt - b.joinedAt);
   return sortedUsers[0]._id === userId;
+}
+
+/**
+ * Updates room voting system (only by room owner)
+ */
+export async function updateRoomVotingSystem(
+  ctx: MutationCtx,
+  args: {
+    roomId: Id<"rooms">;
+    userId: Id<"users">;
+    votingSystem: "fibonacci" | "modified-fibonacci" | "tshirt" | "powers-of-2";
+  }
+): Promise<void> {
+  const room = await ctx.db.get(args.roomId);
+  if (!room) {
+    throw new Error("Room not found");
+  }
+
+  const user = await ctx.db.get(args.userId);
+  if (!user || user.roomId !== args.roomId) {
+    throw new Error("User not found in room");
+  }
+
+  // Check if user is room owner
+  const isOwner = await isRoomOwner(ctx, args.roomId, args.userId);
+  if (!isOwner) {
+    throw new Error("Only room owner can change voting system");
+  }
+
+  // Update voting system
+  await ctx.db.patch(args.roomId, {
+    votingSystem: args.votingSystem,
+    lastActivityAt: Date.now(),
+  });
+
+  // Remove all existing voting cards and recreate them with new system
+  const existingVotingCards = await ctx.db
+    .query("canvasNodes")
+    .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+    .filter((q) => q.eq(q.field("type"), "votingCard"))
+    .collect();
+
+  // Delete all existing voting cards
+  await Promise.all(existingVotingCards.map((card) => ctx.db.delete(card._id)));
+
+  // Get all users and recreate voting cards for non-spectators
+  const allUsers = await ctx.db
+    .query("users")
+    .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+    .collect();
+
+  // Recreate voting cards for all non-spectator users
+  await Promise.all(
+    allUsers
+      .filter((u) => !u.isSpectator)
+      .map((u) =>
+        Canvas.createVotingCardNodes(ctx, {
+          roomId: args.roomId,
+          userId: u._id,
+        })
+      )
+  );
 }

@@ -7,6 +7,7 @@ import {
   Grid3X3,
   Home,
   Maximize2,
+  QrCode,
   Settings,
   Share2,
   Users,
@@ -34,8 +35,9 @@ import { api } from "@/convex/_generated/api";
 import type { RoomWithRelatedData } from "@/convex/model/rooms";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "convex/react";
-import { RoomSettingsDialog } from "./room-settings-dialog";
 import { ModeToggle } from "../mode-toggle";
+import { QRCodeDisplay } from "./qr-code-display";
+import { RoomSettingsDialog } from "./room-settings-dialog";
 
 interface CanvasNavigationProps {
   roomData: RoomWithRelatedData;
@@ -56,6 +58,10 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
   );
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isQRCodeOpen, setIsQRCodeOpen] = useState(false);
+  const [isMobile] = useState(
+    () => typeof window !== "undefined" && window.innerWidth < 768
+  );
 
   // Check if current user is room owner
   const isOwner = useQuery(
@@ -82,6 +88,10 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
         });
       }
     }
+  };
+
+  const handleShowQRCode = () => {
+    setIsQRCodeOpen(true);
   };
 
   const handleZoomIn = () => {
@@ -165,6 +175,23 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
               </TooltipTrigger>
               <TooltipContent>
                 <p>Copy room link</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleShowQRCode}
+                  className={buttonClass}
+                  aria-label="Show QR code"
+                >
+                  <QrCode className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Show QR code</p>
               </TooltipContent>
             </Tooltip>
           </div>
@@ -319,6 +346,19 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
           onOpenChange={setIsSettingsOpen}
           roomData={roomData}
           currentUserId={user.id}
+        />
+      )}
+
+      {/* QR Code Display */}
+      {roomData?.room && (
+        <QRCodeDisplay
+          url={`${typeof window !== "undefined" ? window.location.origin : ""}/room/${roomData.room._id}`}
+          roomName={
+            roomData.room.name || `Room ${roomData.room._id.slice(0, 6)}`
+          }
+          isOpen={isQRCodeOpen}
+          onClose={() => setIsQRCodeOpen(false)}
+          isMobile={isMobile}
         />
       )}
     </>

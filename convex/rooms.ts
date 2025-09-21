@@ -9,6 +9,14 @@ export const create = mutation({
     roomType: v.optional(v.literal("canvas")), // Optional, defaults to canvas
     votingCategorized: v.optional(v.boolean()),
     autoCompleteVoting: v.optional(v.boolean()),
+    votingSystem: v.optional(
+      v.union(
+        v.literal("fibonacci"),
+        v.literal("modified-fibonacci"),
+        v.literal("tshirt"),
+        v.literal("powers-of-2")
+      )
+    ),
   },
   handler: async (ctx, args) => {
     return await Rooms.createRoom(ctx, args);
@@ -75,5 +83,22 @@ export const isOwner = query({
   },
   handler: async (ctx, args) => {
     return await Rooms.isRoomOwner(ctx, args.roomId, args.userId);
+  },
+});
+
+// Update room voting system
+export const updateVotingSystem = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    userId: v.id("users"),
+    votingSystem: v.union(
+      v.literal("fibonacci"),
+      v.literal("modified-fibonacci"),
+      v.literal("tshirt"),
+      v.literal("powers-of-2")
+    ),
+  },
+  handler: async (ctx, args) => {
+    await Rooms.updateRoomVotingSystem(ctx, args);
   },
 });

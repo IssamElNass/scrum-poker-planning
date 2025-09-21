@@ -1,16 +1,17 @@
 import { Edge } from "@xyflow/react";
 import { useMemo } from "react";
 
+import type { Doc, Id } from "@/convex/_generated/dataModel";
+import type { RoomWithRelatedData, SanitizedVote } from "@/convex/model/rooms";
+import { getVotingSystemCards } from "@/lib/voting-systems";
 import type {
+  CustomNodeType,
   PlayerNodeType,
+  ResultsNodeType,
   SessionNodeType,
   TimerNodeType,
   VotingCardNodeType,
-  ResultsNodeType,
-  CustomNodeType,
 } from "../types";
-import type { RoomWithRelatedData, SanitizedVote } from "@/convex/model/rooms";
-import type { Doc, Id } from "@/convex/_generated/dataModel";
 
 // Layout constants for endless canvas
 const CANVAS_CENTER = { x: 0, y: 0 };
@@ -23,7 +24,20 @@ const VOTING_CARD_Y = 450; // Voting cards almost at bottom of screen
 const VOTING_CARD_SPACING = 70; // Space between cards
 
 // Default card deck
-const DEFAULT_CARDS = ["0", "1", "2", "3", "5", "8", "13", "21", "?"];
+const DEFAULT_CARDS = [
+  "0",
+  "1",
+  "2",
+  "3",
+  "5",
+  "8",
+  "13",
+  "21",
+  "34",
+  "55",
+  "89",
+  "?",
+];
 
 interface UseCanvasLayoutProps {
   roomData: RoomWithRelatedData;
@@ -63,7 +77,9 @@ export function useCanvasLayout({
         const x = startX + index * PLAYER_SPACING;
         const y = PLAYERS_Y;
 
-        const userVote = votes.find((v: SanitizedVote) => v.userId === user._id);
+        const userVote = votes.find(
+          (v: SanitizedVote) => v.userId === user._id
+        );
 
         const playerNode: PlayerNodeType = {
           id: `player-${user._id}`,
@@ -122,11 +138,11 @@ export function useCanvasLayout({
     // Voting cards for current user - always visible
     if (currentUserId) {
       const currentUserIndex = users.findIndex(
-        (u: Doc<"users">) => u._id === currentUserId,
+        (u: Doc<"users">) => u._id === currentUserId
       );
       if (currentUserIndex !== -1) {
         // Position cards in a horizontal row at the bottom
-        const cards = DEFAULT_CARDS;
+        const cards = getVotingSystemCards(room.votingSystem || "fibonacci");
         const cardCount = cards.length;
         const totalWidth = (cardCount - 1) * VOTING_CARD_SPACING;
         const startX = CANVAS_CENTER.x - totalWidth / 2;

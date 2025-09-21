@@ -9,8 +9,7 @@ import type { VotingCardNodeType } from "../types";
 
 export const VotingCardNode = memo(
   ({ data, selected }: NodeProps<VotingCardNodeType>): ReactElement => {
-    const { card, userId, isSelectable, onCardSelect, isSelected } =
-      data;
+    const { card, userId, isSelectable, onCardSelect, isSelected } = data;
     const [isHovered, setIsHovered] = useState(false);
     const [isClicking, setIsClicking] = useState(false);
 
@@ -29,12 +28,7 @@ export const VotingCardNode = memo(
 
       // Reset clicking state after animation
       setTimeout(() => setIsClicking(false), 200);
-    }, [
-      isSelectable,
-      userId,
-      card.value,
-      onCardSelect,
-    ]);
+    }, [isSelectable, userId, card.value, onCardSelect]);
 
     const containerClasses = useMemo(
       () =>
@@ -46,18 +40,23 @@ export const VotingCardNode = memo(
             !isCardSelected &&
             "transform -translate-y-1",
           isClicking && "transform scale-95",
-          !isSelectable && "cursor-not-allowed",
+          !isSelectable && "cursor-not-allowed"
         ),
-      [isCardSelected, isSelectable, isHovered, isClicking],
+      [isCardSelected, isSelectable, isHovered, isClicking]
     );
+
+    // Determine card styling based on content length
+    const isLongText = card.value.length > 2;
 
     const cardClasses = useMemo(
       () =>
         cn(
-          "h-24 w-16 text-2xl rounded-xl",
+          "h-24 rounded-xl",
           "flex items-center justify-center font-bold",
           "bg-white dark:bg-gray-800 transition-all duration-200",
           "border-2 relative overflow-hidden",
+          // Adjust width and font size based on content
+          isLongText ? "w-20 text-sm" : "w-16 text-2xl",
           isSelectable && "cursor-pointer",
           isCardSelected
             ? "border-blue-500 dark:border-blue-400 bg-blue-500 text-white dark:bg-blue-600 shadow-lg shadow-blue-500/30"
@@ -66,9 +65,9 @@ export const VotingCardNode = memo(
             isSelectable &&
             !isCardSelected &&
             "border-gray-400 dark:border-gray-500 shadow-lg",
-          !isSelectable && "opacity-50 cursor-not-allowed shadow-sm",
+          !isSelectable && "opacity-50 cursor-not-allowed shadow-sm"
         ),
-      [isCardSelected, isSelectable, isHovered],
+      [isCardSelected, isSelectable, isHovered, isLongText]
     );
 
     const handleKeyDown = useCallback(
@@ -78,7 +77,7 @@ export const VotingCardNode = memo(
           handleClick();
         }
       },
-      [handleClick, isSelectable],
+      [handleClick, isSelectable]
     );
 
     return (
@@ -118,11 +117,15 @@ export const VotingCardNode = memo(
             />
           )}
 
-          <span className="relative z-10">{card.value}</span>
+          <span
+            className={cn("relative z-10 text-center", isLongText && "px-1")}
+          >
+            {card.value}
+          </span>
         </div>
       </div>
     );
-  },
+  }
 );
 
 VotingCardNode.displayName = "VotingCardNode";
