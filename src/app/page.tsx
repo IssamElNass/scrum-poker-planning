@@ -2,13 +2,7 @@
 
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
-import {
-  AppPreview,
-  CallToAction,
-  FeaturesSection,
-  HowItWorks,
-  UseCases,
-} from "@/components/homepage";
+import { CallToAction, FeaturesSection, UseCases } from "@/components/homepage";
 import { FAQSimple } from "@/components/homepage/faq-simple";
 import { GithubIcon } from "@/components/icons";
 import { api } from "@/convex/_generated/api";
@@ -123,22 +117,21 @@ export default function HomePage() {
               <span className="block">Scrum</span>
               <span className="relative block">
                 <span className="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                  Planning Poker
+                  Poker Planning
                 </span>
-                {/* Decorative underline */}
-                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-2/3 h-1 bg-gradient-to-r from-primary/0 via-primary/60 to-primary/0 rounded-full" />
               </span>
               <span className="block text-5xl sm:text-6xl lg:text-7xl font-bold mt-2">
-                Made Simple
+                Made Easy
               </span>
             </h1>
 
             {/* Subtitle */}
             <p className="mt-8 text-xl sm:text-2xl leading-relaxed text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              The fastest way to estimate user stories with your team.
+              The fastest way to estimate user stories with your team,
+              completely free forever.
               <span className="font-semibold text-gray-900 dark:text-white">
                 {" "}
-                No signup.
+                No account required.
               </span>
               <span className="font-semibold text-gray-900 dark:text-white">
                 {" "}
@@ -167,7 +160,7 @@ export default function HomePage() {
               </button>
 
               <a
-                href="https://github.com/INQTR/poker-planning"
+                href="https://github.com/IssamElNass/scrum-poker-planning"
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="hero-github-link"
@@ -211,8 +204,8 @@ export default function HomePage() {
         {/* Bottom gradient fade */}
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white dark:from-gray-900 to-transparent" />
 
-        <AppPreview />
-        <HowItWorks />
+        {/* <AppPreview /> 
+        <HowItWorks />*/}
         <FeaturesSection />
         <UseCases />
         <FAQSimple />

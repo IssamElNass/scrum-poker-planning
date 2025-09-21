@@ -13,14 +13,14 @@ export function Header() {
           <Link href="/" className="-m-1.5 p-1.5 flex items-center">
             <Image
               src="/logo.svg"
-              alt="Scrum Planning Poker Logo"
+              alt="Scrum Poker Planning Logo"
               width={32}
               height={32}
               className="h-8 w-8 mr-2"
             />
-            <span className="sr-only">Scrum Planning Poker</span>
+            <span className="sr-only">Scrum Poker Planning</span>
             <span className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-              Scrum Planning Poker
+              Scrum Poker Planning
             </span>
           </Link>
         </div>

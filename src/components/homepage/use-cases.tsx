@@ -148,56 +148,6 @@ export function UseCases() {
             </div>
           ))}
         </div>
-
-        {/* Bottom stats section */}
-        <div className="mt-24">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 dark:from-black dark:via-blue-950 dark:to-purple-950 p-8 lg:p-12 shadow-2xl">
-            {/* Background decoration */}
-            <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-2xl" />
-              <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-2xl" />
-            </div>
-
-            <div className="relative">
-              <div className="text-center mb-12">
-                <h3 className="text-3xl font-bold text-white mb-4">
-                  Trusted by Teams Worldwide
-                </h3>
-                <p className="text-gray-300 leading-relaxed max-w-2xl mx-auto">
-                  Join thousands of teams who have transformed their sprint
-                  planning experience
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                <div className="text-center">
-                  <div className="text-3xl lg:text-4xl font-bold text-white mb-2">
-                    500K+
-                  </div>
-                  <div className="text-sm text-gray-300">Estimations Made</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl lg:text-4xl font-bold text-white mb-2">
-                    10K+
-                  </div>
-                  <div className="text-sm text-gray-300">Teams Active</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl lg:text-4xl font-bold text-white mb-2">
-                    99.9%
-                  </div>
-                  <div className="text-sm text-gray-300">Uptime</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl lg:text-4xl font-bold text-white mb-2">
-                    24/7
-                  </div>
-                  <div className="text-sm text-gray-300">Available</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       <style jsx>{`

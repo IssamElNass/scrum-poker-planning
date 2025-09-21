@@ -82,7 +82,7 @@ export function HowItWorks() {
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 dark:text-white">
             <span className="block mb-2">How</span>
             <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Scrum Planning Poker
+              Scrum Poker Planning
             </span>
             <span className="block text-3xl sm:text-4xl lg:text-5xl mt-2 text-gray-700 dark:text-gray-300">
               Works

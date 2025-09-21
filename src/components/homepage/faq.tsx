@@ -7,14 +7,14 @@ import {
 
 const faqs = [
   {
-    question: "What is Scrum Planning Poker?",
+    question: "What is Scrum Poker Planning?",
     answer:
-      "Scrum Planning Poker is an agile estimation technique where team members use cards to vote on the complexity of user stories. It helps teams reach consensus on effort estimates through discussion and collaboration, making sprint planning more accurate and engaging.",
+      "Scrum Poker Planning is an agile estimation technique where team members use cards to vote on the complexity of user stories. It helps teams reach consensus on effort estimates through discussion and collaboration, making sprint planning more accurate and engaging.",
   },
   {
-    question: "How much does Scrum Planning Poker cost?",
+    question: "How much does Scrum Poker Planning cost?",
     answer:
-      "Scrum Planning Poker is completely free forever. There are no hidden costs, premium tiers, or limitations on team size or number of sessions. As an open-source project, we believe in making quality tools accessible to everyone.",
+      "Scrum Poker Planning is completely free forever. There are no hidden costs, premium tiers, or limitations on team size or number of sessions. As an open-source project, we believe in making quality tools accessible to everyone.",
   },
   {
     question: "Do I need to create an account?",
@@ -49,7 +49,7 @@ const faqs = [
   {
     question: "What browsers and devices are supported?",
     answer:
-      "Scrum Planning Poker works on all modern browsers (Chrome, Firefox, Safari, Edge) and is fully responsive on desktop, tablet, and mobile devices. No app installation required - it works directly in your browser.",
+      "Scrum Poker Planning works on all modern browsers (Chrome, Firefox, Safari, Edge) and is fully responsive on desktop, tablet, and mobile devices. No app installation required - it works directly in your browser.",
   },
   {
     question: "How does it compare to other planning poker tools?",

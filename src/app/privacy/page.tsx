@@ -18,7 +18,7 @@ const sections = [
     id: "introduction",
     title: "1. Introduction",
     content:
-      "This Privacy Policy explains how Scrum Planning Poker collects, uses, and protects your information when you use our service. We are committed to ensuring that your privacy is protected and that we handle your data responsibly.",
+      "This Privacy Policy explains how Scrum Poker Planning collects, uses, and protects your information when you use our service. We are committed to ensuring that your privacy is protected and that we handle your data responsibly.",
   },
   {
     id: "information-collection",
@@ -66,7 +66,7 @@ const sections = [
     id: "children",
     title: "9. Children's Privacy",
     content:
-      "Scrum Planning Poker is not intended for children under the age of 13. We do not knowingly collect personal information from children under 13. If you are a parent or guardian and believe your child has provided us with personal information, please contact us.",
+      "Scrum Poker Planning is not intended for children under the age of 13. We do not knowingly collect personal information from children under 13. If you are a parent or guardian and believe your child has provided us with personal information, please contact us.",
   },
   {
     id: "changes",
@@ -175,14 +175,14 @@ export default function PrivacyPage() {
               Learn how we collect, use, and protect your information at
               <span className="font-semibold text-gray-900 dark:text-white">
                 {" "}
-                Scrum Planning Poker.
+                Scrum Poker Planning.
               </span>
             </p>
 
             {/* Last updated */}
             <div className="mt-8 flex items-center justify-center gap-2 text-sm text-gray-500">
               <Calendar className="h-4 w-4" />
-              Last updated: January 1, 2024
+              Last updated: September 21, 2025
             </div>
           </div>
         </div>
@@ -206,7 +206,7 @@ export default function PrivacyPage() {
                     <p>
                       We take your privacy seriously. This policy explains our
                       commitment to protecting your data and your rights as a
-                      user of Scrum Planning Poker, our open-source planning
+                      user of Scrum Poker Planning, our open-source planning
                       tool.
                     </p>
                   </div>
@@ -318,7 +318,7 @@ export default function PrivacyPage() {
                   Effective Date
                 </h3>
                 <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  This privacy policy is effective as of January 1, 2024 and
+                  This privacy policy is effective as of September 21, 2025 and
                   will remain in effect except with respect to any changes in
                   its provisions in the future.
                 </p>
@@ -328,7 +328,7 @@ export default function PrivacyPage() {
                   Open Source Commitment
                 </h3>
                 <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  As an open-source project, Scrum Planning Poker&apos;s code is
+                  As an open-source project, Scrum Poker Planning&apos;s code is
                   publicly available for review on GitHub, ensuring complete
                   transparency in how we handle data.
                 </p>

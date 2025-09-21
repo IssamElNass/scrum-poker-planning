@@ -19,19 +19,19 @@ const sections = [
     id: "acceptance",
     title: "1. Acceptance of Terms",
     content:
-      "By accessing and using Scrum Planning Poker, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service. These terms apply to all users of the site, including without limitation users who are contributors of content.",
+      "By accessing and using Scrum Poker Planning, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service. These terms apply to all users of the site, including without limitation users who are contributors of content.",
   },
   {
     id: "description",
     title: "2. Description of Service",
     content:
-      "Scrum Planning Poker provides a free, web-based planning poker tool for Agile teams to estimate work items. The service includes real-time collaboration features, voting mechanisms, and session management. We reserve the right to modify, suspend, or discontinue the service at any time without notice.",
+      "Scrum Poker Planning provides a free, web-based planning poker tool for Agile teams to estimate work items. The service includes real-time collaboration features, voting mechanisms, and session management. We reserve the right to modify, suspend, or discontinue the service at any time without notice.",
   },
   {
     id: "use-license",
     title: "3. Use License",
     content:
-      "Scrum Planning Poker is open source software distributed under the MIT License. You are free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software, subject to the conditions of the MIT License. The software is provided 'as is', without warranty of any kind.",
+      "Scrum Poker Planning is open source software distributed under the MIT License. You are free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software, subject to the conditions of the MIT License. The software is provided 'as is', without warranty of any kind.",
   },
   {
     id: "user-conduct",
@@ -61,13 +61,13 @@ const sections = [
     id: "liability",
     title: "8. Limitation of Liability",
     content:
-      "In no event shall Scrum Planning Poker, its creators, contributors, or affiliates be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your use or inability to use the service.",
+      "In no event shall Scrum Poker Planning, its creators, contributors, or affiliates be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your use or inability to use the service.",
   },
   {
     id: "indemnification",
     title: "9. Indemnification",
     content:
-      "You agree to defend, indemnify, and hold harmless Scrum Planning Poker and its contributors from and against any claims, damages, obligations, losses, liabilities, costs, or expenses arising from: (a) your use of and access to the service; (b) your violation of any term of these Terms of Service; (c) your violation of any third party right.",
+      "You agree to defend, indemnify, and hold harmless Scrum Poker Planning and its contributors from and against any claims, damages, obligations, losses, liabilities, costs, or expenses arising from: (a) your use of and access to the service; (b) your violation of any term of these Terms of Service; (c) your violation of any third party right.",
   },
   {
     id: "termination",
@@ -188,14 +188,14 @@ export default function TermsPage() {
               Please read these terms carefully before using
               <span className="font-semibold text-gray-900 dark:text-white">
                 {" "}
-                Scrum Planning Poker.
+                Scrum Poker Planning.
               </span>
             </p>
 
             {/* Last updated */}
             <div className="mt-8 flex items-center justify-center gap-2 text-sm text-gray-500">
               <Calendar className="h-4 w-4" />
-              Last updated: January 1, 2024
+              Last updated: September 21, 2025
             </div>
           </div>
         </div>
@@ -217,7 +217,7 @@ export default function TermsPage() {
                   </h3>
                   <div className="mt-2 text-sm text-blue-700 dark:text-blue-300">
                     <p>
-                      Scrum Planning Poker is a free, open-source tool licensed
+                      Scrum Poker Planning is a free, open-source tool licensed
                       under MIT. These terms ensure fair use and protect both
                       users and contributors.
                     </p>
@@ -329,7 +329,7 @@ export default function TermsPage() {
                   Open Source License
                 </h3>
                 <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  Scrum Planning Poker is licensed under the MIT License. You
+                  Scrum Poker Planning is licensed under the MIT License. You
                   can find the full license text in our GitHub repository.
                 </p>
               </div>
@@ -338,8 +338,8 @@ export default function TermsPage() {
                   Effective Date
                 </h3>
                 <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  These terms of service are effective as of January 1, 2024 and
-                  apply to all users of the service.
+                  These terms of service are effective as of September 21, 2025
+                  and apply to all users of the service.
                 </p>
               </div>
             </div>

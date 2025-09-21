@@ -122,7 +122,7 @@ export function JoinRoomDialog({
             <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary/10 to-purple-500/10 px-4 py-2 ring-1 ring-primary/20 mb-4">
               <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
               <span className="text-sm font-semibold text-primary">
-                Scrum Planning Poker
+                Scrum Poker Planning
               </span>
             </div>
 
