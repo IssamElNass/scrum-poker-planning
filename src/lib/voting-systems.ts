@@ -16,7 +16,7 @@ export const VOTING_SYSTEMS: Record<VotingSystemType, VotingSystem> = {
     id: "fibonacci",
     name: "Classic Fibonacci",
     description: "Standard Fibonacci sequence for story points",
-    cards: ["0", "1", "2", "3", "5", "8", "13", "21", "?"],
+    cards: ["0", "1", "2", "3", "5", "8", "13", "21", "34", "55", "89", "?"],
   },
   "modified-fibonacci": {
     id: "modified-fibonacci",
@@ -34,7 +34,7 @@ export const VOTING_SYSTEMS: Record<VotingSystemType, VotingSystem> = {
     id: "powers-of-2",
     name: "Powers of 2",
     description: "Simple binary progression that grows fast",
-    cards: ["1", "2", "4", "8", "16", "32", "?"],
+    cards: ["1", "2", "4", "8", "16", "32", "64", "128", "?"],
   },
 };
 

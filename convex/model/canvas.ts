@@ -10,7 +10,20 @@ const PLAYERS_Y = 200;
 const PLAYER_SPACING = 200;
 const VOTING_CARD_Y = 450;
 const VOTING_CARD_SPACING = 70;
-const DEFAULT_CARDS = ["0", "1", "2", "3", "5", "8", "13", "21", "?"];
+const DEFAULT_CARDS = [
+  "0",
+  "1",
+  "2",
+  "3",
+  "5",
+  "8",
+  "13",
+  "21",
+  "34",
+  "55",
+  "89",
+  "?",
+];
 
 // Helper function to get voting cards for a room
 export async function getVotingCardsForRoom(
@@ -26,13 +39,13 @@ export async function getVotingCardsForRoom(
 
   switch (votingSystem) {
     case "fibonacci":
-      return ["0", "1", "2", "3", "5", "8", "13", "21", "?"];
+      return ["0", "1", "2", "3", "5", "8", "13", "21", "34", "55", "89", "?"];
     case "modified-fibonacci":
       return ["0", "½", "1", "2", "3", "5", "8", "13", "20", "40", "100", "?"];
     case "tshirt":
       return ["XS", "S", "M", "L", "XL", "XXL", "?"];
     case "powers-of-2":
-      return ["1", "2", "4", "8", "16", "32", "?"];
+      return ["1", "2", "4", "8", "16", "32", "64", "128", "?"];
     default:
       return DEFAULT_CARDS;
   }
