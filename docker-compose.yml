@@ -1,47 +1,30 @@
-version: "3.8"
-
 services:
-  # Next.js application
-  app:
+  web:
     build:
       context: .
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
+    container_name: scrum-poker-planning-web
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_CONVEX_URL=${NEXT_PUBLIC_CONVEX_URL}
       - PORT=3000
-      - HOSTNAME=0.0.0.0
+      - NEXT_PUBLIC_CONVEX_URL=${CONVEX_URL}
+    expose:
+      - "3000"
     restart: unless-stopped
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "--quiet",
-          "--tries=1",
-          "--spider",
-          "http://localhost:3000/api/health",
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
-  # Redis for caching (optional - for future use)
-  redis:
-    image: redis:7-alpine
+  caddy:
+    image: caddy:2
+    container_name: caddy
+    depends_on:
+      - web
     ports:
-      - "6379:6379"
+      - "80:80"
+      - "443:443"
     volumes:
-      - redis_data:/data
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
 volumes:
-  redis_data:
+  caddy_data:
+  caddy_config:

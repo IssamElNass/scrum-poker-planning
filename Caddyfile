@@ -1,0 +1,8 @@
+scrum-poker-planning.org {
+  encode zstd gzip
+  reverse_proxy web:3000
+}
+
+www.scrum-poker-planning.org {
+  redir https://scrum-poker-planning.org{uri}
+}
