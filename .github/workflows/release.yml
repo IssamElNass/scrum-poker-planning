@@ -53,8 +53,11 @@ jobs:
             set -e
             cd /home/${{ secrets.VPS_USER }}/apps/scrum-poker-planning
             # use the deploy key so convex doesn't ask or fail for interactive input
-            apk update
-            apk add --no-cache nodejs npm
+            # Update package manager and install Node.js/npm (for Ubuntu/Debian)
+            sudo apt update
+            sudo apt install -y nodejs npm
+
+            # Install convex
             npm install --no-audit convex
             export CONVEX_DEPLOY_KEY="${{ secrets.CONVEX_DEPLOY_KEY }}"
             npx convex deploy --cmd "npm run build"
