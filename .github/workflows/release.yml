@@ -41,7 +41,8 @@ jobs:
             # Create environment files
             echo "NEXT_PUBLIC_CONVEX_URL=${{ secrets.CONVEX_URL }}" > .env
             echo "NEXT_PUBLIC_CONVEX_URL=${{ secrets.CONVEX_URL }}" > .env.local
-            chmod 600 .env
+            echo "NEXT_PUBLIC_CONVEX_URL=${{ secrets.CONVEX_URL }}" > .env.production
+            chmod 600 .env .env.local .env.production
 
             # Install dependencies for Convex deployment only
             sudo apt update
@@ -50,9 +51,10 @@ jobs:
 
             # Deploy Convex functions only (no build)
             export CONVEX_DEPLOY_KEY="${{ secrets.CONVEX_DEPLOY_KEY }}"
-            npx convex deploy
+            npx convex deploy --cmd "npm run build"
 
             # Let Docker handle the single build and start
+            export NEXT_PUBLIC_CONVEX_URL="${{ secrets.CONVEX_URL }}"
             docker compose down || true
             docker compose build --pull
             docker compose up -d
