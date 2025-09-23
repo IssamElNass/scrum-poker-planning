@@ -1,15 +1,23 @@
+import { Providers } from "@/components/providers";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
-import { Providers } from "@/components/providers";
 import { Toaster } from "sonner";
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Planning Poker for Teams | PokerPlanning.org",
+  title: "Scrum Poker Planning for Teams | ScrumPokerPlanning.org",
   description:
-    "Free online planning poker tool for agile teams. Real-time collaboration, no registration required.",
+    "Free online scrum poker planning tool for agile teams. Real-time collaboration, no registration required.",
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "scrum-poker-planning.org",
+    title: "Scrum Poker Planning for Teams",
+    description: "Free online scrum poker planning tool.",
+    images: "/og-image.png",
+  },
 };
 
 export default function RootLayout({
@@ -19,6 +27,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+      </head>
       <body className={inter.className}>
         <Providers>
           {children}

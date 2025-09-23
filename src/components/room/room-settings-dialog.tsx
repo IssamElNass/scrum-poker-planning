@@ -571,7 +571,6 @@ export function RoomSettingsDialog({
                                 <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-xl font-bold shadow-xl ring-2 ring-blue-200 dark:ring-blue-800">
                                   {currentUser?.name.charAt(0).toUpperCase()}
                                 </div>
-                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-3 border-white dark:border-gray-900 shadow-lg"></div>
                               </div>
                               <div>
                                 <div className="font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3 text-lg">
@@ -606,10 +605,6 @@ export function RoomSettingsDialog({
                                       </>
                                     )}
                                   </span>
-                                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 ring-1 ring-green-200 dark:ring-green-800">
-                                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                    Active
-                                  </span>
                                 </div>
                               </div>
                             </div>
@@ -628,7 +623,6 @@ export function RoomSettingsDialog({
                                   <div className="w-14 h-14 bg-gradient-to-br from-gray-500 to-gray-700 rounded-2xl flex items-center justify-center text-white text-xl font-bold shadow-lg ring-2 ring-gray-200 dark:ring-gray-700">
                                     {user.name.charAt(0).toUpperCase()}
                                   </div>
-                                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-gray-400 rounded-full border-3 border-white dark:border-gray-900 shadow-lg"></div>
                                 </div>
                                 <div>
                                   <div className="font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3 text-lg">
@@ -659,10 +653,6 @@ export function RoomSettingsDialog({
                                           Participant
                                         </>
                                       )}
-                                    </span>
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 ring-1 ring-gray-200 dark:ring-gray-700">
-                                      <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                                      Offline
                                     </span>
                                   </div>
                                 </div>

@@ -1,6 +1,9 @@
 name: Deploy to Hetzner VPS
 
-on: push
+on:
+  push:
+    tags:
+      - "v*.*.*"
 
 concurrency: { group: deploy-scrum-poker-planning, cancel-in-progress: true }
 
