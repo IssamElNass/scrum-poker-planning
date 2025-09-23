@@ -1,4 +1,4 @@
-scrum-poker-planning.org {
+scrum-poker-planning.org, www.scrum-poker-planning.org {
   encode zstd gzip
   reverse_proxy web:3000
 }
