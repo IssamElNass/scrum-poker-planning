@@ -1,4 +1,9 @@
 scrum-poker-planning.org, www.scrum-poker-planning.org {
+  @badphp {
+    path *.php /php* /php-cgi* /wp-* /manager/* /setup/* /cgi-bin/* /.env
+  }
+  respond @badphp 404
+  
   encode zstd gzip
   reverse_proxy web:3000
 }

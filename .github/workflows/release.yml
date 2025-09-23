@@ -38,6 +38,7 @@ jobs:
             set -e
             cd /home/${{ secrets.VPS_USER }}/apps/scrum-poker-planning
             echo "NEXT_PUBLIC_CONVEX_URL=${{ secrets.CONVEX_URL }}" > .env
+            echo "NEXT_PUBLIC_CONVEX_URL=${{ secrets.CONVEX_URL }}" > .env.local
             chmod 600 .env
 
       - name: Build and start with Docker Compose
