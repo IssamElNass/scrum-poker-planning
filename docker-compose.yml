@@ -6,7 +6,6 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - NEXT_PUBLIC_CONVEX_URL=${CONVEX_URL}
     expose:
       - "3000"
     restart: unless-stopped
