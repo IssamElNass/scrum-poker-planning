@@ -26,7 +26,7 @@ jobs:
           strip_components: 0
           exclude: ".git,node_modules,.next,.DS_Store"
 
-      - name: Write .env with Convex URL
+      - name: Deploy Convex and start app
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -37,42 +37,23 @@ jobs:
           script: |
             set -e
             cd /home/${{ secrets.VPS_USER }}/apps/scrum-poker-planning
+
+            # Create environment files
             echo "NEXT_PUBLIC_CONVEX_URL=${{ secrets.CONVEX_URL }}" > .env
             echo "NEXT_PUBLIC_CONVEX_URL=${{ secrets.CONVEX_URL }}" > .env.local
             chmod 600 .env
 
-      - name: Convex deploy and build frontend
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          port: ${{ secrets.VPS_PORT }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          script: |
-            set -e
-            cd /home/${{ secrets.VPS_USER }}/apps/scrum-poker-planning
-            # use the deploy key so convex doesn't ask or fail for interactive input
-            # Update package manager and install Node.js/npm (for Ubuntu/Debian)
+            # Install dependencies for Convex deployment only
             sudo apt update
             sudo apt install -y nodejs npm
-
-            # Install convex
             npm install --no-audit convex
-            export CONVEX_DEPLOY_KEY="${{ secrets.CONVEX_DEPLOY_KEY }}"
-            npx convex deploy --cmd "npm run build"
 
-      - name: Build and start with Docker Compose
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          port: ${{ secrets.VPS_PORT }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          script: |
-            set -e
-            cd /home/${{ secrets.VPS_USER }}/apps/scrum-poker-planning
+            # Deploy Convex functions only (no build)
+            export CONVEX_DEPLOY_KEY="${{ secrets.CONVEX_DEPLOY_KEY }}"
+            npx convex deploy
+
+            # Let Docker handle the single build and start
+            docker compose down || true
             docker compose build --pull
             docker compose up -d
             docker image prune -f || true
