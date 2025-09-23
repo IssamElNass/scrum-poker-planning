@@ -54,7 +54,6 @@ jobs:
             cd /home/${{ secrets.VPS_USER }}/apps/scrum-poker-planning
             # use the deploy key so convex doesn't ask or fail for interactive input
             export CONVEX_DEPLOY_KEY="${{ secrets.CONVEX_DEPLOY_KEY }}"
-            npm install convex
             npx convex deploy --cmd "npm run build"
 
       - name: Build and start with Docker Compose
