@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export function Header() {
   return (
-    <header className="relative z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-800/50">
+    <header className="absolute top-0 left-0 right-0 z-50 w-full bg-transparent">
       <nav
         aria-label="Global"
         className="flex items-center justify-between p-6 lg:px-8"

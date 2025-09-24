@@ -2,7 +2,6 @@
 
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
-import { CallToAction, FeaturesSection, UseCases } from "@/components/homepage";
 import { GithubIcon } from "@/components/icons";
 import { api } from "@/convex/_generated/api";
 import { useCopyRoomUrlToClipboard } from "@/hooks/use-copy-room-url-to-clipboard";
@@ -17,6 +16,8 @@ export default function HomePage() {
   const createRoom = useMutation(api.rooms.create);
   const { copyRoomUrlToClipboard } = useCopyRoomUrlToClipboard();
   const [isCreating, setIsCreating] = useState(false);
+
+  const version = "1.0.1";
 
   const handleCreateRoom = async () => {
     setIsCreating(true);
@@ -100,59 +101,64 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8 lg:py-32">
+        <div className="mx-auto max-w-7xl px-6 py-8 sm:py-16 lg:px-8 lg:py-20 min-h-screen flex items-center">
           {/* Main Hero Content */}
           <div className="mx-auto max-w-5xl text-center">
             {/* Badge */}
             <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary/10 to-purple-500/10 px-4 py-2 ring-1 ring-primary/20 backdrop-blur-sm">
               <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-sm font-medium text-primary">
-                New v1.0.0 Release
-              </span>
+              <a
+                href={`https://github.com/IssamElNass/scrum-poker-planning/releases/tag/v${version}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              >
+                New v{version} Release
+              </a>
             </div>
 
             {/* Main Heading */}
-            <h1 className="text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-8xl lg:text-9xl">
+            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-6xl lg:text-7xl">
               <span className="block">Scrum</span>
               <span className="relative block">
                 <span className="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
                   Poker Planning
                 </span>
               </span>
-              <span className="block text-5xl sm:text-6xl lg:text-7xl font-bold mt-2">
+              <span className="block text-3xl sm:text-5xl lg:text-6xl font-bold mt-2">
                 Made Easy
               </span>
             </h1>
 
             {/* Subtitle */}
-            <p className="mt-8 text-xl sm:text-2xl leading-relaxed text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p className="mt-6 text-sm sm:text-2xl leading-relaxed text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               The fastest way to estimate user stories with your team,
               completely free forever.
-              <span className="font-semibold text-gray-900 dark:text-white">
+              <span className="hidden sm:inline font-semibold text-gray-900 dark:text-white">
                 {" "}
                 No account required.
               </span>
-              <span className="font-semibold text-gray-900 dark:text-white">
+              <span className="hidden sm:inline font-semibold text-gray-900 dark:text-white">
                 {" "}
                 No limits.
               </span>
-              <span className="font-semibold text-gray-900 dark:text-white">
+              <span className="hidden sm:inline font-semibold text-gray-900 dark:text-white">
                 {" "}
                 Just results.
               </span>
             </p>
 
             {/* Action Buttons */}
-            <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6">
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
               <button
                 onClick={handleCreateRoom}
                 disabled={isCreating}
                 data-testid="hero-start-button"
-                className="group relative overflow-hidden rounded-2xl bg-primary px-10 py-5 text-lg font-bold text-white shadow-2xl shadow-primary/25 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-primary/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group cursor-pointer relative overflow-hidden rounded-2xl bg-primary px-8 py-4 text-base sm:px-10 sm:py-5 sm:text-lg font-bold text-white shadow-2xl shadow-primary/25 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-primary/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="relative z-10 flex items-center gap-3">
-                  Start Planning Now
-                  <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-1" />
+                  {isCreating ? "Creating Room..." : "Start Planning Now"}
+                  <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6 transition-transform group-hover:translate-x-1" />
                 </span>
                 {/* Shimmer effect */}
                 <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
@@ -163,55 +169,44 @@ export default function HomePage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="hero-github-link"
-                className="group inline-flex items-center gap-3 rounded-2xl bg-gray-100/50 dark:bg-gray-800/50 px-8 py-5 text-lg font-semibold text-gray-900 dark:text-white backdrop-blur-sm ring-1 ring-gray-200 dark:ring-gray-700 transition-all duration-300 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500"
+                className="group hidden sm:inline-flex items-center gap-3 rounded-2xl bg-gray-100/50 dark:bg-gray-800/50 px-6 py-4 text-base sm:px-8 sm:py-5 sm:text-lg font-semibold text-gray-900 dark:text-white backdrop-blur-sm ring-1 ring-gray-200 dark:ring-gray-700 transition-all duration-300 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500"
               >
-                <GithubIcon className="h-6 w-6" />
+                <GithubIcon className="h-5 w-5 sm:h-6 sm:w-6" />
                 View Source
               </a>
             </div>
 
             {/* Stats Row */}
-            <div className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-8">
+            <div className="mt-12 hidden sm:grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="group">
-                <div className="flex items-center justify-center gap-3 p-6 rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200/50 dark:border-green-800/50 transition-all duration-300 group-hover:scale-105">
+                <div className="flex items-center justify-center gap-3 p-5 rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200/50 dark:border-green-800/50 transition-all duration-300 group-hover:scale-105">
                   <div className="h-3 w-3 rounded-full bg-green-500 animate-pulse" />
                   <span className="text-lg font-bold text-green-700 dark:text-green-300">
-                    100% Free Forever
+                    100% Free forever
                   </span>
                 </div>
               </div>
               <div className="group">
-                <div className="flex items-center justify-center gap-3 p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border border-blue-200/50 dark:border-blue-800/50 transition-all duration-300 group-hover:scale-105">
+                <div className="flex items-center justify-center gap-3 p-5 rounded-2xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border border-blue-200/50 dark:border-blue-800/50 transition-all duration-300 group-hover:scale-105">
                   <div className="h-3 w-3 rounded-full bg-blue-500 animate-pulse" />
                   <span className="text-lg font-bold text-blue-700 dark:text-blue-300">
-                    No Account Required
+                    No account required
                   </span>
                 </div>
               </div>
               <div className="group">
-                <div className="flex items-center justify-center gap-3 p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200/50 dark:border-purple-800/50 transition-all duration-300 group-hover:scale-105">
+                <div className="flex items-center justify-center gap-3 p-5 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200/50 dark:border-purple-800/50 transition-all duration-300 group-hover:scale-105">
                   <div className="h-3 w-3 rounded-full bg-purple-500 animate-pulse" />
                   <span className="text-lg font-bold text-purple-700 dark:text-purple-300">
-                    Real-time Magic
+                    Open source
                   </span>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Bottom gradient fade */}
-        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white dark:from-gray-900 to-transparent" />
-
-        {/* <AppPreview /> 
-        <HowItWorks />*/}
-        <FeaturesSection />
-        <UseCases />
-        {/* <FAQSimple />*/}
-        <CallToAction onStartGame={handleCreateRoom} loading={isCreating} />
+        <Footer />
       </main>
-
-      <Footer />
     </div>
   );
 }
