@@ -109,7 +109,7 @@ export default function TermsPage() {
 
       <main
         id="main-content"
-        className="relative isolate overflow-hidden bg-white dark:bg-gray-900"
+        className="relative pt-12 isolate overflow-hidden bg-white dark:bg-gray-900"
       >
         {/* Background gradient effects */}
         <div className="absolute inset-0 -z-10 overflow-hidden">

@@ -18,25 +18,25 @@ const sections = [
     id: "introduction",
     title: "1. Introduction",
     content:
-      "This Privacy Policy explains how Scrum Poker Planning collects, uses, and protects your information when you use our service. We are committed to ensuring that your privacy is protected and that we handle your data responsibly.",
+      "This Privacy Policy explains how Scrum Poker Planning collects, uses, and protects your information when you use our service. We are privacy-first advocates and heavy followers of privacy principles. We collect minimal data, use privacy-focused analytics (Simple Analytics with no cookies, no personal data tracking), and are committed to complete transparency through our open-source approach.",
   },
   {
     id: "information-collection",
     title: "2. Information We Collect",
     content:
-      "We collect information to provide better services to our users. This includes: (a) Information you provide directly, such as your username when joining a planning session; (b) Information collected automatically, including IP addresses, browser type, and usage data through Google Analytics; (c) Session data, such as votes and participation in planning poker sessions.",
+      "We collect minimal information to provide our services. This includes: (a) Information you provide directly, such as your username when joining a planning session; (b) Anonymous usage statistics through Simple Analytics (page views, referrers, and general usage patterns - no personal data, no IP tracking, no cookies); (c) Session data, such as votes and participation in planning poker sessions stored temporarily in your browser.",
   },
   {
     id: "cookies",
-    title: "3. Cookies and Tracking",
+    title: "3. Cookies and Privacy-First Analytics",
     content:
-      "We use cookies and similar tracking technologies to improve your experience. This includes: essential cookies for site functionality, Google Analytics cookies for understanding usage patterns, and session cookies to maintain your login state. You can control cookie settings through your browser preferences.",
+      "We are privacy-first and use minimal tracking. We use Simple Analytics, a privacy-focused analytics service that does NOT use cookies, does NOT track personal information, and does NOT store IP addresses. Simple Analytics only collects anonymous page views and referrer data to help us understand how our service is being used. We also use essential browser storage (localStorage) for maintaining your session state across page visits.",
   },
   {
     id: "data-usage",
     title: "4. How We Use Your Information",
     content:
-      "We use the collected information to: provide and maintain our planning poker service, improve user experience and site functionality, analyze usage patterns to enhance our features, and ensure the security and integrity of our service. We do not sell or rent your personal information to third parties.",
+      "We use the minimal information we collect to: provide and maintain our planning poker service, improve user experience and site functionality through anonymous analytics insights, and ensure the security and integrity of our service. We NEVER sell, rent, or share your personal information with third parties. Our commitment to privacy means we only use data that is absolutely necessary for the service to function.",
   },
   {
     id: "data-storage",
@@ -48,19 +48,19 @@ const sections = [
     id: "third-party",
     title: "6. Third-Party Services",
     content:
-      "We use Google Analytics to analyze website usage and improve our service. Google Analytics may collect and process data according to their own privacy policies. We do not share your personal information with any other third-party services except as required by law.",
+      "We use Simple Analytics, a privacy-focused analytics service that is GDPR, CCPA and PECR compliant. Unlike traditional analytics tools, Simple Analytics does not use cookies, does not track users across websites, does not collect personal data, and does not store IP addresses. This service only provides us with anonymous insights about page views and website usage to help us improve our service. We do not use any other third-party tracking services.",
   },
   {
     id: "user-rights",
     title: "7. Your Rights",
     content:
-      "You have the right to: access the information we hold about you, request correction of any inaccurate information, request deletion of your data, opt-out of analytics tracking, and withdraw consent for data processing. To exercise these rights, please contact us through our GitHub repository.",
+      "You have the right to: access the minimal information we hold about you, request correction of any inaccurate information, request deletion of your data, and know that Simple Analytics already protects your privacy by design (no personal data collected). Since we don't collect personal information through analytics, there's no need to opt-out - you're already protected. To exercise any rights or ask questions, please contact us through our GitHub repository.",
   },
   {
     id: "data-retention",
     title: "8. Data Retention",
     content:
-      "We retain your information only for as long as necessary to provide our services. Session data is automatically deleted after the planning session ends. Analytics data is retained according to Google Analytics' data retention policies. You can request deletion of your data at any time.",
+      "We retain your information only for as long as necessary to provide our services. Session data is automatically deleted after the planning session ends or when you clear your browser storage. Simple Analytics retains anonymous usage statistics according to their privacy-focused data retention policies (no personal data is stored). You can request deletion of any data we hold at any time through our GitHub repository.",
   },
   {
     id: "children",
@@ -96,7 +96,7 @@ export default function PrivacyPage() {
 
       <main
         id="main-content"
-        className="relative isolate overflow-hidden bg-white dark:bg-gray-900"
+        className="relative pt-12 isolate overflow-hidden bg-white dark:bg-gray-900"
       >
         {/* Background gradient effects */}
         <div className="absolute inset-0 -z-10 overflow-hidden">
@@ -204,10 +204,11 @@ export default function PrivacyPage() {
                   </h3>
                   <div className="mt-2 text-sm text-green-700 dark:text-green-300">
                     <p>
-                      We take your privacy seriously. This policy explains our
-                      commitment to protecting your data and your rights as a
-                      user of Scrum Poker Planning, our open-source planning
-                      tool.
+                      We are privacy-first advocates and take your privacy
+                      extremely seriously. We use Simple Analytics (no cookies,
+                      no personal data tracking) and follow privacy principles
+                      in everything we do. This policy explains our commitment
+                      to protecting your data in our open-source planning tool.
                     </p>
                   </div>
                 </div>
@@ -241,10 +242,10 @@ export default function PrivacyPage() {
               <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-6 text-center">
                 <Cookie className="mx-auto h-8 w-8 text-primary" />
                 <h3 className="mt-4 text-sm font-semibold text-gray-900 dark:text-white">
-                  Cookie Control
+                  No Tracking Cookies
                 </h3>
                 <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  Manage your cookie preferences through your browser
+                  Simple Analytics uses no cookies or personal data tracking
                 </p>
               </div>
               <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-6 text-center">

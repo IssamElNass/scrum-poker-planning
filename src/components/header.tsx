@@ -1,4 +1,5 @@
 import { ModeToggle } from "@/components/mode-toggle";
+import Link from "next/link";
 
 export function Header() {
   return (
@@ -9,10 +10,12 @@ export function Header() {
       >
         <div className="flex lg:flex-1">
           <div className="-m-1.5 p-1.5 flex items-center">
-            <span className="sr-only">Scrum Poker Planning</span>
-            <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-              Scrum Poker Planning
-            </span>
+            <Link href="/">
+              <span className="sr-only">Scrum Poker Planning</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                Scrum Poker Planning
+              </span>
+            </Link>
           </div>
         </div>
         <div className="flex lg:flex-1 justify-end">

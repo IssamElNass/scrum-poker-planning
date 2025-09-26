@@ -234,7 +234,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-        <Footer />
+        <Footer absolute />
       </main>
     </div>
   );

@@ -1,10 +1,16 @@
 "use client";
 
-export const Footer = () => {
+interface FooterProps {
+  absolute?: boolean;
+}
+
+export const Footer = ({ absolute = false }: FooterProps) => {
   return (
     <footer
       aria-labelledby="footer-heading"
-      className="absolute bottom-0 left-0 right-0 z-50 w-full bg-transparent"
+      className={`w-full bg-transparent ${
+        absolute ? "absolute bottom-0 left-0 right-0 z-50" : "relative mt-auto"
+      }`}
     >
       <div className="px-6 py-4 lg:px-8">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
