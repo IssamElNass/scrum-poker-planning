@@ -6,29 +6,54 @@ import { GithubIcon } from "@/components/icons";
 import { api } from "@/convex/_generated/api";
 import { useCopyRoomUrlToClipboard } from "@/hooks/use-copy-room-url-to-clipboard";
 import { toast } from "@/lib/toast";
-import { useMutation } from "convex/react";
-import { ArrowRight } from "lucide-react";
+import { useMutation, useQuery } from "convex/react";
+import { ArrowRight, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Id } from "@/convex/_generated/dataModel";
 
 export default function HomePage() {
   const router = useRouter();
   const createRoom = useMutation(api.rooms.create);
   const { copyRoomUrlToClipboard } = useCopyRoomUrlToClipboard();
   const [isCreating, setIsCreating] = useState(false);
+  const [lastRoomId, setLastRoomId] = useState<Id<"rooms"> | null>(null);
+
+  // Query to check if the last room exists
+  const lastRoomData = useQuery(
+    api.rooms.get,
+    lastRoomId ? { roomId: lastRoomId } : "skip"
+  );
 
   const version = "1.0.1";
+
+  // Load last room from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedUser = localStorage.getItem("poker-user");
+      if (storedUser) {
+        try {
+          const user = JSON.parse(storedUser);
+          if (user?.roomId) {
+            setLastRoomId(user.roomId);
+          }
+        } catch (e) {
+          console.error("Failed to parse stored user", e);
+        }
+      }
+    }
+  }, []);
 
   const handleCreateRoom = async () => {
     setIsCreating(true);
     try {
-      const roomId = await createRoom({
+      const newRoomId = await createRoom({
         name: `Room ${Math.random().toString(36).substring(2, 8).toUpperCase()}${Math.floor(Math.random() * 1000)}`,
         roomType: "canvas",
       });
 
-      await copyRoomUrlToClipboard(roomId);
-      router.push(`/room/${roomId}`);
+      await copyRoomUrlToClipboard(newRoomId);
+      router.push(`/room/${newRoomId}`);
     } catch (error) {
       console.error("Failed to create room:", error);
       toast.error("Failed to create room. Please try again.");
@@ -36,6 +61,22 @@ export default function HomePage() {
       setIsCreating(false);
     }
   };
+
+  const handleJoinLastRoom = async () => {
+    if (!lastRoomId) return;
+
+    setIsCreating(true);
+    try {
+      router.push(`/room/${lastRoomId}`);
+    } catch (error) {
+      console.error("Failed to join last room:", error);
+      toast.error("Failed to join last room. Please try again.");
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const showLastRoomButton = lastRoomId && lastRoomData !== null;
 
   return (
     <div className="bg-white dark:bg-gray-900">
@@ -131,7 +172,7 @@ export default function HomePage() {
             </h1>
 
             {/* Subtitle */}
-            <p className="mt-6 text-sm sm:text-2xl leading-relaxed text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p className="mt-6 text-sm sm:text-lg leading-relaxed text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               The fastest way to estimate user stories with your team,
               completely free forever.
               <span className="hidden sm:inline font-semibold text-gray-900 dark:text-white">
@@ -144,7 +185,7 @@ export default function HomePage() {
               </span>
               <span className="hidden sm:inline font-semibold text-gray-900 dark:text-white">
                 {" "}
-                Just results.
+                100% free forever.
               </span>
             </p>
 
@@ -154,58 +195,46 @@ export default function HomePage() {
                 onClick={handleCreateRoom}
                 disabled={isCreating}
                 data-testid="hero-start-button"
-                className="group cursor-pointer relative overflow-hidden rounded-2xl bg-primary px-8 py-4 text-base sm:px-10 sm:py-5 sm:text-lg font-bold text-white shadow-2xl shadow-primary/25 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-primary/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group cursor-pointer relative overflow-hidden rounded-lg bg-primary px-4 py-2 text-sm sm:px-6 sm:py-3 sm:text-base font-bold text-white shadow-lg shadow-primary/25 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-primary/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span className="relative z-10 flex items-center gap-3">
+                <span className="relative z-10 flex items-center gap-2">
                   {isCreating ? "Creating Room..." : "Start Planning Now"}
-                  <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </span>
                 {/* Shimmer effect */}
                 <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
               </button>
+
+              {showLastRoomButton && (
+                <button
+                  onClick={handleJoinLastRoom}
+                  disabled={isCreating}
+                  data-testid="hero-rejoin-button"
+                  className="group cursor-pointer relative overflow-hidden rounded-lg bg-green-600 hover:bg-green-700 px-4 py-2 text-sm sm:px-6 sm:py-3 sm:text-base font-bold text-white shadow-lg shadow-green-600/25 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-green-600/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    Join Last Room
+                    <Users className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </span>
+                  {/* Shimmer effect */}
+                  <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+                </button>
+              )}
 
               <a
                 href="https://github.com/IssamElNass/scrum-poker-planning"
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="hero-github-link"
-                className="group hidden sm:inline-flex items-center gap-3 rounded-2xl bg-gray-100/50 dark:bg-gray-800/50 px-6 py-4 text-base sm:px-8 sm:py-5 sm:text-lg font-semibold text-gray-900 dark:text-white backdrop-blur-sm ring-1 ring-gray-200 dark:ring-gray-700 transition-all duration-300 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500"
+                className="group hidden sm:inline-flex items-center gap-2 rounded-lg bg-gray-100/50 dark:bg-gray-800/50 px-4 py-2 text-sm sm:px-5 sm:py-3 sm:text-base font-semibold text-gray-900 dark:text-white backdrop-blur-sm ring-1 ring-gray-200 dark:ring-gray-700 transition-all duration-300 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500"
               >
-                <GithubIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+                <GithubIcon className="h-4 w-4" />
                 View Source
               </a>
             </div>
-
-            {/* Stats Row */}
-            <div className="mt-12 hidden sm:grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div className="group">
-                <div className="flex items-center justify-center gap-3 p-5 rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200/50 dark:border-green-800/50 transition-all duration-300 group-hover:scale-105">
-                  <div className="h-3 w-3 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-lg font-bold text-green-700 dark:text-green-300">
-                    100% Free forever
-                  </span>
-                </div>
-              </div>
-              <div className="group">
-                <div className="flex items-center justify-center gap-3 p-5 rounded-2xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border border-blue-200/50 dark:border-blue-800/50 transition-all duration-300 group-hover:scale-105">
-                  <div className="h-3 w-3 rounded-full bg-blue-500 animate-pulse" />
-                  <span className="text-lg font-bold text-blue-700 dark:text-blue-300">
-                    No account required
-                  </span>
-                </div>
-              </div>
-              <div className="group">
-                <div className="flex items-center justify-center gap-3 p-5 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200/50 dark:border-purple-800/50 transition-all duration-300 group-hover:scale-105">
-                  <div className="h-3 w-3 rounded-full bg-purple-500 animate-pulse" />
-                  <span className="text-lg font-bold text-purple-700 dark:text-purple-300">
-                    Open source
-                  </span>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
-        <Footer />
+        <Footer absolute />
       </main>
     </div>
   );

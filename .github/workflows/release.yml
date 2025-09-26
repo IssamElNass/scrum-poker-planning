@@ -7,6 +7,9 @@ on:
 
 concurrency: { group: deploy-scrum-poker-planning, cancel-in-progress: true }
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest

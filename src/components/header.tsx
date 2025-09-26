@@ -1,5 +1,4 @@
 import { ModeToggle } from "@/components/mode-toggle";
-import Image from "next/image";
 import Link from "next/link";
 
 export function Header() {
@@ -10,19 +9,14 @@ export function Header() {
         className="flex items-center justify-between p-6 lg:px-8"
       >
         <div className="flex lg:flex-1">
-          <Link href="/" className="-m-1.5 p-1.5 flex items-center">
-            <Image
-              src="/logo.svg"
-              alt="Scrum Poker Planning Logo"
-              width={32}
-              height={32}
-              className="h-8 w-8 mr-2"
-            />
-            <span className="sr-only">Scrum Poker Planning</span>
-            <span className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-              Scrum Poker Planning
-            </span>
-          </Link>
+          <div className="-m-1.5 p-1.5 flex items-center">
+            <Link href="/">
+              <span className="sr-only">Scrum Poker Planning</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                Scrum Poker Planning
+              </span>
+            </Link>
+          </div>
         </div>
         <div className="flex lg:flex-1 justify-end">
           <ModeToggle />
