@@ -52,7 +52,9 @@ export default function HomePage() {
         roomType: "canvas",
       });
 
-      await copyRoomUrlToClipboard(newRoomId);
+      // Try to copy to clipboard, but don't block room creation if it fails
+      copyRoomUrlToClipboard(newRoomId);
+
       router.push(`/room/${newRoomId}`);
     } catch (error) {
       console.error("Failed to create room:", error);
