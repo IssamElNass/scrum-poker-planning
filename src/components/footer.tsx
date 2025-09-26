@@ -9,8 +9,7 @@ export const Footer = () => {
       <div className="px-6 py-4 lg:px-8">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-gray-300">
-            &copy; {new Date().getFullYear()} Scrum Poker Planning. Open source
-            under MIT License.
+            &copy; {new Date().getFullYear()} Scrum Poker Planning.
           </p>
           <div className="flex items-center gap-2 text-sm text-gray-300">
             <span>Made with</span>
