@@ -2,12 +2,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  productionBrowserSourceMaps: true,
   webpack: (config, { dev, isServer }) => {
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
         chunks: "all",
         minSize: 20000,
-        maxSize: 150000, // Keep chunks small
+        maxSize: 150000,
         cacheGroups: {
           reactflow: {
             test: /[\\/]node_modules[\\/]@xyflow[\\/]/,
@@ -55,7 +56,10 @@ const nextConfig: NextConfig = {
 
       config.optimization.minimize = true;
       config.optimization.usedExports = true;
-      config.optimization.sideEffects = false;
+      config.optimization.sideEffects = true;
+
+      // REMOVE the terser minimizer config (lines 60-76)
+      // Let Next.js use its default SWC minifier instead
 
       config.output.chunkLoadingGlobal = "webpackChunk_app";
       config.output.hotUpdateChunkFilename = "hot-update.[id].[fullhash].js";
@@ -84,6 +88,15 @@ const nextConfig: NextConfig = {
           {
             key: "X-Content-Type-Options",
             value: "nosniff",
+          },
+          // Add these CSP headers
+          {
+            key: "Content-Security-Policy",
+            value: "default-src 'self'",
+          },
+          {
+            key: "X-Frame-Options",
+            value: "SAMEORIGIN",
           },
         ],
       },
