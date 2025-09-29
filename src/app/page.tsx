@@ -25,7 +25,7 @@ export default function HomePage() {
     lastRoomId ? { roomId: lastRoomId } : "skip"
   );
 
-  const version = "1.0.1";
+  const version = "1.0.2";
 
   // Load last room from localStorage on mount
   useEffect(() => {
