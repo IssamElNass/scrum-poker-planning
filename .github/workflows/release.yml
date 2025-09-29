@@ -2,6 +2,7 @@ name: Deploy to Hetzner VPS
 
 on:
   push:
+    branches: [main]
     tags:
       - "v*.*.*"
 
