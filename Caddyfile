@@ -4,18 +4,48 @@ scrum-poker-planning.org {
   }
   respond @badphp 404
 
+  # Ensure proper MIME types for all files
+  header {
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "SAMEORIGIN"
+    X-XSS-Protection "1; mode=block"
+    Referrer-Policy "strict-origin-when-cross-origin"
+  }
+
+  # Handle JavaScript files with correct MIME type
+  @js {
+    path *.js
+    path /_next/static/chunks/*.js
+  }
+  handle @js {
+    header Content-Type "application/javascript; charset=utf-8"
+    reverse_proxy web:3000
+  }
+
+  # Handle CSS files with correct MIME type
+  @css {
+    path *.css
+  }
+  handle @css {
+    header Content-Type "text/css; charset=utf-8"
+    reverse_proxy web:3000
+  }
+
+  # Handle static assets
+  @static {
+    path /_next/static/*
+  }
+  handle @static {
+    header Cache-Control "public, max-age=31536000, immutable"
+    reverse_proxy web:3000
+  }
+
+  # Compress non-problematic content
   encode zstd gzip
+  
   reverse_proxy web:3000
 }
 
 www.scrum-poker-planning.org {
-  @badphp {
-    path *.php /php* /php-cgi* /wp-* /manager/* /setup/* /cgi-bin/* /.env
-  }
-  respond @badphp 404
-
-  encode zstd gzip
-  reverse_proxy web:3000
-  
-  redir https://scrum-poker-planning.org{uri}
+  redir https://scrum-poker-planning.org{uri} permanent
 }
