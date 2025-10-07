@@ -6,6 +6,7 @@ import {
   Download,
   Grid3X3,
   Home,
+  LogOut,
   Maximize2,
   QrCode,
   Settings,
@@ -15,8 +16,19 @@ import {
   ZoomOut,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FC, useState } from "react";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,7 +46,7 @@ import {
 import { api } from "@/convex/_generated/api";
 import type { RoomWithRelatedData } from "@/convex/model/rooms";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { ModeToggle } from "../mode-toggle";
 import { QRCodeDisplay } from "./qr-code-display";
 import { RoomSettingsDialog } from "./room-settings-dialog";
@@ -52,13 +64,16 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
 }) => {
   const { zoomIn, zoomOut, fitView } = useReactFlow();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
+  const router = useRouter();
+  const leaveRoomMutation = useMutation(api.users.leave);
   const [isFullscreenSupported] = useState(
     () => typeof document !== "undefined" && document.fullscreenEnabled
   );
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isQRCodeOpen, setIsQRCodeOpen] = useState(false);
+  const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
   const [isMobile] = useState(
     () => typeof window !== "undefined" && window.innerWidth < 768
   );
@@ -118,6 +133,37 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
     onToggleFullscreen?.();
   };
 
+  const handleLeaveRoom = async () => {
+    if (!user) return;
+
+    try {
+      // Set flag to indicate voluntary leave (not kicked)
+      localStorage.setItem("voluntaryLeave", "true");
+
+      // Remove user from the room
+      await leaveRoomMutation({ userId: user.id });
+
+      // Clear user from context immediately
+      setUser(null);
+
+      // Navigate to home
+      router.push("/");
+
+      // Clean up the flag after navigation
+      setTimeout(() => {
+        localStorage.removeItem("voluntaryLeave");
+      }, 100);
+    } catch (error) {
+      // Clear flag if leave failed
+      localStorage.removeItem("voluntaryLeave");
+      toast({
+        title: "Failed to leave room",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const buttonClass =
     "h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors";
 
@@ -153,6 +199,23 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
               </TooltipContent>
             </Tooltip>
           </Link>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsLeaveDialogOpen(true)}
+                className={buttonClass}
+                aria-label="Leave room"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Leave room</p>
+            </TooltipContent>
+          </Tooltip>
 
           <Separator orientation="vertical" className="h-6 mx-1" />
 
@@ -361,6 +424,25 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
           isMobile={isMobile}
         />
       )}
+
+      {/* Leave Room Confirmation Dialog */}
+      <AlertDialog open={isLeaveDialogOpen} onOpenChange={setIsLeaveDialogOpen}>
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Leave Room?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to leave this room? You can always rejoin
+              using the room link.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleLeaveRoom}>
+              Leave Room
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

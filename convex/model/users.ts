@@ -99,6 +99,15 @@ export async function leaveRoom(
   const user = await ctx.db.get(userId);
   if (!user) return;
 
+  const roomId = user.roomId;
+  const userName = user.name;
+
+  // Get remaining users before deleting this one
+  const allUsers = await ctx.db
+    .query("users")
+    .withIndex("by_room", (q) => q.eq("roomId", roomId))
+    .collect();
+
   // Perform all cleanup operations in parallel for better performance
   const cleanupPromises: Promise<void>[] = [];
 
@@ -106,34 +115,51 @@ export async function leaveRoom(
   const votes = await ctx.db
     .query("votes")
     .withIndex("by_room_user", (q) =>
-      q.eq("roomId", user.roomId).eq("userId", userId)
+      q.eq("roomId", roomId).eq("userId", userId)
     )
     .collect();
 
   cleanupPromises.push(...votes.map((vote) => ctx.db.delete(vote._id)));
 
   // Check if this is a canvas room and remove nodes
-  const room = await ctx.db.get(user.roomId);
+  const room = await ctx.db.get(roomId);
   if (room && room.roomType === "canvas") {
     // Remove player node and voting cards
     cleanupPromises.push(
-      Canvas.removePlayerNodeAndCards(ctx, { roomId: user.roomId, userId })
+      Canvas.removePlayerNodeAndCards(ctx, { roomId, userId })
     );
 
     // Mark user as inactive in presence
-    cleanupPromises.push(
-      Canvas.markUserInactive(ctx, { roomId: user.roomId, userId })
-    );
+    cleanupPromises.push(Canvas.markUserInactive(ctx, { roomId, userId }));
   }
 
   // Wait for all cleanup operations to complete
   await Promise.all(cleanupPromises);
 
+  // Create activity log for user leaving
+  await ctx.db.insert("activities", {
+    roomId,
+    type: "user_left",
+    userName,
+    createdAt: Date.now(),
+  });
+
   // Delete user
   await ctx.db.delete(userId);
 
+  // Handle ownership transfer if necessary
+  const remainingUsers = allUsers.filter((u) => u._id !== userId);
+
+  if (room && room.ownerId === userId && remainingUsers.length > 0) {
+    // Transfer ownership to the next oldest user
+    const nextOwner = remainingUsers.sort((a, b) => a.joinedAt - b.joinedAt)[0];
+    await ctx.db.patch(roomId, {
+      ownerId: nextOwner._id,
+    });
+  }
+
   // Update room activity
-  await Rooms.updateRoomActivity(ctx, user.roomId);
+  await Rooms.updateRoomActivity(ctx, roomId);
 }
 
 /**
@@ -199,6 +225,14 @@ export async function kickUser(
   if (room.ownerId === args.userToKickId) {
     throw new Error("Cannot kick the room owner");
   }
+
+  // Create activity log for user being kicked
+  await ctx.db.insert("activities", {
+    roomId: args.roomId,
+    type: "user_kicked",
+    userName: userToKick.name,
+    createdAt: Date.now(),
+  });
 
   // Delete user
   await ctx.db.delete(args.userToKickId);

@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "convex/react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { toast as sonnerToast } from "sonner";
 
 export default function CanvasRoomPage() {
   const params = useParams();
@@ -18,9 +19,17 @@ export default function CanvasRoomPage() {
   const router = useRouter();
   const { toast } = useToast();
   const hasCheckedKick = useRef(false);
+  const lastActivityCheck = useRef<number>(Date.now());
+  const processedActivityIds = useRef<Set<string>>(new Set());
 
   // Check if user is in this room
   const isInRoom = user?.roomId === roomId;
+
+  // Query recent activities
+  const activities = useQuery(
+    api.activities.getRecent,
+    isInRoom ? { roomId, since: lastActivityCheck.current } : "skip"
+  );
 
   // Check if user was kicked - user thinks they're in room but room data doesn't include them
   const wasKicked =
@@ -29,11 +38,44 @@ export default function CanvasRoomPage() {
     roomData?.users &&
     !roomData.users.some((u) => u._id === user.id);
 
+  // Show activity notifications (user left)
+  useEffect(() => {
+    if (!activities || !isInRoom || !user) return;
+
+    activities.forEach((activity) => {
+      // Skip if already processed
+      if (processedActivityIds.current.has(activity._id)) return;
+
+      // Mark as processed
+      processedActivityIds.current.add(activity._id);
+
+      // Don't show notification for the current user's own actions
+      if (activity.userName === user.name) return;
+
+      if (activity.type === "user_left") {
+        sonnerToast.info(`${activity.userName} left the room`);
+      }
+    });
+  }, [activities, isInRoom, user]);
+
   // Handle kicked user
   useEffect(() => {
     if (wasKicked && !hasCheckedKick.current) {
       hasCheckedKick.current = true;
-      // Clear user from auth and localStorage
+
+      // Check if this was a voluntary leave
+      const isVoluntaryLeave =
+        localStorage.getItem("voluntaryLeave") === "true";
+      localStorage.removeItem("voluntaryLeave");
+
+      if (isVoluntaryLeave) {
+        // User voluntarily left, just clear state and redirect
+        setUser(null);
+        router.push("/");
+        return;
+      }
+
+      // User was kicked
       setUser(null);
 
       // Show warning toast
