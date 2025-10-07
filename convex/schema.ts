@@ -90,4 +90,13 @@ export default defineSchema({
     .index("by_room", ["roomId"])
     .index("by_room_user", ["roomId", "userId"])
     .index("by_last_ping", ["lastPing"]), // For cleanup
+
+  activities: defineTable({
+    roomId: v.id("rooms"),
+    type: v.union(v.literal("user_left"), v.literal("user_kicked")),
+    userName: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_room", ["roomId"])
+    .index("by_room_created", ["roomId", "createdAt"]),
 });
