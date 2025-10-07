@@ -1,3 +1,4 @@
+import { ConvexError } from "convex/values";
 import { Id } from "../_generated/dataModel";
 import { MutationCtx } from "../_generated/server";
 import * as Canvas from "./canvas";
@@ -7,6 +8,7 @@ export interface JoinRoomArgs {
   roomId: Id<"rooms">;
   name: string;
   isSpectator?: boolean;
+  password?: string;
 }
 
 export interface EditUserArgs {
@@ -22,14 +24,36 @@ export async function joinRoom(
   ctx: MutationCtx,
   args: JoinRoomArgs
 ): Promise<Id<"users">> {
-  // Update room activity
-  await Rooms.updateRoomActivity(ctx, args.roomId);
-
   // Check if this is the first user (to set as owner)
   const existingUsers = await ctx.db
     .query("users")
     .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
     .collect();
+
+  const isFirstUser = existingUsers.length === 0;
+
+  // Get room to check password
+  const room = await ctx.db.get(args.roomId);
+  if (!room) {
+    throw new ConvexError("Room not found");
+  }
+
+  // Validate password for non-first users
+  if (!isFirstUser && room.password) {
+    if (!args.password || args.password !== room.password) {
+      throw new ConvexError("Incorrect password");
+    }
+  }
+
+  // If this is the first user and they provided a password, set it
+  if (isFirstUser && args.password && args.password.trim()) {
+    await ctx.db.patch(args.roomId, {
+      password: args.password.trim(),
+    });
+  }
+
+  // Update room activity
+  await Rooms.updateRoomActivity(ctx, args.roomId);
 
   // Create user
   const userId = await ctx.db.insert("users", {
@@ -40,14 +64,13 @@ export async function joinRoom(
   });
 
   // Set as room owner if this is the first user
-  if (existingUsers.length === 0) {
+  if (isFirstUser) {
     await ctx.db.patch(args.roomId, {
       ownerId: userId,
     });
   }
 
   // Check if this is a canvas room and create nodes
-  const room = await ctx.db.get(args.roomId);
   if (room && room.roomType === "canvas") {
     // Create player node
     await Canvas.upsertPlayerNode(ctx, { roomId: args.roomId, userId });
@@ -69,7 +92,7 @@ export async function editUser(
   args: EditUserArgs
 ): Promise<void> {
   const user = await ctx.db.get(args.userId);
-  if (!user) throw new Error("User not found");
+  if (!user) throw new ConvexError("User not found");
 
   // Update room activity
   await Rooms.updateRoomActivity(ctx, user.roomId);
@@ -197,33 +220,33 @@ export async function kickUser(
 ): Promise<void> {
   const room = await ctx.db.get(args.roomId);
   if (!room) {
-    throw new Error("Room not found");
+    throw new ConvexError("Room not found");
   }
 
   const kickedBy = await ctx.db.get(args.kickedById);
   if (!kickedBy || kickedBy.roomId !== args.roomId) {
-    throw new Error("Kicker not found in room");
+    throw new ConvexError("Kicker not found in room");
   }
 
   const userToKick = await ctx.db.get(args.userToKickId);
   if (!userToKick || userToKick.roomId !== args.roomId) {
-    throw new Error("User to kick not found in room");
+    throw new ConvexError("User to kick not found in room");
   }
 
   // Check if kicker is room owner
   const isOwner = await Rooms.isRoomOwner(ctx, args.roomId, args.kickedById);
   if (!isOwner) {
-    throw new Error("Only room owner can kick users");
+    throw new ConvexError("Only room owner can kick users");
   }
 
   // Cannot kick yourself
   if (args.userToKickId === args.kickedById) {
-    throw new Error("Cannot kick yourself");
+    throw new ConvexError("Cannot kick yourself");
   }
 
   // Cannot kick the room owner
   if (room.ownerId === args.userToKickId) {
-    throw new Error("Cannot kick the room owner");
+    throw new ConvexError("Cannot kick the room owner");
   }
 
   // Create activity log for user being kicked
@@ -276,17 +299,17 @@ export async function transferOwnership(
 ): Promise<void> {
   const room = await ctx.db.get(args.roomId);
   if (!room) {
-    throw new Error("Room not found");
+    throw new ConvexError("Room not found");
   }
 
   const currentOwner = await ctx.db.get(args.currentOwnerId);
   if (!currentOwner || currentOwner.roomId !== args.roomId) {
-    throw new Error("Current owner not found in room");
+    throw new ConvexError("Current owner not found in room");
   }
 
   const newOwner = await ctx.db.get(args.newOwnerId);
   if (!newOwner || newOwner.roomId !== args.roomId) {
-    throw new Error("New owner not found in room");
+    throw new ConvexError("New owner not found in room");
   }
 
   // Check if current user is room owner
@@ -296,12 +319,12 @@ export async function transferOwnership(
     args.currentOwnerId
   );
   if (!isOwner) {
-    throw new Error("Only room owner can transfer ownership");
+    throw new ConvexError("Only room owner can transfer ownership");
   }
 
   // Cannot transfer to yourself
   if (args.newOwnerId === args.currentOwnerId) {
-    throw new Error("Cannot transfer ownership to yourself");
+    throw new ConvexError("Cannot transfer ownership to yourself");
   }
 
   // Update room owner

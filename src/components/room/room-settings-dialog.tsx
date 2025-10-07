@@ -30,6 +30,7 @@ import {
   Crown,
   Eye,
   Hash,
+  Lock,
   Save,
   Settings,
   UserMinus,
@@ -55,6 +56,8 @@ export function RoomSettingsDialog({
   const [activeTab, setActiveTab] = useState<SettingsTab>("general");
   const [roomName, setRoomName] = useState(roomData.room.name);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [password, setPassword] = useState("");
+  const [showPasswordSection, setShowPasswordSection] = useState(false);
 
   // User management state
   const [kickDialogOpen, setKickDialogOpen] = useState(false);
@@ -66,6 +69,7 @@ export function RoomSettingsDialog({
 
   const { toast } = useToast();
   const updateRoomName = useMutation(api.rooms.updateName);
+  const updateRoomPassword = useMutation(api.rooms.updatePassword);
   const kickUser = useMutation(api.users.kick);
   const transferOwnership = useMutation(api.users.transferOwnership);
   // const updatePresence = useMutation(api.canvas.updatePresence);
@@ -185,11 +189,80 @@ export function RoomSettingsDialog({
     setRoomName(value);
   };
 
+  const handleUpdatePassword = async () => {
+    if (!password.trim() && !roomData.room.password) {
+      toast({
+        title: "No changes",
+        description: "Password field is empty",
+        variant: "default",
+      });
+      return;
+    }
+
+    setIsUpdating(true);
+    try {
+      await updateRoomPassword({
+        roomId: roomData.room._id,
+        userId: currentUserId,
+        password: password.trim() || undefined,
+      });
+
+      toast({
+        title: password.trim() ? "Password updated" : "Password removed",
+        description: password.trim()
+          ? "Room password has been updated successfully"
+          : "Room password has been removed successfully",
+      });
+      setPassword("");
+      setShowPasswordSection(false);
+    } catch (error) {
+      console.error("Failed to update password:", error);
+      toast({
+        title: "Failed to update password",
+        description:
+          error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleRemovePassword = async () => {
+    setIsUpdating(true);
+    try {
+      await updateRoomPassword({
+        roomId: roomData.room._id,
+        userId: currentUserId,
+        password: undefined,
+      });
+
+      toast({
+        title: "Password removed",
+        description: "Room password has been removed successfully",
+      });
+      setPassword("");
+      setShowPasswordSection(false);
+    } catch (error) {
+      console.error("Failed to remove password:", error);
+      toast({
+        title: "Failed to remove password",
+        description:
+          error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   // Reset form when dialog opens/closes
   React.useEffect(() => {
     if (isOpen) {
       setRoomName(roomData.room.name);
       setActiveTab("general");
+      setPassword("");
+      setShowPasswordSection(false);
     }
   }, [isOpen, roomData.room.name]);
 
@@ -433,6 +506,112 @@ export function RoomSettingsDialog({
                               </Button>
                             )}
                           </div>
+                        </div>
+
+                        <Separator />
+
+                        {/* Password Management */}
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-lg">
+                                <Lock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                              </div>
+                              <div>
+                                <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
+                                  Password Protection
+                                </h4>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                  {roomData.room.password
+                                    ? "This room is password protected"
+                                    : "Add a password to restrict access"}
+                                </p>
+                              </div>
+                            </div>
+                            {!showPasswordSection && (
+                              <Button
+                                onClick={() => setShowPasswordSection(true)}
+                                variant="outline"
+                                className="rounded-xl"
+                              >
+                                {roomData.room.password
+                                  ? "Change Password"
+                                  : "Set Password"}
+                              </Button>
+                            )}
+                          </div>
+
+                          {showPasswordSection && (
+                            <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 rounded-2xl p-6 border border-amber-200/50 dark:border-amber-800/50 space-y-4">
+                              <div className="space-y-3">
+                                <Label
+                                  htmlFor="room-password"
+                                  className="text-base font-semibold text-gray-900 dark:text-gray-100"
+                                >
+                                  {roomData.room.password
+                                    ? "New Password"
+                                    : "Password"}
+                                </Label>
+                                <Input
+                                  id="room-password"
+                                  type="password"
+                                  value={password}
+                                  onChange={(e) => setPassword(e.target.value)}
+                                  placeholder="Enter password"
+                                  disabled={isUpdating}
+                                  className="h-12 text-base rounded-xl border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                                />
+                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                  {roomData.room.password
+                                    ? "Leave empty to remove password protection"
+                                    : "Users will need this password to join the room"}
+                                </p>
+                              </div>
+
+                              <div className="flex gap-3">
+                                <Button
+                                  onClick={handleUpdatePassword}
+                                  disabled={isUpdating}
+                                  className="flex-1 h-12 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-semibold shadow-lg shadow-amber-600/25 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-amber-600/40"
+                                >
+                                  {isUpdating ? (
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                      Updating...
+                                    </div>
+                                  ) : (
+                                    <div className="flex items-center gap-2">
+                                      <Save className="h-4 w-4" />
+                                      {password.trim()
+                                        ? "Update Password"
+                                        : "Remove Password"}
+                                    </div>
+                                  )}
+                                </Button>
+                                {roomData.room.password && (
+                                  <Button
+                                    onClick={handleRemovePassword}
+                                    disabled={isUpdating}
+                                    variant="outline"
+                                    className="h-12 rounded-xl border-red-200 dark:border-red-800 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50"
+                                  >
+                                    Remove
+                                  </Button>
+                                )}
+                                <Button
+                                  onClick={() => {
+                                    setShowPasswordSection(false);
+                                    setPassword("");
+                                  }}
+                                  disabled={isUpdating}
+                                  variant="outline"
+                                  className="h-12 rounded-xl"
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            </div>
+                          )}
                         </div>
 
                         <Separator />

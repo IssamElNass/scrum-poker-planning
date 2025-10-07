@@ -102,3 +102,26 @@ export const updateVotingSystem = mutation({
     await Rooms.updateRoomVotingSystem(ctx, args);
   },
 });
+
+// Update room password
+export const updatePassword = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    userId: v.id("users"),
+    password: v.optional(v.string()), // Pass null/undefined to remove password
+  },
+  handler: async (ctx, args) => {
+    await Rooms.updateRoomPassword(ctx, args);
+  },
+});
+
+// Verify room password
+export const verifyPassword = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    password: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await Rooms.verifyRoomPassword(ctx, args);
+  },
+});
