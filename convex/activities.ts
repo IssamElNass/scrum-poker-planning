@@ -16,7 +16,7 @@ export const getRecent = query({
 
     // Filter by timestamp if provided
     if (args.since !== undefined) {
-      activities = activities.filter((a) => a.createdAt > args.since);
+      activities = activities.filter((a) => a.createdAt > args!.since!);
     }
 
     // Return most recent activities first
