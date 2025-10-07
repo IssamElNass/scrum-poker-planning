@@ -7,6 +7,7 @@ export const join = mutation({
     roomId: v.id("rooms"),
     name: v.string(),
     isSpectator: v.optional(v.boolean()),
+    password: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     return await Users.joinRoom(ctx, args);

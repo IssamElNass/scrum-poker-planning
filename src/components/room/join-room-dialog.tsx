@@ -21,7 +21,7 @@ import {
   VotingSystemType,
 } from "@/lib/voting-systems";
 import { useMutation } from "convex/react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Lock } from "lucide-react";
 import { useState } from "react";
 
 interface JoinRoomDialogProps {
@@ -42,6 +42,7 @@ export function JoinRoomDialog({
   const [userName, setUserName] = useState("");
   const [isSpectator, setIsSpectator] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
+  const [password, setPassword] = useState("");
   const [selectedVotingSystem, setSelectedVotingSystem] =
     useState<VotingSystemType>(
       roomData.room.votingSystem || DEFAULT_VOTING_SYSTEM
@@ -49,10 +50,17 @@ export function JoinRoomDialog({
 
   // Check if this user will be the first to join (and thus become the room owner)
   const isFirstUser = roomData.users.length === 0;
+  const roomHasPassword = !!roomData.room.password;
 
   const handleJoin = async () => {
     if (!userName.trim()) {
-      alert("Please enter your name");
+      toast.error("Please enter your name");
+      return;
+    }
+
+    // Validate password for non-first users if room has password
+    if (!isFirstUser && roomHasPassword && !password) {
+      toast.error("Password is required to join this room");
       return;
     }
 
@@ -62,6 +70,7 @@ export function JoinRoomDialog({
         roomId,
         name: userName,
         isSpectator,
+        password: password.trim() || undefined,
       });
 
       // If this is the first user and they selected a different voting system, update it
@@ -86,8 +95,26 @@ export function JoinRoomDialog({
 
       // Page will automatically re-render and show the room
     } catch (error) {
-      console.error("Failed to join room:", error);
-      toast.error("Failed to join room");
+      // Extract error message from Convex error
+      let errorMessage = "Failed to join room";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === "string") {
+        errorMessage = error;
+      } else if (error && typeof error === "object" && "message" in error) {
+        errorMessage = String(error.message);
+      }
+
+      // Check for specific error types
+      if (errorMessage.toLowerCase().includes("incorrect password")) {
+        toast.error("Incorrect password. Please try again.");
+        setPassword(""); // Clear the password field
+      } else if (errorMessage.toLowerCase().includes("password")) {
+        toast.error(errorMessage);
+        setPassword(""); // Clear the password field
+      } else {
+        toast.error(errorMessage);
+      }
     } finally {
       setIsJoining(false);
     }
@@ -151,11 +178,45 @@ export function JoinRoomDialog({
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") handleJoin();
+                  if (e.key === "Enter" && (!roomHasPassword || password))
+                    handleJoin();
                 }}
                 className="h-12 rounded-xl border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-primary text-base"
               />
             </div>
+
+            {/* Password input */}
+            {(isFirstUser || roomHasPassword) && (
+              <div className="space-y-3">
+                <Label
+                  htmlFor="password"
+                  className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2"
+                >
+                  <Lock className="h-4 w-4" />
+                  {isFirstUser ? "Password (Optional)" : "Password"}
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder={
+                    isFirstUser
+                      ? "Set a password to protect this room"
+                      : "Enter room password"
+                  }
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleJoin();
+                  }}
+                  className="h-12 rounded-xl border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-primary text-base"
+                />
+                {isFirstUser && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Set a password to restrict access to this planning session
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Spectator toggle */}
             <div className="flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800/50 dark:to-blue-900/20 ring-1 ring-gray-200/50 dark:ring-gray-700/50">

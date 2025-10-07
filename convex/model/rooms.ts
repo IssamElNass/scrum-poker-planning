@@ -1,3 +1,4 @@
+import { ConvexError } from "convex/values";
 import { Doc, Id } from "../_generated/dataModel";
 import { MutationCtx, QueryCtx } from "../_generated/server";
 import * as Canvas from "./canvas";
@@ -173,23 +174,23 @@ export async function updateRoomName(
 ): Promise<void> {
   const room = await ctx.db.get(args.roomId);
   if (!room) {
-    throw new Error("Room not found");
+    throw new ConvexError("Room not found");
   }
 
   const user = await ctx.db.get(args.userId);
   if (!user || user.roomId !== args.roomId) {
-    throw new Error("User not found in room");
+    throw new ConvexError("User not found in room");
   }
 
   // Check if user is room owner
   const isOwner = await isRoomOwner(ctx, args.roomId, args.userId);
   if (!isOwner) {
-    throw new Error("Only room owner can change room name");
+    throw new ConvexError("Only room owner can change room name");
   }
 
   // Validate room name
   if (!args.name.trim()) {
-    throw new Error("Room name cannot be empty");
+    throw new ConvexError("Room name cannot be empty");
   }
 
   // Update room name
@@ -241,18 +242,18 @@ export async function updateRoomVotingSystem(
 ): Promise<void> {
   const room = await ctx.db.get(args.roomId);
   if (!room) {
-    throw new Error("Room not found");
+    throw new ConvexError("Room not found");
   }
 
   const user = await ctx.db.get(args.userId);
   if (!user || user.roomId !== args.roomId) {
-    throw new Error("User not found in room");
+    throw new ConvexError("User not found in room");
   }
 
   // Check if user is room owner
   const isOwner = await isRoomOwner(ctx, args.roomId, args.userId);
   if (!isOwner) {
-    throw new Error("Only room owner can change voting system");
+    throw new ConvexError("Only room owner can change voting system");
   }
 
   // Update voting system
@@ -288,4 +289,63 @@ export async function updateRoomVotingSystem(
         })
       )
   );
+}
+
+/**
+ * Updates room password (only by room owner)
+ */
+export async function updateRoomPassword(
+  ctx: MutationCtx,
+  args: {
+    roomId: Id<"rooms">;
+    userId: Id<"users">;
+    password?: string;
+  }
+): Promise<void> {
+  const room = await ctx.db.get(args.roomId);
+  if (!room) {
+    throw new ConvexError("Room not found");
+  }
+
+  const user = await ctx.db.get(args.userId);
+  if (!user || user.roomId !== args.roomId) {
+    throw new ConvexError("User not found in room");
+  }
+
+  // Check if user is room owner
+  const isOwner = await isRoomOwner(ctx, args.roomId, args.userId);
+  if (!isOwner) {
+    throw new ConvexError("Only room owner can change room password");
+  }
+
+  // Update password (or remove it if undefined/empty)
+  await ctx.db.patch(args.roomId, {
+    password:
+      args.password && args.password.trim() ? args.password.trim() : undefined,
+    lastActivityAt: Date.now(),
+  });
+}
+
+/**
+ * Verifies if the provided password matches the room password
+ */
+export async function verifyRoomPassword(
+  ctx: MutationCtx,
+  args: {
+    roomId: Id<"rooms">;
+    password: string;
+  }
+): Promise<boolean> {
+  const room = await ctx.db.get(args.roomId);
+  if (!room) {
+    throw new ConvexError("Room not found");
+  }
+
+  // If room has no password, return true
+  if (!room.password) {
+    return true;
+  }
+
+  // Compare passwords
+  return room.password === args.password;
 }
