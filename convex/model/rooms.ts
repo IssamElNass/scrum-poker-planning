@@ -123,6 +123,16 @@ export async function showRoomCards(
   if (room && room.roomType === "canvas") {
     await Canvas.upsertResultsNode(ctx, { roomId });
   }
+
+  // Export estimates to GitHub if integration is configured
+  // Note: This is fire-and-forget to avoid blocking the reveal
+  try {
+    const { exportEstimatesToGithub } = await import("./github");
+    await exportEstimatesToGithub(ctx, roomId);
+  } catch (error) {
+    console.error("Failed to export estimates to GitHub:", error);
+    // Don't throw - we don't want to block the reveal
+  }
 }
 
 /**

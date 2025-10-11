@@ -4,6 +4,7 @@ import { useReactFlow } from "@xyflow/react";
 import {
   Copy,
   Download,
+  Github,
   Grid3X3,
   Home,
   LogOut,
@@ -19,6 +20,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FC, useState } from "react";
 
+import { useAuth } from "@/components/auth/auth-provider";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,7 +31,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -48,6 +49,7 @@ import type { RoomWithRelatedData } from "@/convex/model/rooms";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery } from "convex/react";
 import { ModeToggle } from "../mode-toggle";
+import { GithubImportDialog } from "./github-import-dialog";
 import { QRCodeDisplay } from "./qr-code-display";
 import { RoomSettingsDialog } from "./room-settings-dialog";
 
@@ -74,6 +76,7 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isQRCodeOpen, setIsQRCodeOpen] = useState(false);
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
+  const [isGithubImportOpen, setIsGithubImportOpen] = useState(false);
   const [isMobile] = useState(
     () => typeof window !== "undefined" && window.innerWidth < 768
   );
@@ -85,6 +88,13 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
       ? { roomId: roomData.room._id, userId: user.id }
       : "skip"
   );
+
+  // Check if GitHub integration is configured
+  const githubIntegration = useQuery(
+    api.github.getGithubIntegration,
+    roomData?.room ? { roomId: roomData.room._id } : "skip"
+  );
+  const isGithubConnected = !!githubIntegration;
 
   const handleCopyRoomUrl = async () => {
     if (roomData?.room) {
@@ -396,6 +406,12 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
                   <Settings className="h-4 w-4 mr-2" />
                   Room settings
                 </DropdownMenuItem>
+                {isGithubConnected && isOwner && (
+                  <DropdownMenuItem onClick={() => setIsGithubImportOpen(true)}>
+                    <Github className="h-4 w-4 mr-2" />
+                    Import from GitHub
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
               <ModeToggle variant="ghost" />
             </DropdownMenu>
@@ -409,6 +425,16 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
           onOpenChange={setIsSettingsOpen}
           roomData={roomData}
           currentUserId={user.id}
+        />
+      )}
+
+      {/* GitHub Import Dialog */}
+      {user && roomData?.room && (
+        <GithubImportDialog
+          isOpen={isGithubImportOpen}
+          onOpenChange={setIsGithubImportOpen}
+          roomId={roomData.room._id}
+          userId={user.id}
         />
       )}
 

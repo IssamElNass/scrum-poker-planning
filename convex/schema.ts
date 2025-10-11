@@ -100,4 +100,13 @@ export default defineSchema({
   })
     .index("by_room", ["roomId"])
     .index("by_room_created", ["roomId", "createdAt"]),
+
+  githubIntegration: defineTable({
+    roomId: v.id("rooms"),
+    personalAccessToken: v.string(), // Encrypted PAT
+    repositoryUrl: v.string(), // Full GitHub repo URL
+    repositoryOwner: v.string(), // Extracted from URL
+    repositoryName: v.string(), // Extracted from URL
+    connectedAt: v.number(),
+  }).index("by_room", ["roomId"]),
 });

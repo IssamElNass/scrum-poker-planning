@@ -29,6 +29,7 @@ import {
   Calendar,
   Crown,
   Eye,
+  Github,
   Hash,
   Lock,
   Save,
@@ -37,6 +38,7 @@ import {
   Users,
 } from "lucide-react";
 import React, { useState } from "react";
+import { GithubSettingsSection } from "./github-settings-section";
 
 interface RoomSettingsDialogProps {
   isOpen: boolean;
@@ -45,7 +47,7 @@ interface RoomSettingsDialogProps {
   currentUserId: Id<"users">;
 }
 
-type SettingsTab = "general" | "members";
+type SettingsTab = "general" | "members" | "integrations";
 
 export function RoomSettingsDialog({
   isOpen,
@@ -322,6 +324,12 @@ export function RoomSettingsDialog({
       label: "Members",
       icon: Users,
       description: "Manage room participants",
+    },
+    {
+      id: "integrations" as const,
+      label: "Integrations",
+      icon: Github,
+      description: "Connect external tools",
     },
   ];
 
@@ -722,6 +730,14 @@ export function RoomSettingsDialog({
                       </div>
                     </div>
                   </div>
+                )}
+
+                {activeTab === "integrations" && (
+                  <GithubSettingsSection
+                    roomId={roomData.room._id}
+                    userId={currentUserId}
+                    isOwner={!!isOwner}
+                  />
                 )}
 
                 {activeTab === "members" && (
