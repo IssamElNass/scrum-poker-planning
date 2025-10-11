@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useToast } from "@/hooks/use-toast";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { CheckCircle2, ExternalLink, Github, Save, Unlink } from "lucide-react";
 import { useState } from "react";
 
@@ -30,7 +30,7 @@ export function GithubSettingsSection({
   const githubIntegration = useQuery(api.github.getGithubIntegration, {
     roomId,
   });
-  const saveIntegration = useMutation(api.github.saveGithubIntegration);
+  const saveIntegration = useAction(api.github.saveGithubIntegration);
   const removeIntegration = useMutation(api.github.removeGithubIntegration);
 
   const isConnected = !!githubIntegration;

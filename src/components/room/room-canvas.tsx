@@ -68,6 +68,8 @@ function RoomCanvasInner({ roomData }: RoomCanvasProps): ReactElement {
   const pickCard = useMutation(api.votes.pickCard);
   const updateNodePosition = useMutation(api.canvas.updateNodePosition);
   const updatePresence = useMutation(api.canvas.updatePresence);
+  const submitEstimation = useMutation(api.stories.submitEstimation);
+  const skipStory = useMutation(api.stories.skipStory);
 
   const handleRevealCards = useCallback(async () => {
     if (!roomData) return;
@@ -86,6 +88,45 @@ function RoomCanvasInner({ roomData }: RoomCanvasProps): ReactElement {
       console.error("Failed to reset game:", error);
     }
   }, [resetGame, roomData]);
+
+  const handleSubmitEstimation = useCallback(async () => {
+    if (!roomData) return;
+
+    // Calculate the most common vote as the estimate
+    const voteValues = roomData.votes
+      .filter((v: SanitizedVote) => v.hasVoted && v.cardLabel)
+      .map((v: SanitizedVote) => v.cardLabel)
+      .filter((label): label is string => label !== undefined);
+
+    // Find mode (most common value)
+    const voteCounts = voteValues.reduce<Record<string, number>>((acc, val) => {
+      acc[val] = (acc[val] || 0) + 1;
+      return acc;
+    }, {});
+
+    const estimate =
+      Object.entries(voteCounts).sort(
+        (a, b) => (b[1] as number) - (a[1] as number)
+      )[0]?.[0] || "?";
+
+    try {
+      await submitEstimation({
+        roomId: roomData.room._id,
+        estimate,
+      });
+    } catch (error) {
+      console.error("Failed to submit estimation:", error);
+    }
+  }, [submitEstimation, roomData]);
+
+  const handleSkipStory = useCallback(async () => {
+    if (!roomData) return;
+    try {
+      await skipStory({ roomId: roomData.room._id });
+    } catch (error) {
+      console.error("Failed to skip story:", error);
+    }
+  }, [skipStory, roomData]);
 
   // Track selected cards locally (server doesn't send card value until reveal)
   const [selectedCardValue, setSelectedCardValue] = useState<string | null>(
@@ -143,6 +184,8 @@ function RoomCanvasInner({ roomData }: RoomCanvasProps): ReactElement {
     selectedCardValue,
     onRevealCards: handleRevealCards,
     onResetGame: handleResetGame,
+    onSubmitEstimation: handleSubmitEstimation,
+    onSkipStory: handleSkipStory,
     onCardSelect: handleCardSelect,
   });
 

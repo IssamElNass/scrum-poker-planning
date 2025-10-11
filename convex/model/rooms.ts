@@ -2,6 +2,7 @@ import { ConvexError } from "convex/values";
 import { Doc, Id } from "../_generated/dataModel";
 import { MutationCtx, QueryCtx } from "../_generated/server";
 import * as Canvas from "./canvas";
+import { exportEstimatesToGithub } from "./github";
 
 export interface CreateRoomArgs {
   name: string;
@@ -127,7 +128,6 @@ export async function showRoomCards(
   // Export estimates to GitHub if integration is configured
   // Note: This is fire-and-forget to avoid blocking the reveal
   try {
-    const { exportEstimatesToGithub } = await import("./github");
     await exportEstimatesToGithub(ctx, roomId);
   } catch (error) {
     console.error("Failed to export estimates to GitHub:", error);

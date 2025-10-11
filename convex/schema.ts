@@ -20,6 +20,7 @@ export default defineSchema({
     lastActivityAt: v.number(),
     ownerId: v.optional(v.id("users")),
     password: v.optional(v.string()), // Optional password for room protection
+    activeStoryNodeId: v.optional(v.string()), // The currently active story node ID
   })
     .index("by_activity", ["lastActivityAt"])
     .index("by_created", ["createdAt"]) // For querying recent rooms

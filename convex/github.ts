@@ -1,5 +1,11 @@
 import { v } from "convex/values";
-import { action, mutation, query } from "./_generated/server";
+import {
+  action,
+  internalMutation,
+  internalQuery,
+  mutation,
+  query,
+} from "./_generated/server";
 import {
   addLabelToIssue,
   fetchGithubIssues,
@@ -8,9 +14,135 @@ import {
   truncateDescription,
   validateGithubToken,
 } from "./githubhelpers";
+import { internal } from "./_generated/api";
+
+// Internal query to get room for GitHub integration
+export const getRoomForGithubIntegration = internalQuery({
+  args: {
+    roomId: v.id("rooms"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.roomId);
+  },
+});
+
+// Internal mutation to save GitHub integration data
+export const saveGithubIntegrationData = internalMutation({
+  args: {
+    roomId: v.id("rooms"),
+    personalAccessToken: v.string(),
+    repositoryUrl: v.string(),
+    repositoryOwner: v.string(),
+    repositoryName: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("githubIntegration")
+      .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+      .first();
+
+    if (existing) {
+      // Update existing integration
+      await ctx.db.patch(existing._id, {
+        personalAccessToken: args.personalAccessToken,
+        repositoryUrl: args.repositoryUrl,
+        repositoryOwner: args.repositoryOwner,
+        repositoryName: args.repositoryName,
+        connectedAt: Date.now(),
+      });
+    } else {
+      // Create new integration
+      await ctx.db.insert("githubIntegration", {
+        roomId: args.roomId,
+        personalAccessToken: args.personalAccessToken,
+        repositoryUrl: args.repositoryUrl,
+        repositoryOwner: args.repositoryOwner,
+        repositoryName: args.repositoryName,
+        connectedAt: Date.now(),
+      });
+    }
+  },
+});
+
+// Internal query to get user and integration for fetching issues
+export const getUserAndIntegration = internalQuery({
+  args: {
+    userId: v.id("users"),
+    roomId: v.id("rooms"),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db.get(args.userId);
+    const integration = await ctx.db
+      .query("githubIntegration")
+      .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+      .first();
+
+    return { user, integration };
+  },
+});
+
+// Internal query to get node and integration for export
+export const getNodeAndIntegration = internalQuery({
+  args: {
+    roomId: v.id("rooms"),
+    nodeId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const node = await ctx.db
+      .query("canvasNodes")
+      .withIndex("by_room_node", (q) =>
+        q.eq("roomId", args.roomId).eq("nodeId", args.nodeId)
+      )
+      .first();
+
+    const integration = await ctx.db
+      .query("githubIntegration")
+      .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+      .first();
+
+    return { node, integration };
+  },
+});
+
+// Internal mutation to update node after estimate export
+export const updateNodeAfterExport = internalMutation({
+  args: {
+    nodeId: v.id("canvasNodes"),
+    data: v.any(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.nodeId, {
+      data: args.data,
+    });
+  },
+});
+
+// Internal query to get all data for bulk export
+export const getDataForBulkExport = internalQuery({
+  args: {
+    roomId: v.id("rooms"),
+  },
+  handler: async (ctx, args) => {
+    const integration = await ctx.db
+      .query("githubIntegration")
+      .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+      .first();
+
+    const room = await ctx.db.get(args.roomId);
+
+    const storyNodes = await ctx.db
+      .query("canvasNodes")
+      .withIndex("by_room_type", (q) =>
+        q.eq("roomId", args.roomId).eq("type", "story")
+      )
+      .collect();
+
+    return { integration, room, storyNodes };
+  },
+});
 
 // Save GitHub integration for a room
-export const saveGithubIntegration = mutation({
+export const saveGithubIntegration = action({
   args: {
     roomId: v.id("rooms"),
     userId: v.id("users"),
@@ -18,8 +150,14 @@ export const saveGithubIntegration = mutation({
     repositoryUrl: v.string(),
   },
   handler: async (ctx, args) => {
-    // Verify user is room owner
-    const room = await ctx.db.get(args.roomId);
+    // Verify user is room owner (read operation)
+    const room = await ctx.runQuery(
+      internal.github.getRoomForGithubIntegration,
+      {
+        roomId: args.roomId,
+      }
+    );
+
     if (!room) {
       throw new Error("Room not found");
     }
@@ -36,7 +174,7 @@ export const saveGithubIntegration = mutation({
       );
     }
 
-    // Validate token
+    // Validate token (external API call - this is why we need an action)
     const validation = await validateGithubToken(
       args.personalAccessToken,
       parsed.owner,
@@ -47,32 +185,14 @@ export const saveGithubIntegration = mutation({
       throw new Error(validation.error || "Failed to validate GitHub token");
     }
 
-    // Check if integration already exists
-    const existing = await ctx.db
-      .query("githubIntegration")
-      .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
-      .first();
-
-    if (existing) {
-      // Update existing integration
-      await ctx.db.patch(existing._id, {
-        personalAccessToken: args.personalAccessToken,
-        repositoryUrl: args.repositoryUrl,
-        repositoryOwner: parsed.owner,
-        repositoryName: parsed.name,
-        connectedAt: Date.now(),
-      });
-    } else {
-      // Create new integration
-      await ctx.db.insert("githubIntegration", {
-        roomId: args.roomId,
-        personalAccessToken: args.personalAccessToken,
-        repositoryUrl: args.repositoryUrl,
-        repositoryOwner: parsed.owner,
-        repositoryName: parsed.name,
-        connectedAt: Date.now(),
-      });
-    }
+    // Check if integration already exists and save (database operations)
+    await ctx.runMutation(internal.github.saveGithubIntegrationData, {
+      roomId: args.roomId,
+      personalAccessToken: args.personalAccessToken,
+      repositoryUrl: args.repositoryUrl,
+      repositoryOwner: parsed.owner,
+      repositoryName: parsed.name,
+    });
 
     return { success: true, owner: parsed.owner, name: parsed.name };
   },
@@ -134,6 +254,28 @@ export const getGithubIntegration = query({
   },
 });
 
+// Get already imported GitHub issue numbers for a room
+export const getImportedIssueNumbers = query({
+  args: {
+    roomId: v.id("rooms"),
+  },
+  handler: async (ctx, args) => {
+    const storyNodes = await ctx.db
+      .query("canvasNodes")
+      .withIndex("by_room_type", (q) =>
+        q.eq("roomId", args.roomId).eq("type", "story")
+      )
+      .collect();
+
+    // Extract GitHub issue numbers from story nodes
+    const issueNumbers = storyNodes
+      .filter((node) => node.data?.githubIssueNumber)
+      .map((node) => node.data.githubIssueNumber as number);
+
+    return issueNumbers;
+  },
+});
+
 // Fetch issues from GitHub
 export const fetchIssues = action({
   args: {
@@ -144,22 +286,18 @@ export const fetchIssues = action({
     ),
   },
   handler: async (ctx, args) => {
-    // Verify user is in the room
-    const user = await ctx.runQuery(async (ctx) => {
-      return await ctx.db.get(args.userId);
-    });
+    // Verify user is in the room and get integration
+    const { user, integration } = await ctx.runQuery(
+      internal.github.getUserAndIntegration,
+      {
+        userId: args.userId,
+        roomId: args.roomId,
+      }
+    );
 
     if (!user || user.roomId !== args.roomId) {
       throw new Error("User not in room");
     }
-
-    // Get integration
-    const integration = await ctx.runQuery(async (ctx) => {
-      return await ctx.db
-        .query("githubIntegration")
-        .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
-        .first();
-    });
 
     if (!integration) {
       throw new Error("GitHub integration not configured");
@@ -221,25 +359,22 @@ export const importIssue = mutation({
     // Check if issue already imported
     const existingNode = await ctx.db
       .query("canvasNodes")
-      .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
-      .filter((q) =>
-        q.and(
-          q.eq(q.field("type"), "story"),
-          q.eq(q.field("data.githubIssueNumber"), args.issueNumber)
-        )
+      .withIndex("by_room_type", (q) =>
+        q.eq("roomId", args.roomId).eq("type", "story")
       )
+      .filter((q) => q.eq(q.field("data.githubIssueNumber"), args.issueNumber))
       .first();
 
     if (existingNode) {
       throw new Error("This issue has already been imported");
     }
 
-    // Create story node
+    // Create story node at a fixed position (all stories share the same position)
     await ctx.db.insert("canvasNodes", {
       roomId: args.roomId,
       nodeId,
       type: "story",
-      position: { x: 100, y: 100 }, // Will be repositioned by user
+      position: { x: -140, y: -500 }, // Fixed position above session node
       data: {
         title: args.title,
         description: args.description,
@@ -249,13 +384,87 @@ export const importIssue = mutation({
       },
       lastUpdatedAt: Date.now(),
       lastUpdatedBy: args.userId,
+      isLocked: true, // Lock position so users can't move it
     });
+
+    // If this is the first story, make it active
+    if (!room.activeStoryNodeId) {
+      await ctx.db.patch(args.roomId, {
+        activeStoryNodeId: nodeId,
+      });
+    }
 
     return { success: true, nodeId };
   },
 });
 
-// Export estimate to GitHub
+// Export estimate to GitHub (internal action - can be called from mutations via scheduler)
+export const exportEstimateInternal = action({
+  args: {
+    roomId: v.id("rooms"),
+    nodeId: v.string(),
+    estimate: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Get the node and integration (read operations)
+    const { node, integration } = await ctx.runQuery(
+      internal.github.getNodeAndIntegration,
+      {
+        roomId: args.roomId,
+        nodeId: args.nodeId,
+      }
+    );
+
+    if (!node) {
+      return { success: false, error: "Node not found" };
+    }
+
+    if (node.type !== "story") {
+      return { success: false, error: "Only story nodes can export estimates" };
+    }
+
+    const githubIssueNumber = node.data?.githubIssueNumber;
+    if (!githubIssueNumber) {
+      return { success: false, error: "Node is not linked to a GitHub issue" };
+    }
+
+    if (!integration) {
+      return { success: false, error: "GitHub integration not configured" };
+    }
+
+    // Format and add label (external API call)
+    const labelName = formatEstimateLabel(args.estimate);
+    const result = await addLabelToIssue(
+      integration.personalAccessToken,
+      integration.repositoryOwner,
+      integration.repositoryName,
+      githubIssueNumber,
+      labelName
+    );
+
+    if (!result.success) {
+      return {
+        success: false,
+        error: result.error || "Failed to export estimate",
+      };
+    }
+
+    // Update node to mark as exported (database operation)
+    await ctx.runMutation(internal.github.updateNodeAfterExport, {
+      nodeId: node._id,
+      data: {
+        ...node.data,
+        estimateExported: true,
+        lastExportedEstimate: args.estimate,
+        lastExportedAt: Date.now(),
+      },
+    });
+
+    return { success: true };
+  },
+});
+
+// Export estimate to GitHub (public action - can be called from frontend)
 export const exportEstimate = action({
   args: {
     roomId: v.id("rooms"),
@@ -264,21 +473,13 @@ export const exportEstimate = action({
   },
   handler: async (ctx, args) => {
     // Get the node and integration (read operations)
-    const { node, integration } = await ctx.runQuery(async (ctx) => {
-      const node = await ctx.db
-        .query("canvasNodes")
-        .withIndex("by_room_node", (q) =>
-          q.eq("roomId", args.roomId).eq("nodeId", args.nodeId)
-        )
-        .first();
-
-      const integration = await ctx.db
-        .query("githubIntegration")
-        .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
-        .first();
-
-      return { node, integration };
-    });
+    const { node, integration } = await ctx.runQuery(
+      internal.github.getNodeAndIntegration,
+      {
+        roomId: args.roomId,
+        nodeId: args.nodeId,
+      }
+    );
 
     if (!node) {
       throw new Error("Node not found");
@@ -312,15 +513,14 @@ export const exportEstimate = action({
     }
 
     // Update node to mark as exported (database operation)
-    await ctx.runMutation(async (ctx) => {
-      await ctx.db.patch(node._id, {
-        data: {
-          ...node.data,
-          estimateExported: true,
-          lastExportedEstimate: args.estimate,
-          lastExportedAt: Date.now(),
-        },
-      });
+    await ctx.runMutation(internal.github.updateNodeAfterExport, {
+      nodeId: node._id,
+      data: {
+        ...node.data,
+        estimateExported: true,
+        lastExportedEstimate: args.estimate,
+        lastExportedAt: Date.now(),
+      },
     });
 
     return { success: true };
@@ -335,22 +535,9 @@ export const exportAllEstimates = action({
   handler: async (ctx, args) => {
     // Get integration, room, and story nodes (read operations)
     const { integration, room, storyNodes } = await ctx.runQuery(
-      async (ctx) => {
-        const integration = await ctx.db
-          .query("githubIntegration")
-          .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
-          .first();
-
-        const room = await ctx.db.get(args.roomId);
-
-        const storyNodes = await ctx.db
-          .query("canvasNodes")
-          .withIndex("by_room_type", (q) =>
-            q.eq("roomId", args.roomId).eq("type", "story")
-          )
-          .collect();
-
-        return { integration, room, storyNodes };
+      internal.github.getDataForBulkExport,
+      {
+        roomId: args.roomId,
       }
     );
 
@@ -386,15 +573,14 @@ export const exportAllEstimates = action({
 
         if (result.success) {
           // Database update
-          await ctx.runMutation(async (ctx) => {
-            await ctx.db.patch(node._id, {
-              data: {
-                ...node.data,
-                estimateExported: true,
-                lastExportedEstimate: node.data.finalEstimate,
-                lastExportedAt: Date.now(),
-              },
-            });
+          await ctx.runMutation(internal.github.updateNodeAfterExport, {
+            nodeId: node._id,
+            data: {
+              ...node.data,
+              estimateExported: true,
+              lastExportedEstimate: node.data.finalEstimate,
+              lastExportedAt: Date.now(),
+            },
           });
           exported++;
         } else {

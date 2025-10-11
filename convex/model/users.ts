@@ -24,19 +24,20 @@ export async function joinRoom(
   ctx: MutationCtx,
   args: JoinRoomArgs
 ): Promise<Id<"users">> {
-  // Check if this is the first user (to set as owner)
-  const existingUsers = await ctx.db
-    .query("users")
-    .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
-    .collect();
+  // Parallelize room and user queries for better performance
+  const [room, existingUsers] = await Promise.all([
+    ctx.db.get(args.roomId),
+    ctx.db
+      .query("users")
+      .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+      .collect(),
+  ]);
 
-  const isFirstUser = existingUsers.length === 0;
-
-  // Get room to check password
-  const room = await ctx.db.get(args.roomId);
   if (!room) {
     throw new ConvexError("Room not found");
   }
+
+  const isFirstUser = existingUsers.length === 0;
 
   // Validate password for non-first users
   if (!isFirstUser && room.password) {
@@ -45,15 +46,17 @@ export async function joinRoom(
     }
   }
 
+  // Prepare room patches
+  const roomPatches: Partial<{
+    password: string;
+    lastActivityAt: number;
+    ownerId: Id<"users">;
+  }> = { lastActivityAt: Date.now() };
+
   // If this is the first user and they provided a password, set it
   if (isFirstUser && args.password && args.password.trim()) {
-    await ctx.db.patch(args.roomId, {
-      password: args.password.trim(),
-    });
+    roomPatches.password = args.password.trim();
   }
-
-  // Update room activity
-  await Rooms.updateRoomActivity(ctx, args.roomId);
 
   // Create user
   const userId = await ctx.db.insert("users", {
@@ -65,13 +68,14 @@ export async function joinRoom(
 
   // Set as room owner if this is the first user
   if (isFirstUser) {
-    await ctx.db.patch(args.roomId, {
-      ownerId: userId,
-    });
+    roomPatches.ownerId = userId;
   }
 
+  // Batch room updates into a single patch operation
+  await ctx.db.patch(args.roomId, roomPatches);
+
   // Check if this is a canvas room and create nodes
-  if (room && room.roomType === "canvas") {
+  if (room.roomType === "canvas") {
     // Create player node
     await Canvas.upsertPlayerNode(ctx, { roomId: args.roomId, userId });
 

@@ -73,24 +73,6 @@ export const StoryNode = memo(
       <div className="relative">
         <Handle
           type="target"
-          position={Position.Top}
-          className="bg-gray-400! dark:bg-gray-600!"
-          aria-hidden="true"
-        />
-        <Handle
-          type="target"
-          position={Position.Right}
-          className="bg-gray-400! dark:bg-gray-600!"
-          aria-hidden="true"
-        />
-        <Handle
-          type="target"
-          position={Position.Bottom}
-          className="bg-gray-400! dark:bg-gray-600!"
-          aria-hidden="true"
-        />
-        <Handle
-          type="target"
           position={Position.Left}
           className="bg-gray-400! dark:bg-gray-600!"
           aria-hidden="true"

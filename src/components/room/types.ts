@@ -32,8 +32,11 @@ export type SessionNodeData = {
   voteCount: number;
   isVotingComplete: boolean;
   hasVotes: boolean;
+  hasActiveStory?: boolean;
   onRevealCards?: () => void;
   onResetGame?: () => void;
+  onSubmitEstimation?: () => void;
+  onSkipStory?: () => void;
 };
 
 export type TimerNodeData = {

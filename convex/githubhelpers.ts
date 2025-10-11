@@ -65,7 +65,7 @@ export async function validateGithubToken(
       `https://api.github.com/repos/${owner}/${repo}`,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `token ${token}`,
           Accept: "application/vnd.github.v3+json",
         },
       }
@@ -140,7 +140,7 @@ export async function ensureGithubLabel(
       `https://api.github.com/repos/${owner}/${repo}/labels/${encodeURIComponent(labelName)}`,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `token ${token}`,
           Accept: "application/vnd.github.v3+json",
         },
       }
@@ -157,7 +157,7 @@ export async function ensureGithubLabel(
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `token ${token}`,
             Accept: "application/vnd.github.v3+json",
             "Content-Type": "application/json",
           },
@@ -173,7 +173,6 @@ export async function ensureGithubLabel(
         return { success: true };
       }
 
-      const errorData = await createResponse.json().catch(() => ({}));
       return {
         success: false,
         error: `Failed to create label: ${createResponse.status}`,
@@ -214,7 +213,7 @@ export async function addLabelToIssue(
       `https://api.github.com/repos/${owner}/${repo}/issues/${issueNumber}/labels`,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `token ${token}`,
           Accept: "application/vnd.github.v3+json",
         },
       }
@@ -246,7 +245,7 @@ export async function addLabelToIssue(
       {
         method: "PUT",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `token ${token}`,
           Accept: "application/vnd.github.v3+json",
           "Content-Type": "application/json",
         },
@@ -289,15 +288,16 @@ export async function fetchGithubIssues(
   state: "open" | "closed" | "all" = "open"
 ): Promise<{ success: boolean; issues?: GithubIssue[]; error?: string }> {
   try {
-    const response = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/issues?state=${state}&per_page=100`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/vnd.github.v3+json",
-        },
-      }
-    );
+    const url = `https://api.github.com/repos/${owner}/${repo}/issues?state=${state}&per_page=100`;
+
+    // GitHub supports both "token" (classic PAT) and "Bearer" (fine-grained) formats
+    // Try with "token" prefix first (more common for classic Personal Access Tokens)
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `token ${token}`,
+        Accept: "application/vnd.github.v3+json",
+      },
+    });
 
     if (!response.ok) {
       if (response.status === 401) {

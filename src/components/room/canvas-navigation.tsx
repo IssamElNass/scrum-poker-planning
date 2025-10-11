@@ -52,6 +52,7 @@ import { ModeToggle } from "../mode-toggle";
 import { GithubImportDialog } from "./github-import-dialog";
 import { QRCodeDisplay } from "./qr-code-display";
 import { RoomSettingsDialog } from "./room-settings-dialog";
+import { StorySelector } from "./story-selector";
 
 interface CanvasNavigationProps {
   roomData: RoomWithRelatedData;
@@ -278,6 +279,10 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
               {users.length} {users.length === 1 ? "user" : "users"}
             </span>
           </div>
+
+          {/* Story Selector */}
+          <Separator orientation="vertical" className="h-6 mx-1" />
+          <StorySelector roomId={room._id} />
         </div>
       </div>
 

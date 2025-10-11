@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useToast } from "@/hooks/use-toast";
-import { useAction, useMutation } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import {
   AlertCircle,
   CheckCircle2,
@@ -19,7 +19,7 @@ import {
   Github,
   Search,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface GithubImportDialogProps {
   isOpen: boolean;
@@ -54,6 +54,18 @@ export function GithubImportDialog({
   const { toast } = useToast();
   const fetchIssues = useAction(api.github.fetchIssues);
   const importIssue = useMutation(api.github.importIssue);
+  const importedIssueNumbers = useQuery(api.github.getImportedIssueNumbers, {
+    roomId,
+  });
+
+  // Watch isOpen changes
+  useEffect(() => {
+    if (isOpen && issues.length === 0) {
+      setError(null);
+      handleFetchIssues();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   // Fetch issues when dialog opens
   const handleFetchIssues = async () => {
@@ -67,29 +79,46 @@ export function GithubImportDialog({
       });
       setIssues(fetchedIssues);
       if (fetchedIssues.length === 0) {
-        setError("No open issues found in the repository");
+        setError("No open issues found in the repository.");
       }
     } catch (err) {
-      console.error("Failed to fetch issues:", err);
-      setError(err instanceof Error ? err.message : "Failed to fetch issues");
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to fetch issues";
+      setError(errorMessage);
+      toast({
+        title: "Failed to fetch issues",
+        description: errorMessage,
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Filter issues based on search query
+  // Filter issues based on search query and already imported issues
   const filteredIssues = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return issues;
+    let filtered = issues;
+
+    // Filter out already imported issues
+    if (importedIssueNumbers && importedIssueNumbers.length > 0) {
+      filtered = filtered.filter(
+        (issue) => !importedIssueNumbers.includes(issue.number)
+      );
     }
-    const query = searchQuery.toLowerCase();
-    return issues.filter(
-      (issue) =>
-        issue.title.toLowerCase().includes(query) ||
-        issue.body.toLowerCase().includes(query) ||
-        issue.number.toString().includes(query)
-    );
-  }, [issues, searchQuery]);
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (issue) =>
+          issue.title.toLowerCase().includes(query) ||
+          issue.body.toLowerCase().includes(query) ||
+          issue.number.toString().includes(query)
+      );
+    }
+
+    return filtered;
+  }, [issues, searchQuery, importedIssueNumbers]);
 
   const handleImport = async (issue: GithubIssue) => {
     setImportingIssues((prev) => new Set(prev).add(issue.number));
@@ -129,10 +158,16 @@ export function GithubImportDialog({
 
   // Fetch issues when dialog opens
   const handleDialogOpenChange = (open: boolean) => {
-    onOpenChange(open);
-    if (open && issues.length === 0 && !error) {
-      handleFetchIssues();
+    if (open) {
+      // Reset error when opening dialog
+      setError(null);
+      // Trigger fetch if no issues loaded yet
+      if (issues.length === 0) {
+        handleFetchIssues();
+      }
     }
+
+    onOpenChange(open);
   };
 
   return (
@@ -237,6 +272,23 @@ export function GithubImportDialog({
                 </p>
               </div>
             )}
+
+            {!isLoading &&
+              !error &&
+              issues.length > 0 &&
+              filteredIssues.length === 0 &&
+              !searchQuery && (
+                <div className="text-center py-16">
+                  <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto mb-4" />
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                    All issues imported
+                  </h4>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    All open issues from this repository have already been
+                    imported
+                  </p>
+                </div>
+              )}
 
             <div className="space-y-3">
               {filteredIssues.map((issue) => (
