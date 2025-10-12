@@ -5,7 +5,6 @@ import {
   Copy,
   Download,
   Grid3X3,
-  Home,
   LogOut,
   Maximize2,
   QrCode,
@@ -15,7 +14,6 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FC, useState } from "react";
 
@@ -181,82 +179,11 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
         data-testid="canvas-navigation"
       >
         <div className="flex items-center gap-2 px-3 py-2 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
-          {/* Logo/Home */}
-          <Link href="/" className="flex items-center">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={buttonClass}
-                  aria-label="Back to home"
-                >
-                  <Home className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Back to home</p>
-              </TooltipContent>
-            </Tooltip>
-          </Link>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsLeaveDialogOpen(true)}
-                className={buttonClass}
-                aria-label="Leave room"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Leave room</p>
-            </TooltipContent>
-          </Tooltip>
-
-          <Separator orientation="vertical" className="h-6 mx-1" />
-
           {/* Room Info Section */}
           <div className="flex items-center gap-2 px-2">
             <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
               {room.name || `Room ${room._id.slice(0, 6)}`}
             </span>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleCopyRoomUrl}
-                  className={buttonClass}
-                  aria-label="Copy room URL"
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Copy room link</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleShowQRCode}
-                  className={buttonClass}
-                  aria-label="Show QR code"
-                >
-                  <QrCode className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Show QR code</p>
-              </TooltipContent>
-            </Tooltip>
           </div>
 
           <Separator orientation="vertical" className="h-6 mx-1" />
@@ -373,6 +300,10 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
                   <Copy className="h-4 w-4 mr-2" />
                   Copy room link
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleShowQRCode}>
+                  <QrCode className="h-4 w-4 mr-2" />
+                  Show QR code
+                </DropdownMenuItem>
                 <DropdownMenuItem disabled>
                   <Download className="h-4 w-4 mr-2" />
                   Export results
@@ -380,28 +311,44 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+            <Tooltip>
+              <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
                   size="sm"
+                  onClick={() => setIsSettingsOpen(true)}
+                  disabled={!isOwner}
                   className={buttonClass}
                   aria-label="Room settings"
                 >
                   <Settings className="h-4 w-4" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem
-                  onClick={() => setIsSettingsOpen(true)}
-                  disabled={!isOwner}
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>
+                  {isOwner ? "Room settings" : "Room settings (owner only)"}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsLeaveDialogOpen(true)}
+                  className={buttonClass}
+                  aria-label="Leave room"
                 >
-                  <Settings className="h-4 w-4 mr-2" />
-                  Room settings
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-              <ModeToggle variant="ghost" />
-            </DropdownMenu>
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Leave room</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <ModeToggle variant="ghost" />
           </div>
         </div>
       </div>

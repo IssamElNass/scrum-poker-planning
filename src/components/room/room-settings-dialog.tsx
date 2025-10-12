@@ -20,17 +20,16 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import type { RoomWithRelatedData } from "@/convex/model/rooms";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery } from "convex/react";
 import {
-  Calendar,
   Crown,
   Eye,
   Github,
-  Hash,
   Lock,
   Save,
   Settings,
@@ -329,7 +328,7 @@ export function RoomSettingsDialog({
     },
     {
       id: "integrations" as const,
-      label: "Integrations",
+      label: "Integrations (Soon)",
       icon: Github,
       description: "Connect external tools",
     },
@@ -353,534 +352,391 @@ export function RoomSettingsDialog({
       <Sheet open={isOpen} onOpenChange={onOpenChange}>
         <SheetContent
           side="right"
-          className="w-full sm:w-[800px] sm:max-w-[60vw] p-0 gap-0 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md overflow-hidden"
+          className="w-full sm:w-[800px] sm:max-w-[60vw] p-0 gap-0"
         >
-          {/* Background decorations */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-10 right-10 w-40 h-40 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-2xl" />
-            <div className="absolute bottom-10 left-10 w-40 h-40 bg-gradient-to-br from-purple-400/10 to-pink-400/10 rounded-full blur-2xl" />
-
-            {/* Grid pattern */}
-            <div className="absolute inset-0 opacity-20">
-              <div
-                className="h-full w-full"
-                style={{
-                  backgroundImage: `
-                    linear-gradient(to right, rgb(99 102 241 / 0.1) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgb(99 102 241 / 0.1) 1px, transparent 1px)
-                  `,
-                  backgroundSize: "40px 40px",
-                }}
-              />
-            </div>
-          </div>
-
-          <SheetHeader className="relative px-6 py-5 border-b border-gray-200/50 dark:border-gray-800/50 bg-gradient-to-r from-slate-50/80 via-blue-50/80 to-purple-50/80 dark:from-gray-950/80 dark:via-blue-950/80 dark:to-purple-950/80 backdrop-blur-sm">
-            <SheetTitle className="flex flex-col gap-3">
-              {/* Branding badge */}
-              <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary/10 to-purple-500/10 px-3 py-1.5 ring-1 ring-primary/20 w-fit">
-                <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                <span className="text-xs font-semibold text-primary">
-                  Scrum Poker Planning
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-xl ring-1 ring-primary/30">
-                  <Settings className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <div className="font-bold text-gray-900 dark:text-gray-100 text-xl">
-                    Room Settings
-                  </div>
-                  <div className="text-sm font-normal text-gray-600 dark:text-gray-400">
-                    Configure your planning session
-                  </div>
-                </div>
-              </div>
+          <SheetHeader className="px-6 py-5 border-b">
+            <SheetTitle className="flex items-center gap-3">
+              <Settings className="h-5 w-5" />
+              Room Settings
             </SheetTitle>
           </SheetHeader>
 
-          <div className="relative flex h-[calc(100vh-140px)] min-h-0 flex-row">
-            {/* Sidebar Navigation */}
-            <div className="w-56 border-r border-gray-200/50 dark:border-gray-800/50 bg-gradient-to-b from-white/80 via-slate-50/80 to-blue-50/80 dark:from-gray-950/80 dark:via-gray-900/80 dark:to-blue-950/80 backdrop-blur-sm overflow-y-auto">
-              <div className="relative p-4 space-y-2">
-                {sidebarItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveTab(item.id)}
-                    className={`group w-full flex flex-col items-center gap-2 p-3 rounded-xl text-center transition-all duration-300 relative overflow-hidden ${
-                      activeTab === item.id
-                        ? "bg-gradient-to-br from-primary/10 to-purple-500/10 text-primary border-2 border-primary/20 shadow-lg shadow-primary/10"
-                        : "hover:bg-white/70 dark:hover:bg-gray-800/50 text-gray-700 dark:text-gray-300 border-2 border-transparent hover:border-gray-200/50 dark:hover:border-gray-700/50"
-                    }`}
-                  >
-                    <div
-                      className={`p-2.5 rounded-lg transition-all duration-300 ${
-                        activeTab === item.id
-                          ? "bg-gradient-to-br from-primary/20 to-purple-500/20 ring-1 ring-primary/30"
-                          : "bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600"
-                      }`}
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-6">
+              <Tabs
+                value={activeTab}
+                onValueChange={(value) => setActiveTab(value as SettingsTab)}
+                className="w-full"
+              >
+                <TabsList className="grid w-full grid-cols-3 mb-6">
+                  {sidebarItems.map((item) => (
+                    <TabsTrigger
+                      key={item.id}
+                      value={item.id}
+                      className="flex items-center gap-2"
+                      disabled={item.id === "integrations"}
                     >
-                      <item.icon
-                        className={`h-5 w-5 transition-colors duration-300 ${
-                          activeTab === item.id
-                            ? "text-primary"
-                            : "text-gray-600 dark:text-gray-400"
-                        }`}
-                      />
-                    </div>
-                    <div className="w-full">
-                      <div
-                        className={`font-semibold text-sm transition-colors duration-300 ${
-                          activeTab === item.id ? "text-primary" : ""
-                        }`}
-                      >
-                        {item.label}
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
+                      <item.icon className="h-4 w-4" />
+                      <span className="hidden sm:inline">{item.label}</span>
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+                <TabsContent value="general" className="space-y-6">
+                  <div>
+                    <h3 className="text-2xl font-bold mb-2">
+                      General Settings
+                    </h3>
+                    <p className="text-muted-foreground mb-6">
+                      Configure your planning session properties
+                    </p>
 
-            {/* Main Content */}
-            <div className="relative flex-1 overflow-y-auto bg-gradient-to-br from-white/50 via-slate-50/50 to-blue-50/50 dark:from-gray-950/50 dark:via-gray-900/50 dark:to-blue-950/50">
-              <div className="p-6">
-                {activeTab === "general" && (
-                  <div className="space-y-8">
-                    <div>
-                      <div className="flex items-center gap-4 mb-6">
-                        <div className="p-3 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-2xl ring-1 ring-emerald-500/30">
-                          <Settings className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                    <div className="bg-card border rounded-lg p-6 space-y-6">
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <Label
+                            htmlFor="room-name"
+                            className="text-base font-semibold"
+                          >
+                            Session Name
+                          </Label>
+                          {!isOwner && (
+                            <span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full">
+                              Owner only
+                            </span>
+                          )}
                         </div>
-                        <div>
-                          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                            General Settings
-                          </h3>
-                          <p className="text-base text-gray-600 dark:text-gray-400">
-                            Configure your planning session properties
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-3xl border border-gray-200/50 dark:border-gray-700/50 p-6 md:p-8 space-y-6 md:space-y-8 shadow-lg shadow-gray-200/20 dark:shadow-gray-900/20">
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <Label
-                              htmlFor="room-name"
-                              className="text-base font-semibold text-gray-900 dark:text-gray-100"
-                            >
-                              Session Name
-                            </Label>
-                            {!isOwner && (
-                              <span className="text-xs text-amber-600 dark:text-amber-400 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 px-3 py-1.5 rounded-full ring-1 ring-amber-200 dark:ring-amber-800">
-                                Owner only
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex gap-4">
-                            <Input
-                              id="room-name"
-                              value={roomName}
-                              onChange={(e) =>
-                                handleRoomNameChange(e.target.value)
-                              }
-                              placeholder="Enter your planning session name"
+                        <div className="flex gap-4">
+                          <Input
+                            id="room-name"
+                            value={roomName}
+                            onChange={(e) =>
+                              handleRoomNameChange(e.target.value)
+                            }
+                            placeholder="Enter your planning session name"
+                            disabled={!isOwner || isUpdating}
+                            className="flex-1"
+                          />
+                          {roomName !== roomData.room.name && (
+                            <Button
+                              onClick={handleSaveRoomName}
                               disabled={!isOwner || isUpdating}
-                              className="flex-1 h-12 text-base rounded-xl border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-primary"
-                            />
-                            {roomName !== roomData.room.name && (
-                              <Button
-                                onClick={handleSaveRoomName}
-                                disabled={!isOwner || isUpdating}
-                                className="h-12 px-6 rounded-xl bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-primary/40"
-                              >
-                                <Save className="h-4 w-4 mr-2" />
-                                {isUpdating ? (
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    Saving...
-                                  </div>
-                                ) : (
-                                  "Save"
-                                )}
-                              </Button>
-                            )}
-                          </div>
+                            >
+                              <Save className="h-4 w-4 mr-2" />
+                              {isUpdating ? "Saving..." : "Save"}
+                            </Button>
+                          )}
                         </div>
+                      </div>
 
-                        <Separator />
+                      <Separator />
 
-                        {/* Password Management */}
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="p-2 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-lg">
-                                <Lock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                              </div>
-                              <div>
-                                <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
-                                  Password Protection
-                                </h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">
-                                  {roomData.room.password
-                                    ? "This room is password protected"
-                                    : "Add a password to restrict access"}
-                                </p>
-                              </div>
-                            </div>
-                            {!showPasswordSection && (
-                              <Button
-                                onClick={() => setShowPasswordSection(true)}
-                                variant="outline"
-                                className="rounded-xl"
-                              >
+                      {/* Password Management */}
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Lock className="h-5 w-5 text-muted-foreground" />
+                            <div>
+                              <h4 className="font-semibold text-lg">
+                                Password Protection
+                              </h4>
+                              <p className="text-sm text-muted-foreground">
                                 {roomData.room.password
-                                  ? "Change Password"
-                                  : "Set Password"}
-                              </Button>
-                            )}
-                          </div>
-
-                          {showPasswordSection && (
-                            <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 rounded-2xl p-6 border border-amber-200/50 dark:border-amber-800/50 space-y-4">
-                              <div className="space-y-3">
-                                <Label
-                                  htmlFor="room-password"
-                                  className="text-base font-semibold text-gray-900 dark:text-gray-100"
-                                >
-                                  {roomData.room.password
-                                    ? "New Password"
-                                    : "Password"}
-                                </Label>
-                                <Input
-                                  id="room-password"
-                                  type="password"
-                                  value={password}
-                                  onChange={(e) => setPassword(e.target.value)}
-                                  placeholder="Enter password"
-                                  disabled={isUpdating}
-                                  className="h-12 text-base rounded-xl border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                                />
-                                <p className="text-sm text-gray-600 dark:text-gray-400">
-                                  {roomData.room.password
-                                    ? "Leave empty to remove password protection"
-                                    : "Users will need this password to join the room"}
-                                </p>
-                              </div>
-
-                              <div className="flex gap-3">
-                                <Button
-                                  onClick={handleUpdatePassword}
-                                  disabled={isUpdating}
-                                  className="flex-1 h-12 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-semibold shadow-lg shadow-amber-600/25 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-amber-600/40"
-                                >
-                                  {isUpdating ? (
-                                    <div className="flex items-center gap-2">
-                                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                      Updating...
-                                    </div>
-                                  ) : (
-                                    <div className="flex items-center gap-2">
-                                      <Save className="h-4 w-4" />
-                                      {password.trim()
-                                        ? "Update Password"
-                                        : "Remove Password"}
-                                    </div>
-                                  )}
-                                </Button>
-                                {roomData.room.password && (
-                                  <Button
-                                    onClick={handleRemovePassword}
-                                    disabled={isUpdating}
-                                    variant="outline"
-                                    className="h-12 rounded-xl border-red-200 dark:border-red-800 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50"
-                                  >
-                                    Remove
-                                  </Button>
-                                )}
-                                <Button
-                                  onClick={() => {
-                                    setShowPasswordSection(false);
-                                    setPassword("");
-                                  }}
-                                  disabled={isUpdating}
-                                  variant="outline"
-                                  className="h-12 rounded-xl"
-                                >
-                                  Cancel
-                                </Button>
-                              </div>
+                                  ? "This room is password protected"
+                                  : "Add a password to restrict access"}
+                              </p>
                             </div>
+                          </div>
+                          {!showPasswordSection && (
+                            <Button
+                              onClick={() => setShowPasswordSection(true)}
+                              variant="outline"
+                            >
+                              {roomData.room.password
+                                ? "Change Password"
+                                : "Set Password"}
+                            </Button>
                           )}
                         </div>
 
-                        <Separator />
-
-                        <div className="space-y-6">
-                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-3 text-lg">
-                            <div className="p-2 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-lg">
-                              <Hash className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                            </div>
-                            Session Information
-                          </h4>
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 rounded-2xl p-6 border border-blue-200/50 dark:border-blue-800/50">
-                              <div className="flex items-center gap-3 text-sm text-blue-600 dark:text-blue-400 mb-3">
-                                <Calendar className="h-5 w-5" />
-                                Created
-                              </div>
-                              <div className="font-semibold text-gray-900 dark:text-gray-100 text-base">
-                                {new Date(
-                                  roomData.room.createdAt
-                                ).toLocaleDateString("en-US", {
-                                  weekday: "long",
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                })}
-                              </div>
-                            </div>
-                            <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/50 dark:to-pink-950/50 rounded-2xl p-6 border border-purple-200/50 dark:border-purple-800/50">
-                              <div className="flex items-center gap-3 text-sm text-purple-600 dark:text-purple-400 mb-3">
-                                <Hash className="h-5 w-5" />
-                                Session ID
-                              </div>
-                              <div className="font-mono text-sm bg-white/70 dark:bg-gray-800/70 px-4 py-3 rounded-xl border border-gray-200/50 dark:border-gray-700/50 text-gray-900 dark:text-gray-100 backdrop-blur-sm">
-                                {roomData.room._id}
-                              </div>
-                            </div>
-                          </div>
-
-                          <Separator />
-
-                          <div className="space-y-6">
-                            <h4 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-3 text-lg">
-                              <div className="p-2 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-lg">
-                                <Users className="h-5 w-5 text-green-600 dark:text-green-400" />
-                              </div>
-                              Session Statistics
-                            </h4>
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                              <div className="bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/50 dark:to-green-950/50 rounded-2xl p-6 border border-emerald-200/50 dark:border-emerald-800/50 shadow-lg shadow-emerald-200/10 dark:shadow-emerald-900/10">
-                                <div className="flex items-center gap-4">
-                                  <div className="p-3 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-xl ring-1 ring-emerald-500/30">
-                                    <Users className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
-                                  </div>
-                                  <div>
-                                    <div className="text-3xl font-bold text-emerald-700 dark:text-emerald-300">
-                                      {roomData.users.length}
-                                    </div>
-                                    <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                                      Total Members
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 rounded-2xl p-6 border border-blue-200/50 dark:border-blue-800/50 shadow-lg shadow-blue-200/10 dark:shadow-blue-900/10">
-                                <div className="flex items-center gap-4">
-                                  <div className="p-3 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-xl ring-1 ring-blue-500/30">
-                                    <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                                  </div>
-                                  <div>
-                                    <div className="text-3xl font-bold text-blue-700 dark:text-blue-300">
-                                      {
-                                        roomData.users.filter(
-                                          (u) => !u.isSpectator
-                                        ).length
-                                      }
-                                    </div>
-                                    <div className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                                      Participants
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div className="bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-950/50 dark:to-violet-950/50 rounded-2xl p-6 border border-purple-200/50 dark:border-purple-800/50 shadow-lg shadow-purple-200/10 dark:shadow-purple-900/10">
-                                <div className="flex items-center gap-4">
-                                  <div className="p-3 bg-gradient-to-br from-purple-500/20 to-violet-500/20 rounded-xl ring-1 ring-purple-500/30">
-                                    <Eye className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                                  </div>
-                                  <div>
-                                    <div className="text-3xl font-bold text-purple-700 dark:text-purple-300">
-                                      {
-                                        roomData.users.filter(
-                                          (u) => u.isSpectator
-                                        ).length
-                                      }
-                                    </div>
-                                    <div className="text-sm font-medium text-purple-600 dark:text-purple-400">
-                                      Observers
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === "integrations" && (
-                  <div className="space-y-8">
-                    <div>
-                      <div className="flex items-center gap-4 mb-6">
-                        <div className="p-3 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-2xl ring-1 ring-indigo-500/30">
-                          <Github className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-                        </div>
-                        <div>
-                          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                            Integrations
-                          </h3>
-                          <p className="text-base text-gray-600 dark:text-gray-400">
-                            Connect external project management tools
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Integration Type Selector */}
-                      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-3xl border border-gray-200/50 dark:border-gray-700/50 p-6 mb-6 shadow-lg shadow-gray-200/20 dark:shadow-gray-900/20">
-                        <Label className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4 block">
-                          Integration Type
-                        </Label>
-                        <div className="grid grid-cols-2 gap-4">
-                          <button
-                            onClick={() => setSelectedIntegrationType("github")}
-                            className={`p-4 rounded-xl border-2 transition-all duration-300 ${
-                              selectedIntegrationType === "github"
-                                ? "border-purple-500 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/50 dark:to-indigo-950/50 ring-2 ring-purple-500/20"
-                                : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div
-                                className={`p-2 rounded-lg ${
-                                  selectedIntegrationType === "github"
-                                    ? "bg-purple-500/20"
-                                    : "bg-gray-100 dark:bg-gray-800"
-                                }`}
+                        {showPasswordSection && (
+                          <div className="bg-muted/50 rounded-lg p-4 space-y-4 border">
+                            <div className="space-y-3">
+                              <Label
+                                htmlFor="room-password"
+                                className="text-base font-semibold"
                               >
-                                <Github
-                                  className={`h-5 w-5 ${
-                                    selectedIntegrationType === "github"
-                                      ? "text-purple-600 dark:text-purple-400"
-                                      : "text-gray-600 dark:text-gray-400"
-                                  }`}
-                                />
-                              </div>
-                              <div className="text-left">
-                                <div className="font-semibold text-gray-900 dark:text-gray-100">
-                                  GitHub
-                                </div>
-                                <div className="text-xs text-gray-600 dark:text-gray-400">
-                                  Import issues & export estimates
-                                </div>
-                              </div>
+                                {roomData.room.password
+                                  ? "New Password"
+                                  : "Password"}
+                              </Label>
+                              <Input
+                                id="room-password"
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder="Enter password"
+                                disabled={isUpdating}
+                              />
+                              <p className="text-sm text-muted-foreground">
+                                {roomData.room.password
+                                  ? "Leave empty to remove password protection"
+                                  : "Users will need this password to join the room"}
+                              </p>
                             </div>
-                          </button>
 
-                          <button
-                            onClick={() => setSelectedIntegrationType("jira")}
-                            className={`p-4 rounded-xl border-2 transition-all duration-300 ${
-                              selectedIntegrationType === "jira"
-                                ? "border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/50 dark:to-cyan-950/50 ring-2 ring-blue-500/20"
-                                : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div
-                                className={`p-2 rounded-lg ${
-                                  selectedIntegrationType === "jira"
-                                    ? "bg-blue-500/20"
-                                    : "bg-gray-100 dark:bg-gray-800"
-                                }`}
+                            <div className="flex gap-3">
+                              <Button
+                                onClick={handleUpdatePassword}
+                                disabled={isUpdating}
+                                className="flex-1"
                               >
-                                <svg
-                                  className={`h-5 w-5 ${
-                                    selectedIntegrationType === "jira"
-                                      ? "text-blue-600 dark:text-blue-400"
-                                      : "text-gray-600 dark:text-gray-400"
-                                  }`}
-                                  viewBox="0 0 24 24"
-                                  fill="currentColor"
+                                <Save className="h-4 w-4 mr-2" />
+                                {isUpdating
+                                  ? "Updating..."
+                                  : password.trim()
+                                    ? "Update Password"
+                                    : "Remove Password"}
+                              </Button>
+                              {roomData.room.password && (
+                                <Button
+                                  onClick={handleRemovePassword}
+                                  disabled={isUpdating}
+                                  variant="outline"
                                 >
-                                  <path d="M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1.001-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 2.058V1.005A1.005 1.005 0 0 0 23.013 0z" />
-                                </svg>
-                              </div>
-                              <div className="text-left">
-                                <div className="font-semibold text-gray-900 dark:text-gray-100">
-                                  Jira
-                                </div>
-                                <div className="text-xs text-gray-600 dark:text-gray-400">
-                                  Import issues & export story points
+                                  Remove
+                                </Button>
+                              )}
+                              <Button
+                                onClick={() => {
+                                  setShowPasswordSection(false);
+                                  setPassword("");
+                                }}
+                                disabled={isUpdating}
+                                variant="outline"
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <Separator />
+
+                      <div className="space-y-6">
+                        <div className="space-y-6">
+                          <h4 className="font-semibold flex items-center gap-3 text-lg">
+                            <Users className="h-5 w-5 text-muted-foreground" />
+                            Session Statistics
+                          </h4>
+                          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div className="bg-muted/50 rounded-lg p-4 border">
+                              <div className="flex items-center gap-4">
+                                <Users className="h-6 w-6 text-muted-foreground" />
+                                <div>
+                                  <div className="text-3xl font-bold">
+                                    {roomData.users.length}
+                                  </div>
+                                  <div className="text-sm font-medium text-muted-foreground">
+                                    Total Members
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </button>
+
+                            <div className="bg-muted/50 rounded-lg p-4 border">
+                              <div className="flex items-center gap-4">
+                                <Users className="h-6 w-6 text-muted-foreground" />
+                                <div>
+                                  <div className="text-3xl font-bold">
+                                    {
+                                      roomData.users.filter(
+                                        (u) => !u.isSpectator
+                                      ).length
+                                    }
+                                  </div>
+                                  <div className="text-sm font-medium text-muted-foreground">
+                                    Participants
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="bg-muted/50 rounded-lg p-4 border">
+                              <div className="flex items-center gap-4">
+                                <Eye className="h-6 w-6 text-muted-foreground" />
+                                <div>
+                                  <div className="text-3xl font-bold">
+                                    {
+                                      roomData.users.filter(
+                                        (u) => u.isSpectator
+                                      ).length
+                                    }
+                                  </div>
+                                  <div className="text-sm font-medium text-muted-foreground">
+                                    Observers
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
-                          Note: Only one integration can be active per room. To
-                          switch, disconnect the current integration first.
-                        </p>
                       </div>
                     </div>
                   </div>
-                )}
+                </TabsContent>
 
-                {activeTab === "members" && (
-                  <div className="space-y-8">
-                    <div>
-                      <div className="flex items-center gap-4 mb-6">
-                        <div className="p-3 bg-gradient-to-br from-purple-500/20 to-violet-500/20 rounded-2xl ring-1 ring-purple-500/30">
-                          <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                        </div>
-                        <div>
-                          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                            Session Members
-                          </h3>
-                          <p className="text-base text-gray-600 dark:text-gray-400">
-                            Manage participants and observers
-                          </p>
+                <TabsContent value="integrations" className="space-y-6">
+                  <div>
+                    <h3 className="text-2xl font-bold mb-2">Integrations</h3>
+                    <p className="text-muted-foreground mb-6">
+                      Connect external project management tools
+                    </p>
+
+                    {/* Integration Type Selector */}
+                    <div className="bg-card border rounded-lg p-6">
+                      <Label className="text-base font-semibold mb-4 block">
+                        Integration Type
+                      </Label>
+                      <div className="grid grid-cols-2 gap-4">
+                        <Button
+                          variant={
+                            selectedIntegrationType === "github"
+                              ? "secondary"
+                              : "outline"
+                          }
+                          onClick={() => setSelectedIntegrationType("github")}
+                          className="h-auto p-4 justify-start"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Github className="h-5 w-5" />
+                            <div className="text-left">
+                              <div className="font-semibold">GitHub</div>
+                              <div className="text-xs text-muted-foreground">
+                                Import issues & export estimates
+                              </div>
+                            </div>
+                          </div>
+                        </Button>
+
+                        <Button
+                          variant={
+                            selectedIntegrationType === "jira"
+                              ? "secondary"
+                              : "outline"
+                          }
+                          onClick={() => setSelectedIntegrationType("jira")}
+                          className="h-auto p-4 justify-start"
+                        >
+                          <div className="flex items-center gap-3">
+                            <svg
+                              className="h-5 w-5"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                            >
+                              <path d="M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1.001-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 2.058V1.005A1.005 1.005 0 0 0 23.013 0z" />
+                            </svg>
+                            <div className="text-left">
+                              <div className="font-semibold">Jira</div>
+                              <div className="text-xs text-muted-foreground">
+                                Import issues & export story points
+                              </div>
+                            </div>
+                          </div>
+                        </Button>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-4">
+                        Note: Only one integration can be active per room. To
+                        switch, disconnect the current integration first.
+                      </p>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="members" className="space-y-6">
+                  <div className="h-full">
+                    <h3 className="text-2xl font-bold mb-2">Session Members</h3>
+                    <p className="text-muted-foreground mb-6">
+                      Manage participants and observers
+                    </p>
+
+                    <div className="space-y-4 max-h-full overflow-y-auto">
+                      {/* Current User */}
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-primary-foreground text-lg font-bold">
+                              {currentUser?.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="font-bold flex items-center gap-3 text-lg">
+                                {currentUser?.name}
+                                <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded-full font-semibold">
+                                  You
+                                </span>
+                                {currentUser?._id === roomOwner?._id && (
+                                  <div className="flex items-center gap-1.5 bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs font-semibold">
+                                    <Crown className="h-3.5 w-3.5" />
+                                    Owner
+                                  </div>
+                                )}
+                              </div>
+                              <div className="text-sm text-muted-foreground flex items-center gap-3 mt-1">
+                                <span
+                                  className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
+                                    currentUser?.isSpectator
+                                      ? "bg-purple-100 text-purple-700"
+                                      : "bg-green-100 text-green-700"
+                                  }`}
+                                >
+                                  {currentUser?.isSpectator ? (
+                                    <>
+                                      <Eye className="h-3.5 w-3.5" />
+                                      Observer
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Users className="h-3.5 w-3.5" />
+                                      Participant
+                                    </>
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="space-y-4 max-h-96 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800">
-                        {/* Current User */}
-                        <div className="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-blue-950/50 dark:to-indigo-950/50 backdrop-blur-sm rounded-2xl border-2 border-blue-200/50 dark:border-blue-800/50 p-5 shadow-lg shadow-blue-200/10 dark:shadow-blue-900/10">
+                      {/* Other Users */}
+                      {otherUsers.map((user) => (
+                        <div
+                          key={user._id}
+                          className="group bg-card border rounded-lg p-4 hover:shadow-md transition-all duration-200"
+                        >
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-5">
-                              <div className="relative">
-                                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-xl font-bold shadow-xl ring-2 ring-blue-200 dark:ring-blue-800">
-                                  {currentUser?.name.charAt(0).toUpperCase()}
-                                </div>
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center text-foreground text-lg font-bold">
+                                {user.name.charAt(0).toUpperCase()}
                               </div>
                               <div>
-                                <div className="font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3 text-lg">
-                                  {currentUser?.name}
-                                  <span className="text-xs bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 py-1.5 rounded-full font-semibold shadow-md">
-                                    You
-                                  </span>
-                                  {currentUser?._id === roomOwner?._id && (
-                                    <div className="flex items-center gap-1.5 bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/50 dark:to-amber-900/50 text-yellow-700 dark:text-yellow-300 px-3 py-1.5 rounded-full text-xs font-semibold ring-1 ring-yellow-200 dark:ring-yellow-800">
+                                <div className="font-bold flex items-center gap-3 text-lg">
+                                  {user.name}
+                                  {user._id === roomOwner?._id && (
+                                    <div className="flex items-center gap-1.5 bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs font-semibold">
                                       <Crown className="h-3.5 w-3.5" />
                                       Owner
                                     </div>
                                   )}
                                 </div>
-                                <div className="text-base text-gray-600 dark:text-gray-400 flex items-center gap-3 mt-2">
+                                <div className="text-sm text-muted-foreground flex items-center gap-3 mt-1">
                                   <span
-                                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${
-                                      currentUser?.isSpectator
-                                        ? "bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 ring-1 ring-purple-200 dark:ring-purple-800"
-                                        : "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 ring-1 ring-green-200 dark:ring-green-800"
+                                    className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
+                                      user.isSpectator
+                                        ? "bg-purple-100 text-purple-700"
+                                        : "bg-green-100 text-green-700"
                                     }`}
                                   >
-                                    {currentUser?.isSpectator ? (
+                                    {user.isSpectator ? (
                                       <>
                                         <Eye className="h-3.5 w-3.5" />
                                         Observer
@@ -895,111 +751,60 @@ export function RoomSettingsDialog({
                                 </div>
                               </div>
                             </div>
+
+                            {/* Actions for room owner */}
+                            {isOwner && user._id !== roomOwner?._id && (
+                              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedUserForOwnership(user);
+                                    setOwnershipDialogOpen(true);
+                                  }}
+                                >
+                                  <Crown className="h-4 w-4 mr-2" />
+                                  <span className="hidden sm:inline">
+                                    Make Owner
+                                  </span>
+                                  <span className="sm:hidden">Owner</span>
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedUserForKick(user);
+                                    setKickDialogOpen(true);
+                                  }}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                                >
+                                  <UserMinus className="h-4 w-4 mr-2" />
+                                  Kick
+                                </Button>
+                              </div>
+                            )}
                           </div>
                         </div>
+                      ))}
 
-                        {/* Other Users */}
-                        {otherUsers.map((user) => (
-                          <div
-                            key={user._id}
-                            className="group bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-700/50 p-5 hover:shadow-lg transition-all duration-300 hover:border-gray-300/50 dark:hover:border-gray-600/50"
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-5">
-                                <div className="relative">
-                                  <div className="w-14 h-14 bg-gradient-to-br from-gray-500 to-gray-700 rounded-2xl flex items-center justify-center text-white text-xl font-bold shadow-lg ring-2 ring-gray-200 dark:ring-gray-700">
-                                    {user.name.charAt(0).toUpperCase()}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3 text-lg">
-                                    {user.name}
-                                    {user._id === roomOwner?._id && (
-                                      <div className="flex items-center gap-1.5 bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/50 dark:to-amber-900/50 text-yellow-700 dark:text-yellow-300 px-3 py-1.5 rounded-full text-xs font-semibold ring-1 ring-yellow-200 dark:ring-yellow-800">
-                                        <Crown className="h-3.5 w-3.5" />
-                                        Owner
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="text-base text-gray-600 dark:text-gray-400 flex items-center gap-3 mt-2">
-                                    <span
-                                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${
-                                        user.isSpectator
-                                          ? "bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 ring-1 ring-purple-200 dark:ring-purple-800"
-                                          : "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 ring-1 ring-green-200 dark:ring-green-800"
-                                      }`}
-                                    >
-                                      {user.isSpectator ? (
-                                        <>
-                                          <Eye className="h-3.5 w-3.5" />
-                                          Observer
-                                        </>
-                                      ) : (
-                                        <>
-                                          <Users className="h-3.5 w-3.5" />
-                                          Participant
-                                        </>
-                                      )}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Actions for room owner */}
-                              {isOwner && user._id !== roomOwner?._id && (
-                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => {
-                                      setSelectedUserForOwnership(user);
-                                      setOwnershipDialogOpen(true);
-                                    }}
-                                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/50 border-blue-200 dark:border-blue-800 text-sm rounded-xl px-4 py-2 font-medium shadow-sm hover:shadow-md transition-all duration-300"
-                                  >
-                                    <Crown className="h-4 w-4 mr-2" />
-                                    <span className="hidden sm:inline">
-                                      Make Owner
-                                    </span>
-                                    <span className="sm:hidden">Owner</span>
-                                  </Button>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => {
-                                      setSelectedUserForKick(user);
-                                      setKickDialogOpen(true);
-                                    }}
-                                    className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/50 border-red-200 dark:border-red-800 text-sm rounded-xl px-4 py-2 font-medium shadow-sm hover:shadow-md transition-all duration-300"
-                                  >
-                                    <UserMinus className="h-4 w-4 mr-2" />
-                                    Kick
-                                  </Button>
-                                </div>
-                              )}
-                            </div>
+                      {otherUsers.length === 0 && (
+                        <div className="text-center py-16 bg-muted/50 rounded-lg border-2 border-dashed border-muted-foreground/25">
+                          <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center mx-auto mb-4">
+                            <Users className="h-8 w-8 text-muted-foreground" />
                           </div>
-                        ))}
-
-                        {otherUsers.length === 0 && (
-                          <div className="text-center py-16 bg-gradient-to-br from-gray-50/80 to-blue-50/80 dark:from-gray-800/30 dark:to-blue-950/30 backdrop-blur-sm rounded-2xl border-2 border-dashed border-gray-300/50 dark:border-gray-600/50">
-                            <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-blue-100 dark:from-gray-700 dark:to-blue-900/50 rounded-2xl flex items-center justify-center mx-auto mb-6 ring-1 ring-gray-200 dark:ring-gray-600">
-                              <Users className="h-10 w-10 text-gray-500 dark:text-gray-400" />
-                            </div>
-                            <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3 text-lg">
-                              No other members yet
-                            </h4>
-                            <p className="text-base text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                              Share the session link to invite your team members
-                              and start collaborative planning
-                            </p>
-                          </div>
-                        )}
-                      </div>
+                          <h4 className="font-semibold mb-3 text-lg">
+                            No other members yet
+                          </h4>
+                          <p className="text-muted-foreground max-w-md mx-auto">
+                            Share the session link to invite your team members
+                            and start collaborative planning
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
-                )}
-              </div>
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
         </SheetContent>
@@ -1007,30 +812,24 @@ export function RoomSettingsDialog({
 
       {/* Kick Confirmation Dialog */}
       <AlertDialog open={kickDialogOpen} onOpenChange={setKickDialogOpen}>
-        <AlertDialogContent className="bg-white/95 dark:bg-gray-950/95 backdrop-blur-md border-0 shadow-2xl">
-          <AlertDialogHeader className="space-y-4">
-            <AlertDialogTitle className="flex items-center gap-3 text-xl font-bold">
-              <div className="p-3 bg-gradient-to-br from-red-500/20 to-orange-500/20 rounded-xl ring-1 ring-red-500/30">
-                <UserMinus className="h-6 w-6 text-red-600 dark:text-red-400" />
-              </div>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-3">
+              <UserMinus className="h-5 w-5 text-destructive" />
               Remove Member
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+            <AlertDialogDescription>
               Are you sure you want to remove{" "}
-              <span className="font-semibold text-gray-900 dark:text-gray-100">
-                {selectedUserForKick?.name}
-              </span>{" "}
+              <span className="font-semibold">{selectedUserForKick?.name}</span>{" "}
               from this planning session? This action cannot be undone and they
               will need to rejoin using the session link.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="gap-3 pt-6">
-            <AlertDialogCancel className="rounded-xl px-6 py-3 font-medium">
-              Cancel
-            </AlertDialogCancel>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleKick}
-              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-xl px-6 py-3 shadow-lg shadow-red-600/25 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-red-600/40"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               <UserMinus className="h-4 w-4 mr-2" />
               Remove Member
@@ -1044,31 +843,24 @@ export function RoomSettingsDialog({
         open={ownershipDialogOpen}
         onOpenChange={setOwnershipDialogOpen}
       >
-        <AlertDialogContent className="bg-white/95 dark:bg-gray-950/95 backdrop-blur-md border-0 shadow-2xl">
-          <AlertDialogHeader className="space-y-4">
-            <AlertDialogTitle className="flex items-center gap-3 text-xl font-bold">
-              <div className="p-3 bg-gradient-to-br from-yellow-500/20 to-amber-500/20 rounded-xl ring-1 ring-yellow-500/30">
-                <Crown className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
-              </div>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-3">
+              <Crown className="h-5 w-5 text-amber-600" />
               Transfer Ownership
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+            <AlertDialogDescription>
               Are you sure you want to make{" "}
-              <span className="font-semibold text-gray-900 dark:text-gray-100">
+              <span className="font-semibold">
                 {selectedUserForOwnership?.name}
               </span>{" "}
               the new session owner? You will lose your owner privileges and
               they will be able to manage the session settings and members.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="gap-3 pt-6">
-            <AlertDialogCancel className="rounded-xl px-6 py-3 font-medium">
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleTransferOwnership}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl px-6 py-3 shadow-lg shadow-blue-600/25 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-blue-600/40"
-            >
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleTransferOwnership}>
               <Crown className="h-4 w-4 mr-2" />
               Transfer Ownership
             </AlertDialogAction>
