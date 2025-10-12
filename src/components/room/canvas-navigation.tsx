@@ -4,7 +4,6 @@ import { useReactFlow } from "@xyflow/react";
 import {
   Copy,
   Download,
-  Github,
   Grid3X3,
   Home,
   LogOut,
@@ -75,8 +74,6 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isQRCodeOpen, setIsQRCodeOpen] = useState(false);
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
-  const [isGithubImportOpen, setIsGithubImportOpen] = useState(false);
-  const [isJiraImportOpen, setIsJiraImportOpen] = useState(false);
   const [isMobile] = useState(
     () => typeof window !== "undefined" && window.innerWidth < 768
   );
