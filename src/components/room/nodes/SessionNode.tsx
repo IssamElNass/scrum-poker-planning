@@ -157,7 +157,7 @@ export const SessionNode = memo(
                   </span>
                 </div>
 
-                {hasVotes && !hasActiveStory && (
+                {hasVotes && (
                   <button
                     onClick={onRevealCards}
                     className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md bg-blue-500 hover:bg-blue-600 text-white transition-colors"
