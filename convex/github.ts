@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import { internal } from "./_generated/api";
 import {
   action,
   internalMutation,
@@ -14,7 +15,6 @@ import {
   truncateDescription,
   validateGithubToken,
 } from "./githubhelpers";
-import { internal } from "./_generated/api";
 
 // Internal query to get room for GitHub integration
 export const getRoomForGithubIntegration = internalQuery({
