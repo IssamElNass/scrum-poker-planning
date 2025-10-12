@@ -133,41 +133,6 @@ export function useCanvasNodes({
           draggable: !node.isLocked,
         };
         allNodes.push(resultsNode);
-      } else if (node.type === "story") {
-        // Only show active story
-        const isActive = room.activeStoryNodeId === node.nodeId;
-        if (isActive) {
-          const storyNode: CustomNodeType = {
-            id: node.nodeId,
-            type: "story",
-            position: node.position,
-            data: {
-              title: node.data.title,
-              description: node.data.description,
-              githubIssueNumber: node.data.githubIssueNumber,
-              githubIssueUrl: node.data.githubIssueUrl,
-              isGameOver: room.isGameOver,
-              hasVotes:
-                votes.filter((v: SanitizedVote) => v.hasVoted).length > 0,
-              onRevealCards,
-              onResetGame,
-            },
-            draggable: !node.isLocked,
-          };
-          allNodes.push(storyNode);
-        }
-      } else if (node.type === "session") {
-        // Only show session if there's an active story
-        if (room.activeStoryNodeId) {
-          const sessionNode: CustomNodeType = {
-            id: node.nodeId,
-            type: "session",
-            position: node.position,
-            data: {},
-            draggable: !node.isLocked,
-          };
-          allNodes.push(sessionNode);
-        }
       }
     });
 
@@ -206,25 +171,25 @@ export function useCanvasNodes({
           strokeOpacity: 0.9,
         },
       });
-
-      // Session to Players edges
-      users.forEach((user: Doc<"users">) => {
-        allEdges.push({
-          id: `session-to-player-${user._id}`,
-          source: "session-current",
-          sourceHandle: "bottom",
-          target: `player-${user._id}`,
-          targetHandle: "top",
-          type: "default",
-          animated: false,
-          style: {
-            stroke: "#3b82f6",
-            strokeWidth: 2,
-            strokeOpacity: 0.8,
-          },
-        });
-      });
     }
+
+    // Session to Players edges
+    users.forEach((user: Doc<"users">) => {
+      allEdges.push({
+        id: `session-to-player-${user._id}`,
+        source: "session-current",
+        sourceHandle: "bottom",
+        target: `player-${user._id}`,
+        targetHandle: "top",
+        type: "bezier",
+        animated: false,
+        style: {
+          stroke: "#3b82f6",
+          strokeWidth: 2,
+          strokeOpacity: 0.8,
+        },
+      });
+    });
 
     // Session to Results edge (when game is over)
     if (room.isGameOver) {
