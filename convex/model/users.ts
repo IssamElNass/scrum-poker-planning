@@ -3,6 +3,7 @@ import { Id } from "../_generated/dataModel";
 import { MutationCtx } from "../_generated/server";
 import * as Canvas from "./canvas";
 import * as Rooms from "./rooms";
+import { verifyPassword, hashPassword } from "../lib/password";
 
 export interface JoinRoomArgs {
   roomId: Id<"rooms">;
@@ -41,7 +42,10 @@ export async function joinRoom(
 
   // Validate password for non-first users
   if (!isFirstUser && room.password) {
-    if (!args.password || args.password !== room.password) {
+    if (
+      !args.password ||
+      !(await verifyPassword(args.password, room.password))
+    ) {
       throw new ConvexError("Incorrect password");
     }
   }
@@ -53,9 +57,9 @@ export async function joinRoom(
     ownerId: Id<"users">;
   }> = { lastActivityAt: Date.now() };
 
-  // If this is the first user and they provided a password, set it
+  // If this is the first user and they provided a password, hash and set it
   if (isFirstUser && args.password && args.password.trim()) {
-    roomPatches.password = args.password.trim();
+    roomPatches.password = await hashPassword(args.password.trim());
   }
 
   // Create user

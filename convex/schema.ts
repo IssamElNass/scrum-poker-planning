@@ -102,12 +102,12 @@ export default defineSchema({
     .index("by_room", ["roomId"])
     .index("by_room_created", ["roomId", "createdAt"]),
 
-  githubIntegration: defineTable({
+  // Generic integrations table for GitHub, Jira, Trello, etc.
+  integrations: defineTable({
     roomId: v.id("rooms"),
-    personalAccessToken: v.string(), // Encrypted PAT
-    repositoryUrl: v.string(), // Full GitHub repo URL
-    repositoryOwner: v.string(), // Extracted from URL
-    repositoryName: v.string(), // Extracted from URL
+    type: v.union(v.literal("github"), v.literal("jira"), v.literal("trello")),
+    encryptedCredentials: v.string(), // Encrypted JSON containing API keys/tokens
+    config: v.any(), // Platform-specific configuration (repo URL, domain, etc.)
     connectedAt: v.number(),
   }).index("by_room", ["roomId"]),
 });

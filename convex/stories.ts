@@ -1,6 +1,5 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { internal } from "./_generated/api";
 
 // Set the active story for a room
 export const setActiveStory = mutation({
@@ -16,10 +15,11 @@ export const setActiveStory = mutation({
 
     // If nodeId is provided, verify it exists and is a story
     if (args.nodeId) {
+      const nodeId = args.nodeId; // Capture in const to help TypeScript
       const storyNode = await ctx.db
         .query("canvasNodes")
         .withIndex("by_room_node", (q) =>
-          q.eq("roomId", args.roomId).eq("nodeId", args.nodeId)
+          q.eq("roomId", args.roomId).eq("nodeId", nodeId)
         )
         .unique();
 
@@ -58,11 +58,13 @@ export const submitEstimation = mutation({
       throw new Error("No active story");
     }
 
+    const activeNodeId = room.activeStoryNodeId;
+
     // Get the current story node
     const currentStory = await ctx.db
       .query("canvasNodes")
       .withIndex("by_room_node", (q) =>
-        q.eq("roomId", args.roomId).eq("nodeId", room.activeStoryNodeId)
+        q.eq("roomId", args.roomId).eq("nodeId", activeNodeId)
       )
       .unique();
 
@@ -79,17 +81,9 @@ export const submitEstimation = mutation({
       },
     });
 
-    // Schedule GitHub export if this is a GitHub-linked story
-    if (
-      currentStory.data.githubIssueNumber &&
-      !currentStory.data.estimateExported
-    ) {
-      await ctx.scheduler.runAfter(0, internal.github.exportEstimateInternal, {
-        roomId: args.roomId,
-        nodeId: currentStory.nodeId,
-        estimate: args.estimate,
-      });
-    }
+    // Note: Automatic export is handled by the integration systems themselves
+    // GitHub and Jira exports can be triggered manually from the UI
+    // The export logic is intentionally not automated here to give users control
 
     // Find next story
     const allStories = await ctx.db
@@ -133,11 +127,13 @@ export const skipStory = mutation({
       throw new Error("No active story");
     }
 
+    const activeNodeId = room.activeStoryNodeId;
+
     // Get the current story node
     const currentStory = await ctx.db
       .query("canvasNodes")
       .withIndex("by_room_node", (q) =>
-        q.eq("roomId", args.roomId).eq("nodeId", room.activeStoryNodeId)
+        q.eq("roomId", args.roomId).eq("nodeId", activeNodeId)
       )
       .unique();
 
@@ -199,10 +195,12 @@ export const getActiveStory = query({
       return null;
     }
 
+    const activeNodeId = room.activeStoryNodeId;
+
     const storyNode = await ctx.db
       .query("canvasNodes")
       .withIndex("by_room_node", (q) =>
-        q.eq("roomId", args.roomId).eq("nodeId", room.activeStoryNodeId)
+        q.eq("roomId", args.roomId).eq("nodeId", activeNodeId)
       )
       .unique();
 

@@ -2,7 +2,7 @@ import { ConvexError } from "convex/values";
 import { Doc, Id } from "../_generated/dataModel";
 import { MutationCtx, QueryCtx } from "../_generated/server";
 import * as Canvas from "./canvas";
-import { exportEstimatesToGithub } from "./github";
+import { hashPassword, verifyPassword } from "../lib/password";
 
 export interface CreateRoomArgs {
   name: string;
@@ -123,15 +123,6 @@ export async function showRoomCards(
   const room = await ctx.db.get(roomId);
   if (room && room.roomType === "canvas") {
     await Canvas.upsertResultsNode(ctx, { roomId });
-  }
-
-  // Export estimates to GitHub if integration is configured
-  // Note: This is fire-and-forget to avoid blocking the reveal
-  try {
-    await exportEstimatesToGithub(ctx, roomId);
-  } catch (error) {
-    console.error("Failed to export estimates to GitHub:", error);
-    // Don't throw - we don't want to block the reveal
   }
 }
 
@@ -328,10 +319,14 @@ export async function updateRoomPassword(
     throw new ConvexError("Only room owner can change room password");
   }
 
-  // Update password (or remove it if undefined/empty)
+  // Hash the password before storing (or remove it if undefined/empty)
+  let hashedPassword: string | undefined = undefined;
+  if (args.password && args.password.trim()) {
+    hashedPassword = await hashPassword(args.password.trim());
+  }
+
   await ctx.db.patch(args.roomId, {
-    password:
-      args.password && args.password.trim() ? args.password.trim() : undefined,
+    password: hashedPassword,
     lastActivityAt: Date.now(),
   });
 }
@@ -356,6 +351,6 @@ export async function verifyRoomPassword(
     return true;
   }
 
-  // Compare passwords
-  return room.password === args.password;
+  // Verify hashed password
+  return await verifyPassword(args.password, room.password);
 }
