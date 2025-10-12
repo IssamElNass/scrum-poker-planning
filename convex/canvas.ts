@@ -18,6 +18,22 @@ export const getCanvasNodes = query({
   },
 });
 
+// Get all story nodes for a room (for story selector)
+export const getStoryNodes = query({
+  args: { roomId: v.id("rooms") },
+  handler: async (ctx, args) => {
+    const nodes = await ctx.db
+      .query("canvasNodes")
+      .withIndex("by_room_type", (q) =>
+        q.eq("roomId", args.roomId).eq("type", "story")
+      )
+      .collect();
+
+    // Filter out completed and skipped stories
+    return nodes.filter((node) => !node.data.completedAt && !node.data.skipped);
+  },
+});
+
 // Update node position
 export const updateNodePosition = mutation({
   args: {

@@ -16,6 +16,8 @@ interface UseCanvasNodesProps {
   selectedCardValue: string | null;
   onRevealCards?: () => void;
   onResetGame?: () => void;
+  onSubmitEstimation?: () => void;
+  onSkipStory?: () => void;
   onCardSelect?: (cardValue: string) => void;
 }
 
@@ -31,6 +33,8 @@ export function useCanvasNodes({
   selectedCardValue,
   onRevealCards,
   onResetGame,
+  onSubmitEstimation,
+  onSkipStory,
   onCardSelect,
 }: UseCanvasNodesProps): UseCanvasNodesReturn {
   // Query canvas nodes from Convex
@@ -89,8 +93,11 @@ export function useCanvasNodes({
             voteCount: votes.filter((v: SanitizedVote) => v.hasVoted).length,
             isVotingComplete: room.isGameOver,
             hasVotes: votes.some((v: SanitizedVote) => v.hasVoted),
+            hasActiveStory: !!room.activeStoryNodeId,
             onRevealCards,
             onResetGame,
+            onSubmitEstimation,
+            onSkipStory,
           },
           draggable: !node.isLocked,
         };
@@ -130,13 +137,41 @@ export function useCanvasNodes({
     });
 
     return allNodes;
-  }, [canvasNodes, roomData, currentUserId, selectedCardValue, onRevealCards, onResetGame, onCardSelect, roomId]);
+  }, [
+    canvasNodes,
+    roomData,
+    currentUserId,
+    selectedCardValue,
+    onRevealCards,
+    onResetGame,
+    onCardSelect,
+    roomId,
+  ]);
 
   const edges = useMemo(() => {
     if (!canvasNodes || !roomData) return [];
 
     const { room, users } = roomData;
     const allEdges: Edge[] = [];
+
+    // Only create edges if there's an active story (which means session is shown)
+    if (room.activeStoryNodeId) {
+      // Story to Session edge
+      allEdges.push({
+        id: `story-to-session`,
+        source: room.activeStoryNodeId,
+        sourceHandle: "bottom",
+        target: "session-current",
+        targetHandle: "top",
+        type: "default",
+        animated: false,
+        style: {
+          stroke: "#8b5cf6",
+          strokeWidth: 3,
+          strokeOpacity: 0.9,
+        },
+      });
+    }
 
     // Session to Players edges
     users.forEach((user: Doc<"users">) => {
@@ -146,7 +181,7 @@ export function useCanvasNodes({
         sourceHandle: "bottom",
         target: `player-${user._id}`,
         targetHandle: "top",
-        type: "default",
+        type: "bezier",
         animated: false,
         style: {
           stroke: "#3b82f6",

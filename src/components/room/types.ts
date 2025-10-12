@@ -1,6 +1,6 @@
-import { Node } from "@xyflow/react";
 import type { Doc, Id } from "@/convex/_generated/dataModel";
 import type { SanitizedVote } from "@/convex/model/rooms";
+import { Node } from "@xyflow/react";
 
 // Node data types
 export type PlayerNodeData = {
@@ -18,6 +18,12 @@ export type StoryNodeData = {
   hasVotes?: boolean;
   onRevealCards?: () => void;
   onResetGame?: () => void;
+  // GitHub integration fields
+  githubIssueNumber?: number;
+  githubIssueUrl?: string;
+  estimateExported?: boolean;
+  lastExportedEstimate?: string;
+  lastExportedAt?: number;
 };
 
 export type SessionNodeData = {
@@ -26,8 +32,11 @@ export type SessionNodeData = {
   voteCount: number;
   isVotingComplete: boolean;
   hasVotes: boolean;
+  hasActiveStory?: boolean;
   onRevealCards?: () => void;
   onResetGame?: () => void;
+  onSubmitEstimation?: () => void;
+  onSkipStory?: () => void;
 };
 
 export type TimerNodeData = {
@@ -36,11 +45,11 @@ export type TimerNodeData = {
   pausedAt: number | null; // Server timestamp when paused
   elapsedSeconds: number; // Total elapsed seconds
   isRunning: boolean; // Current running state (derived from timestamps)
-  
+
   // Tracking fields
   lastUpdatedBy: Id<"users"> | null; // User who last changed timer
   lastAction: "start" | "pause" | "reset" | null; // Last action performed
-  
+
   // Required fields for timer synchronization
   roomId: Id<"rooms">; // Room ID for timer sync
   userId?: Id<"users">; // Current user ID for timer controls

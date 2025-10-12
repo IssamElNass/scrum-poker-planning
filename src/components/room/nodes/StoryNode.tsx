@@ -1,14 +1,20 @@
 "use client";
 
-import { Handle, Position, NodeProps } from "@xyflow/react";
-import { Play, RotateCcw } from "lucide-react";
+import { Handle, NodeProps, Position } from "@xyflow/react";
+import {
+  CheckCircle2,
+  ExternalLink,
+  Github,
+  Play,
+  RotateCcw,
+} from "lucide-react";
 import {
   ReactElement,
   memo,
-  useMemo,
-  useState,
   useCallback,
   useEffect,
+  useMemo,
+  useState,
 } from "react";
 
 import { cn } from "@/lib/utils";
@@ -67,24 +73,6 @@ export const StoryNode = memo(
       <div className="relative">
         <Handle
           type="target"
-          position={Position.Top}
-          className="bg-gray-400! dark:bg-gray-600!"
-          aria-hidden="true"
-        />
-        <Handle
-          type="target"
-          position={Position.Right}
-          className="bg-gray-400! dark:bg-gray-600!"
-          aria-hidden="true"
-        />
-        <Handle
-          type="target"
-          position={Position.Bottom}
-          className="bg-gray-400! dark:bg-gray-600!"
-          aria-hidden="true"
-        />
-        <Handle
-          type="target"
           position={Position.Left}
           className="bg-gray-400! dark:bg-gray-600!"
           aria-hidden="true"
@@ -97,10 +85,32 @@ export const StoryNode = memo(
         >
           <div className="flex items-center gap-2 mb-2">
             <div className={dotClasses} aria-hidden="true" />
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 flex-1">
               {title}
             </h3>
           </div>
+
+          {/* GitHub Link */}
+          {data.githubIssueNumber && (
+            <div className="flex items-center gap-2 mb-2">
+              <a
+                href={data.githubIssueUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-medium hover:bg-purple-200 dark:hover:bg-purple-900/70 transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Github className="h-3 w-3" />#{data.githubIssueNumber}
+                <ExternalLink className="h-3 w-3" />
+              </a>
+              {data.estimateExported && (
+                <div className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 text-xs font-medium">
+                  <CheckCircle2 className="h-3 w-3" />
+                  Exported
+                </div>
+              )}
+            </div>
+          )}
 
           <p
             className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3"

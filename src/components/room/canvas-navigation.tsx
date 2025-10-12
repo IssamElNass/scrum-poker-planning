@@ -4,6 +4,7 @@ import { useReactFlow } from "@xyflow/react";
 import {
   Copy,
   Download,
+  Github,
   Grid3X3,
   Home,
   LogOut,
@@ -19,6 +20,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FC, useState } from "react";
 
+import { useAuth } from "@/components/auth/auth-provider";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,7 +31,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -74,6 +75,8 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isQRCodeOpen, setIsQRCodeOpen] = useState(false);
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
+  const [isGithubImportOpen, setIsGithubImportOpen] = useState(false);
+  const [isJiraImportOpen, setIsJiraImportOpen] = useState(false);
   const [isMobile] = useState(
     () => typeof window !== "undefined" && window.innerWidth < 768
   );
@@ -268,6 +271,9 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
               {users.length} {users.length === 1 ? "user" : "users"}
             </span>
           </div>
+
+          {/* Story Selector */}
+          <Separator orientation="vertical" className="h-6 mx-1" />
         </div>
       </div>
 

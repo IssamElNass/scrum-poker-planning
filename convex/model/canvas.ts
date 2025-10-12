@@ -195,10 +195,12 @@ export async function upsertPlayerNode(
   // Calculate default position based on existing players
   let position = args.position;
   if (!position) {
+    // Optimized: Only count player nodes instead of collecting all of them
     const playerNodes = await ctx.db
       .query("canvasNodes")
-      .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
-      .filter((q) => q.eq(q.field("type"), "player"))
+      .withIndex("by_room_type", (q) =>
+        q.eq("roomId", args.roomId).eq("type", "player")
+      )
       .collect();
 
     const playerCount = playerNodes.length;
@@ -232,19 +234,20 @@ export async function createVotingCardNodes(
   const totalWidth = (cardCount - 1) * VOTING_CARD_SPACING;
   const startX = CANVAS_CENTER.x - totalWidth / 2;
 
-  // Check if voting cards already exist for this user
+  // Optimized: Check if voting cards already exist for this user using indexed query
   const existingCards = await ctx.db
     .query("canvasNodes")
-    .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
-    .filter((q) => q.eq(q.field("type"), "votingCard"))
-    .filter((q) => q.eq(q.field("nodeId"), `card-${args.userId}-0`))
-    .first();
+    .withIndex("by_room_node", (q) =>
+      q.eq("roomId", args.roomId).eq("nodeId", `card-${args.userId}-0`)
+    )
+    .unique();
 
   if (existingCards) {
     return; // Cards already exist
   }
 
   // Create voting card nodes in parallel
+  // Using Promise.all is fine here as Convex handles batching efficiently
   await Promise.all(
     cards.map((card, index) => {
       const x = startX + index * VOTING_CARD_SPACING;

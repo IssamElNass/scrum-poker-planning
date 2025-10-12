@@ -11,15 +11,15 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import type { RoomWithRelatedData } from "@/convex/model/rooms";
@@ -29,6 +29,7 @@ import {
   Calendar,
   Crown,
   Eye,
+  Github,
   Hash,
   Lock,
   Save,
@@ -45,7 +46,7 @@ interface RoomSettingsDialogProps {
   currentUserId: Id<"users">;
 }
 
-type SettingsTab = "general" | "members";
+type SettingsTab = "general" | "members" | "integrations";
 
 export function RoomSettingsDialog({
   isOpen,
@@ -58,6 +59,9 @@ export function RoomSettingsDialog({
   const [isUpdating, setIsUpdating] = useState(false);
   const [password, setPassword] = useState("");
   const [showPasswordSection, setShowPasswordSection] = useState(false);
+  const [selectedIntegrationType, setSelectedIntegrationType] = useState<
+    "github" | "jira"
+  >("github");
 
   // User management state
   const [kickDialogOpen, setKickDialogOpen] = useState(false);
@@ -323,6 +327,12 @@ export function RoomSettingsDialog({
       icon: Users,
       description: "Manage room participants",
     },
+    {
+      id: "integrations" as const,
+      label: "Integrations",
+      icon: Github,
+      description: "Connect external tools",
+    },
   ];
 
   const currentUser = roomData.users.find((user) => user._id === currentUserId);
@@ -340,10 +350,13 @@ export function RoomSettingsDialog({
 
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="w-[90vw] max-w-6xl p-0 gap-0 max-h-[90vh] bg-white/95 dark:bg-gray-950/95 backdrop-blur-md border-0 shadow-2xl">
+      <Sheet open={isOpen} onOpenChange={onOpenChange}>
+        <SheetContent
+          side="right"
+          className="w-full sm:w-[800px] sm:max-w-[60vw] p-0 gap-0 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md overflow-hidden"
+        >
           {/* Background decorations */}
-          <div className="absolute inset-0 overflow-hidden rounded-2xl">
+          <div className="absolute inset-0 overflow-hidden">
             <div className="absolute top-10 right-10 w-40 h-40 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-2xl" />
             <div className="absolute bottom-10 left-10 w-40 h-40 bg-gradient-to-br from-purple-400/10 to-pink-400/10 rounded-full blur-2xl" />
 
@@ -362,10 +375,10 @@ export function RoomSettingsDialog({
             </div>
           </div>
 
-          <DialogHeader className="relative px-8 py-6 border-b border-gray-200/50 dark:border-gray-800/50 bg-gradient-to-r from-slate-50/80 via-blue-50/80 to-purple-50/80 dark:from-gray-950/80 dark:via-blue-950/80 dark:to-purple-950/80 backdrop-blur-sm">
-            <DialogTitle className="flex items-center gap-4">
+          <SheetHeader className="relative px-6 py-5 border-b border-gray-200/50 dark:border-gray-800/50 bg-gradient-to-r from-slate-50/80 via-blue-50/80 to-purple-50/80 dark:from-gray-950/80 dark:via-blue-950/80 dark:to-purple-950/80 backdrop-blur-sm">
+            <SheetTitle className="flex flex-col gap-3">
               {/* Branding badge */}
-              <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary/10 to-purple-500/10 px-3 py-1.5 ring-1 ring-primary/20">
+              <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary/10 to-purple-500/10 px-3 py-1.5 ring-1 ring-primary/20 w-fit">
                 <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
                 <span className="text-xs font-semibold text-primary">
                   Scrum Poker Planning
@@ -385,28 +398,25 @@ export function RoomSettingsDialog({
                   </div>
                 </div>
               </div>
-            </DialogTitle>
-          </DialogHeader>
+            </SheetTitle>
+          </SheetHeader>
 
-          <div className="relative flex h-full min-h-0 flex-col md:flex-row">
-            {/* Sidebar */}
-            <div className="w-full md:w-72 lg:w-80 border-r md:border-b-0 border-b border-gray-200/50 dark:border-gray-800/50 bg-gradient-to-b from-white/80 via-slate-50/80 to-blue-50/80 dark:from-gray-950/80 dark:via-gray-900/80 dark:to-blue-950/80 backdrop-blur-sm">
-              <div className="relative p-6 space-y-3">
+          <div className="relative flex h-[calc(100vh-140px)] min-h-0 flex-row">
+            {/* Sidebar Navigation */}
+            <div className="w-56 border-r border-gray-200/50 dark:border-gray-800/50 bg-gradient-to-b from-white/80 via-slate-50/80 to-blue-50/80 dark:from-gray-950/80 dark:via-gray-900/80 dark:to-blue-950/80 backdrop-blur-sm overflow-y-auto">
+              <div className="relative p-4 space-y-2">
                 {sidebarItems.map((item) => (
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id)}
-                    className={`group w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all duration-300 relative overflow-hidden ${
+                    className={`group w-full flex flex-col items-center gap-2 p-3 rounded-xl text-center transition-all duration-300 relative overflow-hidden ${
                       activeTab === item.id
-                        ? "bg-gradient-to-r from-primary/10 via-blue-500/10 to-purple-500/10 text-primary border-2 border-primary/20 shadow-lg shadow-primary/10"
-                        : "hover:bg-white/70 dark:hover:bg-gray-800/50 text-gray-700 dark:text-gray-300 border-2 border-transparent hover:border-gray-200/50 dark:hover:border-gray-700/50 hover:shadow-md"
+                        ? "bg-gradient-to-br from-primary/10 to-purple-500/10 text-primary border-2 border-primary/20 shadow-lg shadow-primary/10"
+                        : "hover:bg-white/70 dark:hover:bg-gray-800/50 text-gray-700 dark:text-gray-300 border-2 border-transparent hover:border-gray-200/50 dark:hover:border-gray-700/50"
                     }`}
                   >
-                    {/* Hover effect background */}
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
                     <div
-                      className={`relative p-3 rounded-xl transition-all duration-300 ${
+                      className={`p-2.5 rounded-lg transition-all duration-300 ${
                         activeTab === item.id
                           ? "bg-gradient-to-br from-primary/20 to-purple-500/20 ring-1 ring-primary/30"
                           : "bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600"
@@ -416,27 +426,19 @@ export function RoomSettingsDialog({
                         className={`h-5 w-5 transition-colors duration-300 ${
                           activeTab === item.id
                             ? "text-primary"
-                            : "text-gray-600 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
+                            : "text-gray-600 dark:text-gray-400"
                         }`}
                       />
                     </div>
-                    <div className="relative flex-1">
+                    <div className="w-full">
                       <div
-                        className={`font-semibold text-base transition-colors duration-300 ${
+                        className={`font-semibold text-sm transition-colors duration-300 ${
                           activeTab === item.id ? "text-primary" : ""
                         }`}
                       >
                         {item.label}
                       </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        {item.description}
-                      </div>
                     </div>
-
-                    {/* Active indicator */}
-                    {activeTab === item.id && (
-                      <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-primary to-purple-500 rounded-full" />
-                    )}
                   </button>
                 ))}
               </div>
@@ -444,7 +446,7 @@ export function RoomSettingsDialog({
 
             {/* Main Content */}
             <div className="relative flex-1 overflow-y-auto bg-gradient-to-br from-white/50 via-slate-50/50 to-blue-50/50 dark:from-gray-950/50 dark:via-gray-900/50 dark:to-blue-950/50">
-              <div className="p-6 md:p-8 lg:p-10">
+              <div className="p-6">
                 {activeTab === "general" && (
                   <div className="space-y-8">
                     <div>
@@ -724,6 +726,112 @@ export function RoomSettingsDialog({
                   </div>
                 )}
 
+                {activeTab === "integrations" && (
+                  <div className="space-y-8">
+                    <div>
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className="p-3 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-2xl ring-1 ring-indigo-500/30">
+                          <Github className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                        </div>
+                        <div>
+                          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            Integrations
+                          </h3>
+                          <p className="text-base text-gray-600 dark:text-gray-400">
+                            Connect external project management tools
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Integration Type Selector */}
+                      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-3xl border border-gray-200/50 dark:border-gray-700/50 p-6 mb-6 shadow-lg shadow-gray-200/20 dark:shadow-gray-900/20">
+                        <Label className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4 block">
+                          Integration Type
+                        </Label>
+                        <div className="grid grid-cols-2 gap-4">
+                          <button
+                            onClick={() => setSelectedIntegrationType("github")}
+                            className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                              selectedIntegrationType === "github"
+                                ? "border-purple-500 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/50 dark:to-indigo-950/50 ring-2 ring-purple-500/20"
+                                : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={`p-2 rounded-lg ${
+                                  selectedIntegrationType === "github"
+                                    ? "bg-purple-500/20"
+                                    : "bg-gray-100 dark:bg-gray-800"
+                                }`}
+                              >
+                                <Github
+                                  className={`h-5 w-5 ${
+                                    selectedIntegrationType === "github"
+                                      ? "text-purple-600 dark:text-purple-400"
+                                      : "text-gray-600 dark:text-gray-400"
+                                  }`}
+                                />
+                              </div>
+                              <div className="text-left">
+                                <div className="font-semibold text-gray-900 dark:text-gray-100">
+                                  GitHub
+                                </div>
+                                <div className="text-xs text-gray-600 dark:text-gray-400">
+                                  Import issues & export estimates
+                                </div>
+                              </div>
+                            </div>
+                          </button>
+
+                          <button
+                            onClick={() => setSelectedIntegrationType("jira")}
+                            className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                              selectedIntegrationType === "jira"
+                                ? "border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/50 dark:to-cyan-950/50 ring-2 ring-blue-500/20"
+                                : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={`p-2 rounded-lg ${
+                                  selectedIntegrationType === "jira"
+                                    ? "bg-blue-500/20"
+                                    : "bg-gray-100 dark:bg-gray-800"
+                                }`}
+                              >
+                                <svg
+                                  className={`h-5 w-5 ${
+                                    selectedIntegrationType === "jira"
+                                      ? "text-blue-600 dark:text-blue-400"
+                                      : "text-gray-600 dark:text-gray-400"
+                                  }`}
+                                  viewBox="0 0 24 24"
+                                  fill="currentColor"
+                                >
+                                  <path d="M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1.001-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 2.058V1.005A1.005 1.005 0 0 0 23.013 0z" />
+                                </svg>
+                              </div>
+                              <div className="text-left">
+                                <div className="font-semibold text-gray-900 dark:text-gray-100">
+                                  Jira
+                                </div>
+                                <div className="text-xs text-gray-600 dark:text-gray-400">
+                                  Import issues & export story points
+                                </div>
+                              </div>
+                            </div>
+                          </button>
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
+                          Note: Only one integration can be active per room. To
+                          switch, disconnect the current integration first.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {activeTab === "members" && (
                   <div className="space-y-8">
                     <div>
@@ -894,8 +1002,8 @@ export function RoomSettingsDialog({
               </div>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
 
       {/* Kick Confirmation Dialog */}
       <AlertDialog open={kickDialogOpen} onOpenChange={setKickDialogOpen}>

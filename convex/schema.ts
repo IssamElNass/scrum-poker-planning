@@ -20,6 +20,7 @@ export default defineSchema({
     lastActivityAt: v.number(),
     ownerId: v.optional(v.id("users")),
     password: v.optional(v.string()), // Optional password for room protection
+    activeStoryNodeId: v.optional(v.string()), // The currently active story node ID
   })
     .index("by_activity", ["lastActivityAt"])
     .index("by_created", ["createdAt"]) // For querying recent rooms
@@ -100,4 +101,13 @@ export default defineSchema({
   })
     .index("by_room", ["roomId"])
     .index("by_room_created", ["roomId", "createdAt"]),
+
+  // Generic integrations table for GitHub, Jira, Trello, etc.
+  integrations: defineTable({
+    roomId: v.id("rooms"),
+    type: v.union(v.literal("github"), v.literal("jira"), v.literal("trello")),
+    encryptedCredentials: v.string(), // Encrypted JSON containing API keys/tokens
+    config: v.any(), // Platform-specific configuration (repo URL, domain, etc.)
+    connectedAt: v.number(),
+  }).index("by_room", ["roomId"]),
 });

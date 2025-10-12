@@ -25,6 +25,9 @@ export const SessionNode = memo(
       hasVotes,
       onRevealCards,
       onResetGame,
+      hasActiveStory,
+      onSubmitEstimation,
+      onSkipStory,
     } = data;
 
     const isActive = !isVotingComplete;
@@ -54,9 +57,9 @@ export const SessionNode = memo(
           "p-4 rounded-lg shadow-lg border-2 transition-all min-w-[280px] max-w-[320px]",
           isActive
             ? "bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-400 dark:border-blue-600"
-            : "bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-400 dark:border-green-600",
+            : "bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-400 dark:border-green-600"
         ),
-      [isActive],
+      [isActive]
     );
 
     return (
@@ -103,7 +106,7 @@ export const SessionNode = memo(
             <div
               className={cn(
                 "w-2 h-2 rounded-full",
-                isActive ? "bg-blue-500 animate-pulse" : "bg-green-500",
+                isActive ? "bg-blue-500 animate-pulse" : "bg-green-500"
               )}
             />
           </div>
@@ -164,6 +167,26 @@ export const SessionNode = memo(
                     Reveal Cards
                   </button>
                 )}
+                {hasVotes && hasActiveStory && (
+                  <div className="space-y-2">
+                    <button
+                      onClick={onSubmitEstimation}
+                      className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md bg-green-500 hover:bg-green-600 text-white transition-colors"
+                      aria-label="Submit estimation and move to next story"
+                    >
+                      <Play className="h-4 w-4" />
+                      Submit Estimation
+                    </button>
+                    <button
+                      onClick={onSkipStory}
+                      className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md bg-gray-400 hover:bg-gray-500 text-white transition-colors"
+                      aria-label="Skip this story"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                      Skip Story
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="space-y-3">
@@ -183,36 +206,58 @@ export const SessionNode = memo(
                   <span className="text-sm font-medium">Voting Complete</span>
                 </div>
 
-                <button
-                  onClick={handleResetClick}
-                  disabled={resetCooldown > 0}
-                  className={cn(
-                    "w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                    resetCooldown > 0
-                      ? "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
-                      : "bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200",
-                  )}
-                  aria-label={
-                    resetCooldown > 0
-                      ? `Wait ${resetCooldown} seconds`
-                      : "Start new round"
-                  }
-                >
-                  <RotateCcw
+                {!hasActiveStory && (
+                  <button
+                    onClick={handleResetClick}
+                    disabled={resetCooldown > 0}
                     className={cn(
-                      "h-4 w-4",
-                      resetCooldown > 0 && "animate-spin",
+                      "w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                      resetCooldown > 0
+                        ? "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                        : "bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200"
                     )}
-                  />
-                  {resetCooldown > 0 ? `Wait ${resetCooldown}s` : "New Round"}
-                </button>
+                    aria-label={
+                      resetCooldown > 0
+                        ? `Wait ${resetCooldown} seconds`
+                        : "Start new round"
+                    }
+                  >
+                    <RotateCcw
+                      className={cn(
+                        "h-4 w-4",
+                        resetCooldown > 0 && "animate-spin"
+                      )}
+                    />
+                    {resetCooldown > 0 ? `Wait ${resetCooldown}s` : "New Round"}
+                  </button>
+                )}
+                {hasActiveStory && (
+                  <div className="space-y-2">
+                    <button
+                      onClick={onSubmitEstimation}
+                      className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md bg-green-500 hover:bg-green-600 text-white transition-colors"
+                      aria-label="Submit estimation and move to next story"
+                    >
+                      <Play className="h-4 w-4" />
+                      Submit Estimation
+                    </button>
+                    <button
+                      onClick={onSkipStory}
+                      className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md bg-gray-400 hover:bg-gray-500 text-white transition-colors"
+                      aria-label="Skip this story"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                      Skip Story
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
         </div>
       </div>
     );
-  },
+  }
 );
 
 SessionNode.displayName = "SessionNode";
