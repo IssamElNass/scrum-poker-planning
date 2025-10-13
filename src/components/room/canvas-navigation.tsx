@@ -46,6 +46,7 @@ import type { RoomWithRelatedData } from "@/convex/model/rooms";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery } from "convex/react";
 import { ModeToggle } from "../mode-toggle";
+import { EmojiPicker } from "./emoji-picker";
 import { QRCodeDisplay } from "./qr-code-display";
 import { RoomSettingsDialog } from "./room-settings-dialog";
 
@@ -265,6 +266,24 @@ export const CanvasNavigation: FC<CanvasNavigationProps> = ({
 
           {/* Additional Actions */}
           <div className="flex items-center gap-1 px-2">
+            {/* Emoji Reactions */}
+            {user && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <EmojiPicker
+                      roomId={roomData.room._id}
+                      userId={user.id}
+                      userName={user.name}
+                    />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>React with emoji</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
+
             {isFullscreenSupported && (
               <Tooltip>
                 <TooltipTrigger asChild>

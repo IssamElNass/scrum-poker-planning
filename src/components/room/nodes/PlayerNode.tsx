@@ -1,15 +1,22 @@
 "use client";
 
-import { Handle, Position, NodeProps } from "@xyflow/react";
+import { Handle, NodeProps, Position } from "@xyflow/react";
 import { ReactElement, memo, useMemo } from "react";
 
 import { cn } from "@/lib/utils";
 
 import type { PlayerNodeType } from "../types";
+import { EmojiReaction } from "./EmojiReaction";
 
 export const PlayerNode = memo(
   ({ data }: NodeProps<PlayerNodeType>): ReactElement => {
-    const { user, isCurrentUser, isCardPicked, card } = data;
+    const {
+      user,
+      isCurrentUser,
+      isCardPicked,
+      card,
+      activeReactions = [],
+    } = data;
 
     const initials = useMemo(
       () =>
@@ -19,7 +26,7 @@ export const PlayerNode = memo(
           .join("")
           .toUpperCase()
           .slice(0, 2),
-      [user.name],
+      [user.name]
     );
 
     const nodeClasses = useMemo(
@@ -31,18 +38,18 @@ export const PlayerNode = memo(
             ? "border-blue-500 dark:border-blue-400"
             : "border-gray-200 dark:border-gray-600",
           isCardPicked &&
-            "ring-2 ring-green-400 dark:ring-green-500 ring-offset-2 dark:ring-offset-gray-900",
+            "ring-2 ring-green-400 dark:ring-green-500 ring-offset-2 dark:ring-offset-gray-900"
         ),
-      [isCurrentUser, isCardPicked],
+      [isCurrentUser, isCardPicked]
     );
 
     const avatarClasses = useMemo(
       () =>
         cn(
           "w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold text-lg",
-          isCurrentUser ? "bg-blue-500" : "bg-gray-500",
+          isCurrentUser ? "bg-blue-500" : "bg-gray-500"
         ),
-      [isCurrentUser],
+      [isCurrentUser]
     );
 
     return (
@@ -99,6 +106,15 @@ export const PlayerNode = memo(
               )}
             </div>
           )}
+
+          {/* Emoji Reaction Animations - Multiple side-by-side */}
+          {activeReactions.length > 0 && (
+            <div className="absolute -top-16 left-1/2 -translate-x-1/2 z-10 pointer-events-none flex gap-1 items-center justify-center">
+              {activeReactions.map((reaction) => (
+                <EmojiReaction key={reaction.id} reaction={reaction} />
+              ))}
+            </div>
+          )}
         </div>
         <Handle
           type="target"
@@ -109,7 +125,7 @@ export const PlayerNode = memo(
         />
       </div>
     );
-  },
+  }
 );
 
 PlayerNode.displayName = "PlayerNode";

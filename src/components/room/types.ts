@@ -1,6 +1,14 @@
 import type { Doc, Id } from "@/convex/_generated/dataModel";
 import type { SanitizedVote } from "@/convex/model/rooms";
+import type { EmojiType } from "@/lib/lottie-animations";
 import { Node } from "@xyflow/react";
+
+// Emoji reaction type
+export type ActiveEmojiReaction = {
+  id: string;
+  emojiType: EmojiType;
+  timestamp: number;
+};
 
 // Node data types
 export type PlayerNodeData = {
@@ -8,6 +16,7 @@ export type PlayerNodeData = {
   isCurrentUser: boolean;
   isCardPicked: boolean;
   card: string | null;
+  activeReactions?: ActiveEmojiReaction[];
 };
 
 export type StoryNodeData = {

@@ -27,6 +27,7 @@ import type * as model_rooms from "../model/rooms.js";
 import type * as model_timer from "../model/timer.js";
 import type * as model_users from "../model/users.js";
 import type * as model_votes from "../model/votes.js";
+import type * as reactions from "../reactions.js";
 import type * as rooms from "../rooms.js";
 import type * as stories from "../stories.js";
 import type * as timer from "../timer.js";
@@ -56,6 +57,7 @@ declare const fullApi: ApiFromModules<{
   "model/timer": typeof model_timer;
   "model/users": typeof model_users;
   "model/votes": typeof model_votes;
+  reactions: typeof reactions;
   rooms: typeof rooms;
   stories: typeof stories;
   timer: typeof timer;
