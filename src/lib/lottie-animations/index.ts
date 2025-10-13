@@ -16,6 +16,7 @@ export type EmojiType =
 export interface EmojiAnimation {
   type: EmojiType;
   name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   animation: any;
   icon: string;
 }
