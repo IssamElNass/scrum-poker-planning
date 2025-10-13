@@ -42,7 +42,6 @@ const REACTION_DURATION = 3000; // 3 seconds
 
 export const EmojiReactionsProvider: FC<EmojiReactionsProviderProps> = ({
   children,
-  roomId,
 }) => {
   const [reactions, setReactions] = useState<EmojiReaction[]>([]);
 
