@@ -1,39 +1,41 @@
 "use client";
 
+import type { NodeChange } from "@xyflow/react";
 import {
-  ReactFlow,
-  Edge,
   Background,
   BackgroundVariant,
-  useNodesState,
-  useEdgesState,
-  NodeTypes,
-  ReactFlowProvider,
-  useReactFlow,
   ConnectionMode,
+  Edge,
+  NodeTypes,
+  ReactFlow,
+  ReactFlowProvider,
+  useEdgesState,
+  useNodesState,
+  useReactFlow,
 } from "@xyflow/react";
-import { ReactElement, useCallback, useEffect, useState, useMemo } from "react";
 import "@xyflow/react/dist/style.css";
 import { debounce } from "lodash";
-import type { NodeChange } from "@xyflow/react";
+import { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
 
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/components/auth/auth-provider";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
+import type { RoomWithRelatedData, SanitizedVote } from "@/convex/model/rooms";
+import { useMutation } from "convex/react";
 import { CanvasNavigation } from "./canvas-navigation";
+import { EmojiReactionsProvider } from "./emoji-reactions-provider";
 import { useCanvasNodes } from "./hooks/useCanvasNodes";
 import { useOwnershipNotification } from "./hooks/useOwnershipNotification";
-import { Id } from "@/convex/_generated/dataModel";
+import { useReactionBroadcastListener } from "./hooks/useReactionBroadcastListener";
 import {
   PlayerNode,
   ResultsNode,
-  StoryNode,
   SessionNode,
+  StoryNode,
   TimerNode,
   VotingCardNode,
 } from "./nodes";
 import type { CustomNodeType } from "./types";
-import type { RoomWithRelatedData, SanitizedVote } from "@/convex/model/rooms";
 
 interface RoomCanvasProps {
   roomData: RoomWithRelatedData;
@@ -56,6 +58,12 @@ function RoomCanvasInner({ roomData }: RoomCanvasProps): ReactElement {
   useOwnershipNotification({
     roomData,
     currentUserId: user?.id as Id<"users"> | undefined,
+  });
+
+  // Listen for reaction broadcasts from other users
+  useReactionBroadcastListener({
+    roomData,
+    currentUserId: user?.id,
   });
 
   const [nodes, setNodes, onNodesChange] = useNodesState<CustomNodeType>([]);
@@ -365,7 +373,9 @@ function RoomCanvasInner({ roomData }: RoomCanvasProps): ReactElement {
 export function RoomCanvas(props: RoomCanvasProps): ReactElement {
   return (
     <ReactFlowProvider>
-      <RoomCanvasInner {...props} />
+      <EmojiReactionsProvider roomId={props.roomData.room._id}>
+        <RoomCanvasInner {...props} />
+      </EmojiReactionsProvider>
     </ReactFlowProvider>
   );
 }

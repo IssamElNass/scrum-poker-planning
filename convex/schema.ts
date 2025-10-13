@@ -31,6 +31,18 @@ export default defineSchema({
     name: v.string(),
     isSpectator: v.boolean(),
     joinedAt: v.number(),
+    // Ephemeral reaction broadcast fields (not persisted long-term)
+    lastReactionType: v.optional(
+      v.union(
+        v.literal("thumbsUp"),
+        v.literal("heart"),
+        v.literal("clap"),
+        v.literal("fire"),
+        v.literal("thinking"),
+        v.literal("party")
+      )
+    ),
+    lastReactionAt: v.optional(v.number()),
   })
     .index("by_room", ["roomId"])
     .index("by_room_join", ["roomId", "joinedAt"]),

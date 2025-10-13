@@ -1,13 +1,14 @@
 "use client";
 
-import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
-import { Edge } from "@xyflow/react";
-import { useMemo } from "react";
-import type { CustomNodeType } from "../types";
-import type { RoomWithRelatedData, SanitizedVote } from "@/convex/model/rooms";
 import type { Doc } from "@/convex/_generated/dataModel";
+import { Id } from "@/convex/_generated/dataModel";
+import type { RoomWithRelatedData, SanitizedVote } from "@/convex/model/rooms";
+import { Edge } from "@xyflow/react";
+import { useQuery } from "convex/react";
+import { useMemo } from "react";
+import { useEmojiReactions } from "../emoji-reactions-provider";
+import type { CustomNodeType } from "../types";
 
 interface UseCanvasNodesProps {
   roomId: Id<"rooms">;
@@ -39,6 +40,8 @@ export function useCanvasNodes({
 }: UseCanvasNodesProps): UseCanvasNodesReturn {
   // Query canvas nodes from Convex
   const canvasNodes = useQuery(api.canvas.getCanvasNodes, { roomId });
+  // Get reactions from context
+  const { getReactionsForUser } = useEmojiReactions();
 
   const nodes = useMemo(() => {
     if (!canvasNodes || !roomData) return [];
@@ -55,6 +58,9 @@ export function useCanvasNodes({
 
         const userVote = votes.find((v: SanitizedVote) => v.userId === userId);
 
+        // Get active reactions for this user from context
+        const userReactions = getReactionsForUser(userId);
+
         const playerNode: CustomNodeType = {
           id: node.nodeId,
           type: "player",
@@ -64,6 +70,11 @@ export function useCanvasNodes({
             isCurrentUser: userId === currentUserId,
             isCardPicked: userVote?.hasVoted || false,
             card: room.isGameOver ? userVote?.cardLabel || null : null,
+            activeReactions: userReactions.map((r) => ({
+              id: r.id,
+              emojiType: r.emojiType,
+              timestamp: r.timestamp,
+            })),
           },
           draggable: !node.isLocked,
         };
@@ -144,8 +155,11 @@ export function useCanvasNodes({
     selectedCardValue,
     onRevealCards,
     onResetGame,
+    onSubmitEstimation,
+    onSkipStory,
     onCardSelect,
     roomId,
+    getReactionsForUser,
   ]);
 
   const edges = useMemo(() => {

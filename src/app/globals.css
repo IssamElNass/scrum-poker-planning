@@ -218,3 +218,37 @@
 .animate-accordion-up {
   animation: accordion-up 0.2s ease-out;
 }
+
+/* Emoji reaction animations */
+@keyframes emojiPopIn {
+  0% {
+    transform: scale(0) translateY(20px);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) translateY(-5px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes emojiPopOut {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+.animate-emoji-pop-in {
+  animation: emojiPopIn 0.2s ease-out forwards;
+}
+
+.animate-emoji-pop-out {
+  animation: emojiPopOut 0.3s ease-in forwards;
+}
