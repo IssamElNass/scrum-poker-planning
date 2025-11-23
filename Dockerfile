@@ -1,9 +1,8 @@
-# Multi-stage Docker build for Next.js application
+# Multi-stage Docker build for Next.js application with custom server
 FROM node:20-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
@@ -24,7 +23,7 @@ ENV NODE_ENV=production
 # Build the application
 RUN npm run build
 
-# Production image, copy all the files and run next
+# Production image, copy all the files and run the custom server
 FROM base AS runner
 WORKDIR /app
 
@@ -35,17 +34,16 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy the public folder
+# Copy necessary files
 COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/server.ts ./server.ts
+COPY --from=builder /app/next.config.ts ./next.config.ts
 
-# Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
-
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Set the correct permissions
+RUN chown -R nextjs:nodejs /app
 
 USER nextjs
 
@@ -54,6 +52,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# server.js is created by next build from the standalone output
-# https://nextjs.org/docs/pages/api-reference/next-config-js/output
-CMD ["node", "server.js"]
+# Use tsx to run the custom TypeScript server
+CMD ["npx", "tsx", "server.ts"]

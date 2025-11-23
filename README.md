@@ -1,216 +1,178 @@
-# Scrum Poker Planning
+# Scrum Poker Planning - Microservices Architecture
 
-[![Build & Tests](https://github.com/IssamElNass/scrum-poker-planning/actions/workflows/ci.yml/badge.svg)](https://github.com/IssamElNass/scrum-poker-planning/actions/workflows/ci.yml)
+A real-time poker planning application split into 3 microservices for better scalability and maintainability.
 
-A modern, open-source online planning poker tool designed to revolutionize how Scrum teams conduct estimation sessions. Built with a whiteboard-style canvas interface that makes planning poker intuitive, engaging, and collaborative for teams worldwide!
+## Architecture
 
-> **Note**: This project was originally forked from [@INQTR/poker-planning](https://github.com/INQTR/poker-planning). Due to inactivity from the original maintainer, I decided to host and continue development with exciting new features and improvements!
+```
+poker-planning/
+├── apps/
+│   ├── ui/              # Next.js frontend (port 3000)
+│   ├── backend/         # Express REST API (port 4000)
+│   └── websocket/       # Socket.io server (port 5000)
+├── packages/
+│   └── shared/          # Shared types and utilities
+└── db/                  # Database schemas and migrations
+```
 
-## Features 🚀
+## Services
 
-### Core Features
+### 1. UI Service (Port 3000)
+- Next.js 15 frontend
+- Connects to Backend for data operations
+- Connects to WebSocket for real-time updates
 
-- **🆓 Free forever** - No registration required, and we're committed to keeping it free forever as long as we can pay for it! :)
-- **⚡ Real-time collaboration** - Lightning-fast synchronization with instant updates for all participants
-- **🎨 Interactive canvas interface** - Modern whiteboard-style room with drag-and-drop functionality
-- **👥 Unlimited team size** - Invite as many team members as you need with no restrictions
-- **📊 Advanced vote analysis** - Comprehensive statistics, agreement analysis, and outlier detection
-- **🔄 Multiple voting systems** - Fibonacci, Modified Fibonacci, T-shirt sizes, and Powers of 2
-- **🌙 Dark mode support** - Beautiful interface that works in any lighting condition
-- **📱 Mobile responsive** - Works seamlessly on desktop, tablet, and mobile devices
-- **🧹 Auto-cleanup** - Rooms are automatically cleaned up after 8 days of inactivity
+### 2. Backend Service (Port 4000)
+- Express REST API
+- PostgreSQL database access
+- Handles all data persistence
+- Cron jobs for maintenance
 
-### Advanced Features
+### 3. WebSocket Service (Port 5000)
+- Socket.io server
+- Optimistic real-time updates
+- Instant broadcasts for voting, users, settings
+- Asynchronous persistence through Backend
 
-- **📈 Vote distribution charts** - Visual representation of team estimates
-- **🎯 Agreement quality metrics** - Understand team consensus levels
-- **👤 Observer role support** - Allow stakeholders to watch without voting
-- **🔗 Easy room sharing** - One-click room URL copying and QR codes
-- **⏱️ Smart timer** (Coming Soon) - Built-in timer to keep estimation sessions focused
-- **📤 Session export** (Coming Soon) - Export results for documentation
-
-## Technology Stack 🛠️
-
-- **Frontend**: Next.js 15 with App Router, React 19, TypeScript
-- **Backend**: Convex (serverless TypeScript functions with real-time reactivity)
-- **Styling**: Tailwind CSS 4, shadcn/ui components, Lucide React icons
-- **Canvas**: @xyflow/react for interactive whiteboard functionality
-- **State Management**: Convex reactive queries with React Context for authentication
-- **UI Components**: Radix UI primitives for accessibility
-- **Testing**: Playwright for end-to-end testing
-- **Code Quality**: ESLint, TypeScript strict mode
-- **Build**: Turbopack for faster development builds
-
-## Getting Started 🏁
+## Quick Start
 
 ### Prerequisites
-
-- **Git** - Version control
-- **Node.js 20+** and **npm** - JavaScript runtime and package manager
-- **Convex account** - Free tier available at [convex.dev](https://convex.dev)
+- Node.js 20+
+- PostgreSQL 16+
+- npm
 
 ### Setup
 
-1. **Clone the repository:**
-
-   ```sh
-   git clone https://github.com/IssamElNass/scrum-poker-planning.git
-   cd scrum-poker-planning
-   ```
-
-2. **Install dependencies:**
-
-   ```sh
-   npm install
-   ```
-
-3. **Set up Convex backend:**
-
-   ```sh
-   npx convex dev
-   ```
-
-   This will:
-
-   - Prompt you to log in to Convex (or create a free account)
-   - Create a new Convex project
-   - Set up your development environment
-   - Generate the necessary configuration files
-
-### Running the Application
-
-1. **Start the Convex backend** (in one terminal):
-
-   ```sh
-   npx convex dev
-   ```
-
-2. **Start the Next.js development server** (in another terminal):
-
-   ```sh
-   npm run dev
-   ```
-
-   > **Note**: We use Turbopack for faster development builds!
-
-3. **Open your browser** and navigate to [http://localhost:3000](http://localhost:3000)
-
-4. **Create a room** and start planning! 🚀
-
-## Testing 🧪
-
-This project uses **Playwright** for comprehensive end-to-end testing to ensure reliability across different browsers and user scenarios.
-
-### Available Test Commands
-
-```sh
-# Run all tests (default)
-npm run test:e2e
-
-# Run tests with interactive UI
-npm run test:e2e:ui
-
-# Run tests in headless mode (CI/CD)
-npm run test:e2e:headless
-
-# Code quality checks
-npm run lint           # ESLint
-npm run lint:fix       # Auto-fix linting issues
-npm run ts:check       # TypeScript type checking
+1. **Install dependencies:**
+```bash
+npm install
 ```
 
-### Test Coverage
+2. **Set up environment variables:**
 
-Our test suite covers:
+Create `.env` files in each service directory (see README in each service for details):
+- `apps/backend/.env`
+- `apps/websocket/.env`
+- `apps/ui/.env.local`
 
-- 🏠 **Homepage functionality** - Room creation, navigation
-- 🎯 **Room operations** - Joining, voting, revealing cards
-- 👥 **User interactions** - Multiple users, real-time updates
-- ⏱️ **Timer functionality** - Session timing features
-- 🔧 **Room settings** - Configuration and member management
+3. **Set up database:**
+```bash
+# Create PostgreSQL database
+createdb poker_planning
 
-## Deployment 🚀
+# Run migrations
+npm run db:migrate
+```
 
-The application is designed for easy deployment with a modern serverless architecture.
+4. **Start all services:**
+```bash
+npm run dev
+```
 
-### Production Deployment
+This starts:
+- UI on http://localhost:3000
+- Backend on http://localhost:4000
+- WebSocket on http://localhost:5000
 
-#### Frontend (Next.js)
+### Individual Services
 
-Deploy to your preferred platform:
+Start individual services:
+```bash
+npm run dev:ui         # UI only
+npm run dev:backend    # Backend only
+npm run dev:websocket  # WebSocket only
+```
 
-- **Recommended**: [Vercel](https://vercel.com) (optimized for Next.js)
-- **Alternative**: Netlify, Railway, or any platform supporting Next.js
+## Docker Compose
 
-#### Backend (Convex)
+Run all services with Docker:
 
-1. **Deploy Convex functions:**
-
-   ```sh
-   npx convex deploy --prod
-   ```
-
-2. **Update your frontend environment** to point to the production Convex deployment
-
-### Environment Setup
-
-- **Development**: Uses local Convex development environment
-- **Production**: Requires Convex production deployment
-- **Environment Variables**: Automatically managed by Convex CLI
-
-### Docker Support
-
-Alternatively, use the included Docker configuration:
-
-```sh
-# Build and run with Docker Compose
+```bash
 docker-compose up --build
 ```
 
-See `docker-compose.yml` and `Dockerfile` for container configuration.
+This starts:
+- PostgreSQL database
+- Backend service
+- WebSocket service
+- UI service
 
-## Contributing 🤝
+Access the app at http://localhost:3000
 
-We welcome contributions from the community! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
+## Real-Time Features
 
-### How to Contribute
+The WebSocket service implements optimistic updates for instant UX:
 
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Make your changes** and ensure tests pass
-4. **Commit your changes**: `git commit -m 'Add amazing feature'`
-5. **Push to the branch**: `git push origin feature/amazing-feature`
-6. **Open a Pull Request**
+1. **Voting**: Votes appear instantly to all users, then persist asynchronously
+2. **User Presence**: Join/leave updates broadcast immediately
+3. **Room Settings**: Setting changes visible instantly to all participants
+4. **Reactions**: Emoji reactions broadcast in real-time
+5. **Timer**: Timer state synced across all users
+6. **Canvas**: Node position/content updates instantly
 
-### Development Guidelines
+## Development
 
-- Follow the existing code style and conventions
-- Add tests for new features
-- Update documentation as needed
-- Ensure all linting and type checks pass
-- Test your changes thoroughly
+### Monorepo Structure
 
-### Areas for Contribution
+This is an npm workspaces monorepo. Key commands:
 
-- 🐛 **Bug fixes** - Help us squash those pesky bugs
-- ✨ **New features** - Enhance the planning poker experience
-- 📚 **Documentation** - Improve guides and examples
-- 🧪 **Testing** - Expand test coverage
-- 🎨 **UI/UX** - Make the interface even more intuitive
-- 🌍 **Accessibility** - Help make the app usable for everyone
+```bash
+# Install dependencies
+npm install
 
-## Project Details 📋
+# Build all services
+npm run build
 
-- **Author**: [Issam El Nass](https://github.com/IssamElNass)
-- **Repository**: [scrum-poker-planning](https://github.com/IssamElNass/scrum-poker-planning)
-- **License**: [MIT License](LICENSE) - see LICENSE file for details
+# Run linting
+npm run lint
 
-## Support & Community 💬
+# Type checking
+npm run ts:check
+```
 
-- 🐛 **Found a bug?** [Open an issue](https://github.com/IssamElNass/scrum-poker-planning/issues)
-- 💡 **Have a feature idea?** [Start a discussion](https://github.com/IssamElNass/scrum-poker-planning/discussions)
-- ⭐ **Like the project?** Give it a star on GitHub!
+### Database Migrations
 
----
+```bash
+npm run db:migrate
+```
 
-**Made with ❤️ for Scrum teams everywhere**
+## Technology Stack
+
+- **Frontend**: Next.js 15, React 19, Tailwind CSS
+- **Backend**: Express, PostgreSQL, Node.js
+- **WebSocket**: Socket.io
+- **Shared**: TypeScript, Axios
+
+## Environment Variables
+
+### Backend
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/poker_planning
+PORT=4000
+WEBSOCKET_URL=http://localhost:5000
+NODE_ENV=development
+CORS_ORIGIN=http://localhost:3000
+ENCRYPTION_KEY=your-key-here
+```
+
+### WebSocket
+```env
+PORT=5000
+BACKEND_URL=http://localhost:4000
+NODE_ENV=development
+CORS_ORIGIN=http://localhost:3000
+```
+
+### UI
+```env
+NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
+NEXT_PUBLIC_WEBSOCKET_URL=http://localhost:5000
+```
+
+## License
+
+MIT
+
+## Author
+
+Issam El Nass

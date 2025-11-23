@@ -1,30 +1,89 @@
+version: '3.8'
+
 services:
-  web:
+  # PostgreSQL Database
+  database:
+    image: postgres:16-alpine
+    container_name: poker-planning-db
+    environment:
+      POSTGRES_DB: poker_planning
+      POSTGRES_USER: poker_user
+      POSTGRES_PASSWORD: poker_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U poker_user -d poker_planning"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - poker-network
+
+  # Backend Service (Express REST API)
+  backend:
     build:
       context: .
-    container_name: scrum-poker-planning-web
+      dockerfile: apps/backend/Dockerfile
+    container_name: poker-planning-backend
     environment:
-      - NODE_ENV=production
-      - PORT=3000
-      - NEXT_PUBLIC_CONVEX_URL=${NEXT_PUBLIC_CONVEX_URL}
-    expose:
-      - "3000"
+      DATABASE_URL: postgresql://poker_user:poker_password@database:5432/poker_planning
+      PORT: 4000
+      WEBSOCKET_URL: http://websocket:5000
+      NODE_ENV: production
+      CORS_ORIGIN: http://localhost:3000
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-your-encryption-key-here}
+    ports:
+      - "4000:4000"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - poker-network
     restart: unless-stopped
 
-  caddy:
-    image: caddy:2
-    container_name: caddy
-    depends_on:
-      - web
+  # WebSocket Service (Socket.io)
+  websocket:
+    build:
+      context: .
+      dockerfile: apps/websocket/Dockerfile
+    container_name: poker-planning-websocket
+    environment:
+      PORT: 5000
+      BACKEND_URL: http://backend:4000
+      NODE_ENV: production
+      CORS_ORIGIN: http://localhost:3000
     ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
+      - "5000:5000"
+    depends_on:
+      - backend
+    networks:
+      - poker-network
     restart: unless-stopped
+
+  # UI Service (Next.js)
+  ui:
+    build:
+      context: .
+      dockerfile: apps/ui/Dockerfile
+    container_name: poker-planning-ui
+    environment:
+      NEXT_PUBLIC_BACKEND_URL: http://localhost:4000
+      NEXT_PUBLIC_WEBSOCKET_URL: http://localhost:5000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+      - websocket
+    networks:
+      - poker-network
+    restart: unless-stopped
+
+networks:
+  poker-network:
+    driver: bridge
 
 volumes:
-  caddy_data:
-  caddy_config:
+  postgres_data:

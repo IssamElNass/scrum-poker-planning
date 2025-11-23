@@ -46,3 +46,9 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+/apps/ui/.next
+/apps/backend/dist
+/apps/websocket/dist
+/packages/shared/dist
+/packages/shared/node_modules
