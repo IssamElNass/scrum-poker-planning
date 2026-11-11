@@ -176,7 +176,7 @@ export default function HomePage() {
             {/* Subtitle */}
             <p className="mt-6 text-sm sm:text-lg leading-relaxed text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               The fastest way to estimate user stories with your team,
-              completely free forever.
+              with free, real-time collaboration.
               <span className="hidden sm:inline font-semibold text-gray-900 dark:text-white">
                 {" "}
                 No account required.
@@ -187,7 +187,7 @@ export default function HomePage() {
               </span>
               <span className="hidden sm:inline font-semibold text-gray-900 dark:text-white">
                 {" "}
-                100% free forever.
+                Open source.
               </span>
             </p>
 

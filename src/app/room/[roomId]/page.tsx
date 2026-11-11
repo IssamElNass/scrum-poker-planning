@@ -95,7 +95,7 @@ export default function CanvasRoomPage() {
 
   if (!roomData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-full flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">Loading...</h2>
           <p className="text-muted-foreground">Fetching room data</p>
@@ -106,7 +106,7 @@ export default function CanvasRoomPage() {
 
   if (!roomData.room) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-full flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">Room Not Found</h2>
           <p className="text-muted-foreground">
@@ -120,7 +120,7 @@ export default function CanvasRoomPage() {
   // Show loading state while handling kicked user
   if (wasKicked) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-full flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2 text-red-600">
             You were kicked from the room

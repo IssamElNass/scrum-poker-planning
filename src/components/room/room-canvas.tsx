@@ -322,14 +322,14 @@ function RoomCanvasInner({ roomData }: RoomCanvasProps): ReactElement {
 
   if (!roomData || !user) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-full">
         Loading...
       </div>
     );
   }
 
   return (
-    <div className="w-full h-screen relative">
+    <div className="w-full h-full relative">
       <CanvasNavigation roomData={roomData} />
       <ReactFlow
         nodes={nodes}
